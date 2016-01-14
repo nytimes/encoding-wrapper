@@ -13,18 +13,18 @@ const (
 )
 
 type Request struct {
-	UserID                  string
-	UserKey                 string
-	Action                  Action
-	MediaID                 string
-	Source                  []string
-	SplitScreen             SplitScreen
-	Region                  string
-	NotifyFormat            string
-	NotifyURL               string `json:"notify"`
-	NotifyEncodingErrorsURL string `json:"notify_encoding_errors"`
-	NotifyUploadURL         string `json:"notify_upload"`
-	Format                  Format
+	UserID                  string      `json:"userid"`
+	UserKey                 string      `json:"userkey"`
+	Action                  Action      `json:"action"`
+	MediaID                 string      `json:"mediaid"`
+	Source                  []string    `json:"source"`
+	SplitScreen             SplitScreen `json:"split_screen"`
+	Region                  string      `json:"region"`
+	NotifyFormat            string      `json:"notify_format"`
+	NotifyURL               string      `json:"notify"`
+	NotifyEncodingErrorsURL string      `json:"notify_encoding_errors"`
+	NotifyUploadURL         string      `json:"notify_upload"`
+	Format                  Format      `json:"format"`
 }
 
 type SplitScreen struct {
@@ -37,68 +37,68 @@ type SplitScreen struct {
 }
 
 type AddMediaResponse struct {
-	Message string
-	MediaID string
+	Message string `json:"message"`
+	MediaID string `json:"mediaid"`
 }
 
 type GetMediaListResponse struct {
 	Media []struct {
-		MediaFile   string
-		MediaID     string
-		MediaStatus string
-		CreatedDate time.Time
-		StartDate   time.Time
-		FinishDate  time.Time
+		MediaFile   string    `json:"mediafile"`
+		MediaID     string    `json:"mediaid"`
+		MediaStatus string    `json:"mediastatus"`
+		CreatedDate time.Time `json:"createdate",string`
+		StartDate   time.Time `json:"startdate",string`
+		FinishDate  time.Time `json:"finishdate",string`
 	}
 }
 
 type Format struct {
-	NoiseReduction          string
-	Output                  []string
-	VideoCodec              string
-	AudioCodec              string
-	Bitrate                 string
-	AudioBitrate            string
-	AudioSampleRate         string
-	AudioChannelsNumber     int  `json:"audio_channels_number",string`
-	AudioVolume             uint `json:"audio_volume",string`
-	Framerate               string
-	FramerateUpperThreshold string
-	Size                    string
-	FadeIn                  string
-	FadeOut                 string
-	CropLeft                int `json:"crop_left",string`
-	CropTop                 int `json:"crop_top",string`
-	CropRight               int `json:"crop_right",string`
-	CropBottom              int `json:"crop_bottom",string`
-	KeepAspectRatio         YesNoBoolean
-	SetAspectRatio          string
-	AddMeta                 YesNoBoolean
-	Hint                    YesNoBoolean
-	RcInitOccupancy         string
-	MinRate                 string
-	MaxRate                 string
-	BufSize                 string
-	Keyframe                []string
-	Start                   string
-	Duration                string
-	ForceKeyframes          string
-	Bframes                 int `json:"bframes",string`
-	Gop                     string
-	Metadata                Metadata
-	Destination             []string
-	Logo                    Logo
-	Overlay                 []Overlay
-	TextOverlay             []TextOverlay
-	VideoCodecParameters    string
-	Profile                 string
-	Turbo                   string
-	Rotate                  string
-	SetRotate               string
-	AudioSync               string
-	VideoSync               string
-	ForceInterlaced         string
-	StripChapters           YesNoBoolean
+	NoiseReduction          string        `json:"noise_reduction"`
+	Output                  []string      `json:"output"`
+	VideoCodec              string        `json:"video_codec"`
+	AudioCodec              string        `json:"audio_codec"`
+	Bitrate                 string        `json:"bitrate"`
+	AudioBitrate            string        `json:"audio_bitrate"`
+	AudioSampleRate         string        `json:"audio_sample_rate"`
+	AudioChannelsNumber     int           `json:"audio_channels_number",string`
+	AudioVolume             uint          `json:"audio_volume",string`
+	Framerate               string        `json:"framerate"`
+	FramerateUpperThreshold string        `json:"framerate_upper_threshold"`
+	Size                    string        `json:"size"`
+	FadeIn                  string        `json:"fade_in"`
+	FadeOut                 string        `json:"fade_out"`
+	CropLeft                int           `json:"crop_left",string`
+	CropTop                 int           `json:"crop_top",string`
+	CropRight               int           `json:"crop_right",string`
+	CropBottom              int           `json:"crop_bottom",string`
+	KeepAspectRatio         YesNoBoolean  `json:"keep_aspect_ratio"`
+	SetAspectRatio          string        `json:"set_aspect_ratio"`
+	AddMeta                 YesNoBoolean  `json:"add_meta"`
+	Hint                    YesNoBoolean  `json:"hint"`
+	RcInitOccupancy         string        `json:"rc_init_occupancy"`
+	MinRate                 string        `json:"minrate"`
+	MaxRate                 string        `json:"maxrate"`
+	BufSize                 string        `json:"bufsize"`
+	Keyframe                []string      `json:"keyframe"`
+	Start                   string        `json:"start"`
+	Duration                string        `json:"duration"`
+	ForceKeyframes          string        `json:"force_keyframes"`
+	Bframes                 int           `json:"bframes",string`
+	Gop                     string        `json:"gop"`
+	Metadata                Metadata      `json:"metadata"`
+	Destination             []string      `json:"destination"`
+	Logo                    Logo          `json:"logo"`
+	Overlay                 []Overlay     `json:"overlay"`
+	TextOverlay             []TextOverlay `json:"text_overlay"`
+	VideoCodecParameters    string        `json:"video_codec_parameters"`
+	Profile                 string        `json:"profile"`
+	Turbo                   string        `json:"turbo"`
+	Rotate                  string        `json:"rotate"`
+	SetRotate               string        `json:"set_rotate"`
+	AudioSync               string        `json:"audio_sync"`
+	VideoSync               string        `json:"video_sync"`
+	ForceInterlaced         string        `json:"force_interlaced"`
+	StripChapters           YesNoBoolean  `json:"strip_chapters"`
 }
 
 type Logo struct {
