@@ -18,128 +18,128 @@ type Request struct {
 	Action                  Action      `json:"action"`
 	MediaID                 string      `json:"mediaid"`
 	Source                  []string    `json:"source"`
-	SplitScreen             SplitScreen `json:"split_screen"`
-	Region                  string      `json:"region"`
-	NotifyFormat            string      `json:"notify_format"`
-	NotifyURL               string      `json:"notify"`
-	NotifyEncodingErrorsURL string      `json:"notify_encoding_errors"`
-	NotifyUploadURL         string      `json:"notify_upload"`
-	Format                  Format      `json:"format"`
+	SplitScreen             SplitScreen `json:"split_screen,omitempty"`
+	Region                  string      `json:"region,omitempty"`
+	NotifyFormat            string      `json:"notify_format,omitempty"`
+	NotifyURL               string      `json:"notify,omitempty"`
+	NotifyEncodingErrorsURL string      `json:"notify_encoding_errors,omitempty"`
+	NotifyUploadURL         string      `json:"notify_upload,omitempty"`
+	Format                  Format      `json:"format,omitempty"`
 }
 
 type SplitScreen struct {
-	Columns       int `json:"columns,string"`
-	Rows          int `json:"rows,string"`
-	PaddingLeft   int `json:"padding_left,string"`
-	PaddingRight  int `json:"padding_right,string"`
-	PaddingBottom int `json:"padding_bottom,string"`
-	PaddingTop    int `json:"padding_top,string"`
+	Columns       int `json:"columns,string,omitempty"`
+	Rows          int `json:"rows,string,omitempty"`
+	PaddingLeft   int `json:"padding_left,string,omitempty"`
+	PaddingRight  int `json:"padding_right,string,omitempty"`
+	PaddingBottom int `json:"padding_bottom,string,omitempty"`
+	PaddingTop    int `json:"padding_top,string,omitempty"`
 }
 
 type AddMediaResponse struct {
-	Message string `json:"message"`
-	MediaID string `json:"mediaid"`
+	Message string `json:"message,omitempty"`
+	MediaID string `json:"mediaid,omitempty"`
 }
 
 type GetMediaListResponse struct {
 	Media []struct {
-		MediaFile   string    `json:"mediafile"`
-		MediaID     string    `json:"mediaid"`
-		MediaStatus string    `json:"mediastatus"`
-		CreatedDate time.Time `json:"createdate,string"`
-		StartDate   time.Time `json:"startdate,string"`
-		FinishDate  time.Time `json:"finishdate,string"`
+		MediaFile   string    `json:"mediafile,omitempty"`
+		MediaID     string    `json:"mediaid,omitempty"`
+		MediaStatus string    `json:"mediastatus,omitempty"`
+		CreatedDate time.Time `json:"createdate,string,omitempty"`
+		StartDate   time.Time `json:"startdate,string,omitempty"`
+		FinishDate  time.Time `json:"finishdate,string,omitempty"`
 	}
 }
 
 type Format struct {
-	NoiseReduction          string        `json:"noise_reduction"`
-	Output                  []string      `json:"output"`
-	VideoCodec              string        `json:"video_codec"`
-	AudioCodec              string        `json:"audio_codec"`
-	Bitrate                 string        `json:"bitrate"`
-	AudioBitrate            string        `json:"audio_bitrate"`
-	AudioSampleRate         string        `json:"audio_sample_rate"`
-	AudioChannelsNumber     int           `json:"audio_channels_number,string"`
-	AudioVolume             uint          `json:"audio_volume,string"`
-	Framerate               string        `json:"framerate"`
-	FramerateUpperThreshold string        `json:"framerate_upper_threshold"`
-	Size                    string        `json:"size"`
-	FadeIn                  string        `json:"fade_in"`
-	FadeOut                 string        `json:"fade_out"`
-	CropLeft                int           `json:"crop_left,string"`
-	CropTop                 int           `json:"crop_top,string"`
-	CropRight               int           `json:"crop_right,string"`
-	CropBottom              int           `json:"crop_bottom,string"`
-	KeepAspectRatio         YesNoBoolean  `json:"keep_aspect_ratio"`
-	SetAspectRatio          string        `json:"set_aspect_ratio"`
-	AddMeta                 YesNoBoolean  `json:"add_meta"`
-	Hint                    YesNoBoolean  `json:"hint"`
-	RcInitOccupancy         string        `json:"rc_init_occupancy"`
-	MinRate                 string        `json:"minrate"`
-	MaxRate                 string        `json:"maxrate"`
-	BufSize                 string        `json:"bufsize"`
-	Keyframe                []string      `json:"keyframe"`
-	Start                   string        `json:"start"`
-	Duration                string        `json:"duration"`
-	ForceKeyframes          string        `json:"force_keyframes"`
-	Bframes                 int           `json:"bframes,string"`
-	Gop                     string        `json:"gop"`
-	Metadata                Metadata      `json:"metadata"`
-	Destination             []string      `json:"destination"`
-	Logo                    Logo          `json:"logo"`
-	Overlay                 []Overlay     `json:"overlay"`
-	TextOverlay             []TextOverlay `json:"text_overlay"`
-	VideoCodecParameters    string        `json:"video_codec_parameters"`
-	Profile                 string        `json:"profile"`
-	Turbo                   string        `json:"turbo"`
-	Rotate                  string        `json:"rotate"`
-	SetRotate               string        `json:"set_rotate"`
-	AudioSync               string        `json:"audio_sync"`
-	VideoSync               string        `json:"video_sync"`
-	ForceInterlaced         string        `json:"force_interlaced"`
-	StripChapters           YesNoBoolean  `json:"strip_chapters"`
+	NoiseReduction          string        `json:"noise_reduction,omitempty"`
+	Output                  []string      `json:"output,omitempty"`
+	VideoCodec              string        `json:"video_codec,omitempty"`
+	AudioCodec              string        `json:"audio_codec,omitempty"`
+	Bitrate                 string        `json:"bitrate,omitempty"`
+	AudioBitrate            string        `json:"audio_bitrate,omitempty"`
+	AudioSampleRate         string        `json:"audio_sample_rate,omitempty"`
+	AudioChannelsNumber     int           `json:"audio_channels_number,string,omitempty"`
+	AudioVolume             uint          `json:"audio_volume,string,omitempty"`
+	Framerate               string        `json:"framerate,omitempty"`
+	FramerateUpperThreshold string        `json:"framerate_upper_threshold,omitempty"`
+	Size                    string        `json:"size,omitempty"`
+	FadeIn                  string        `json:"fade_in,omitempty"`
+	FadeOut                 string        `json:"fade_out,omitempty"`
+	CropLeft                int           `json:"crop_left,string,omitempty"`
+	CropTop                 int           `json:"crop_top,string,omitempty"`
+	CropRight               int           `json:"crop_right,string,omitempty"`
+	CropBottom              int           `json:"crop_bottom,string,omitempty"`
+	KeepAspectRatio         YesNoBoolean  `json:"keep_aspect_ratio,omitempty"`
+	SetAspectRatio          string        `json:"set_aspect_ratio,omitempty"`
+	AddMeta                 YesNoBoolean  `json:"add_meta,omitempty"`
+	Hint                    YesNoBoolean  `json:"hint,omitempty"`
+	RcInitOccupancy         string        `json:"rc_init_occupancy,omitempty"`
+	MinRate                 string        `json:"minrate,omitempty"`
+	MaxRate                 string        `json:"maxrate,omitempty"`
+	BufSize                 string        `json:"bufsize,omitempty"`
+	Keyframe                []string      `json:"keyframe,omitempty"`
+	Start                   string        `json:"start,omitempty"`
+	Duration                string        `json:"duration,omitempty"`
+	ForceKeyframes          string        `json:"force_keyframes,omitempty"`
+	Bframes                 int           `json:"bframes,string,omitempty"`
+	Gop                     string        `json:"gop,omitempty"`
+	Metadata                Metadata      `json:"metadata,omitempty"`
+	Destination             []string      `json:"destination,omitempty"`
+	Logo                    Logo          `json:"logo,omitempty"`
+	Overlay                 []Overlay     `json:"overlay,omitempty"`
+	TextOverlay             []TextOverlay `json:"text_overlay,omitempty"`
+	VideoCodecParameters    string        `json:"video_codec_parameters,omitempty"`
+	Profile                 string        `json:"profile,omitempty"`
+	Turbo                   string        `json:"turbo,omitempty"`
+	Rotate                  string        `json:"rotate,omitempty"`
+	SetRotate               string        `json:"set_rotate,omitempty"`
+	AudioSync               string        `json:"audio_sync,omitempty"`
+	VideoSync               string        `json:"video_sync,omitempty"`
+	ForceInterlaced         string        `json:"force_interlaced,omitempty"`
+	StripChapters           YesNoBoolean  `json:"strip_chapters,omitempty"`
 }
 
 type Logo struct {
-	LogoSourceURL string `json:"logo_source"`
-	LogoX         int    `json:"logo_x,string"`
-	LogoY         int    `json:"logo_y,string"`
-	LogoMode      int    `json:"logo_mode,string"`
-	LogoThreshold string `json:"logo_threshold"`
+	LogoSourceURL string `json:"logo_source,omitempty"`
+	LogoX         int    `json:"logo_x,string,omitempty"`
+	LogoY         int    `json:"logo_y,string,omitempty"`
+	LogoMode      int    `json:"logo_mode,string,omitempty"`
+	LogoThreshold string `json:"logo_threshold,omitempty"`
 }
 
 type Overlay struct {
-	OverlaySource   string  `json:"overlay_source"`
-	OverlayLeft     string  `json:"overlay_left"`
-	OverlayRight    string  `json:"overlay_right"`
-	OverlayTop      string  `json:"overlay_top"`
+	OverlaySource   string  `json:"overlay_source,omitempty"`
+	OverlayLeft     string  `json:"overlay_left,omitempty"`
+	OverlayRight    string  `json:"overlay_right,omitempty"`
+	OverlayTop      string  `json:"overlay_top,omitempty"`
 	OverlayBottom   string  `json:"overlay_bottom`
-	Size            string  `json:"size"`
-	OverlayStart    float64 `json:"overlay_start,string"`
-	OverlayDuration float64 `json:"overlay_duration,string"`
+	Size            string  `json:"size,omitempty"`
+	OverlayStart    float64 `json:"overlay_start,string,omitempty"`
+	OverlayDuration float64 `json:"overlay_duration,string,omitempty"`
 }
 
 type TextOverlay struct {
-	Text            []string       `json:"text"`
-	FontSourceURL   string         `json:"font_source"`
-	FontSize        uint           `json:"font_size,string"`
-	FontRotate      int            `json:"font_rotate,string"`
-	FontColor       string         `json:"font_color"`
-	AlignCenter     ZeroOneBoolean `json:"align_center"`
-	OverlayX        int            `json:"overlay_x,string"`
-	OverlayY        int            `json:"overlay_y,string"`
-	Size            string         `json:"size"`
-	OverlayStart    float64        `json:"overlay_start,string"`
-	OverlayDuration float64        `json:"overlay_duration,string"`
+	Text            []string       `json:"text,omitempty"`
+	FontSourceURL   string         `json:"font_source,omitempty"`
+	FontSize        uint           `json:"font_size,string,omitempty"`
+	FontRotate      int            `json:"font_rotate,string,omitempty"`
+	FontColor       string         `json:"font_color,omitempty"`
+	AlignCenter     ZeroOneBoolean `json:"align_center,omitempty"`
+	OverlayX        int            `json:"overlay_x,string,omitempty"`
+	OverlayY        int            `json:"overlay_y,string,omitempty"`
+	Size            string         `json:"size,omitempty"`
+	OverlayStart    float64        `json:"overlay_start,string,omitempty"`
+	OverlayDuration float64        `json:"overlay_duration,string,omitempty"`
 }
 
 type Metadata struct {
-	Title       string `json:"title"`
-	Copyright   string `json:"copyright"`
-	Author      string `json:"author"`
-	Description string `json:"description"`
-	Album       string `json:"album"`
+	Title       string `json:"title,omitempty"`
+	Copyright   string `json:"copyright,omitempty"`
+	Author      string `json:"author,omitempty"`
+	Description string `json:"description,omitempty"`
+	Album       string `json:"album,omitempty"`
 }
 
 type YesNoBoolean bool
