@@ -28,12 +28,12 @@ type Request struct {
 }
 
 type SplitScreen struct {
-	Columns       int `json:"columns",string`
-	Rows          int `json:"rows",string`
-	PaddingLeft   int `json:"padding_left",string`
-	PaddingRight  int `json:"padding_right",string`
-	PaddingBottom int `json:"padding_bottom",string`
-	PaddingTop    int `json:"padding_top",string`
+	Columns       int `json:"columns,string"`
+	Rows          int `json:"rows,string"`
+	PaddingLeft   int `json:"padding_left,string"`
+	PaddingRight  int `json:"padding_right,string"`
+	PaddingBottom int `json:"padding_bottom,string"`
+	PaddingTop    int `json:"padding_top,string"`
 }
 
 type AddMediaResponse struct {
@@ -46,9 +46,9 @@ type GetMediaListResponse struct {
 		MediaFile   string    `json:"mediafile"`
 		MediaID     string    `json:"mediaid"`
 		MediaStatus string    `json:"mediastatus"`
-		CreatedDate time.Time `json:"createdate",string`
-		StartDate   time.Time `json:"startdate",string`
-		FinishDate  time.Time `json:"finishdate",string`
+		CreatedDate time.Time `json:"createdate,string"`
+		StartDate   time.Time `json:"startdate,string"`
+		FinishDate  time.Time `json:"finishdate,string"`
 	}
 }
 
@@ -60,17 +60,17 @@ type Format struct {
 	Bitrate                 string        `json:"bitrate"`
 	AudioBitrate            string        `json:"audio_bitrate"`
 	AudioSampleRate         string        `json:"audio_sample_rate"`
-	AudioChannelsNumber     int           `json:"audio_channels_number",string`
-	AudioVolume             uint          `json:"audio_volume",string`
+	AudioChannelsNumber     int           `json:"audio_channels_number,string"`
+	AudioVolume             uint          `json:"audio_volume,string"`
 	Framerate               string        `json:"framerate"`
 	FramerateUpperThreshold string        `json:"framerate_upper_threshold"`
 	Size                    string        `json:"size"`
 	FadeIn                  string        `json:"fade_in"`
 	FadeOut                 string        `json:"fade_out"`
-	CropLeft                int           `json:"crop_left",string`
-	CropTop                 int           `json:"crop_top",string`
-	CropRight               int           `json:"crop_right",string`
-	CropBottom              int           `json:"crop_bottom",string`
+	CropLeft                int           `json:"crop_left,string"`
+	CropTop                 int           `json:"crop_top,string"`
+	CropRight               int           `json:"crop_right,string"`
+	CropBottom              int           `json:"crop_bottom,string"`
 	KeepAspectRatio         YesNoBoolean  `json:"keep_aspect_ratio"`
 	SetAspectRatio          string        `json:"set_aspect_ratio"`
 	AddMeta                 YesNoBoolean  `json:"add_meta"`
@@ -83,7 +83,7 @@ type Format struct {
 	Start                   string        `json:"start"`
 	Duration                string        `json:"duration"`
 	ForceKeyframes          string        `json:"force_keyframes"`
-	Bframes                 int           `json:"bframes",string`
+	Bframes                 int           `json:"bframes,string"`
 	Gop                     string        `json:"gop"`
 	Metadata                Metadata      `json:"metadata"`
 	Destination             []string      `json:"destination"`
@@ -103,9 +103,9 @@ type Format struct {
 
 type Logo struct {
 	LogoSourceURL string `json:"logo_source"`
-	LogoX         int    `json:"logo_x",string`
-	LogoY         int    `json:"logo_y",string`
-	LogoMode      int    `json:"logo_mode",string`
+	LogoX         int    `json:"logo_x,string"`
+	LogoY         int    `json:"logo_y,string"`
+	LogoMode      int    `json:"logo_mode,string"`
 	LogoThreshold string `json:"logo_threshold"`
 }
 
@@ -116,22 +116,22 @@ type Overlay struct {
 	OverlayTop      string  `json:"overlay_top"`
 	OverlayBottom   string  `json:"overlay_bottom`
 	Size            string  `json:"size"`
-	OverlayStart    float64 `json:"overlay_start",string`
-	OverlayDuration float64 `json:"overlay_duration",string`
+	OverlayStart    float64 `json:"overlay_start,string"`
+	OverlayDuration float64 `json:"overlay_duration,string"`
 }
 
 type TextOverlay struct {
 	Text            []string       `json:"text"`
 	FontSourceURL   string         `json:"font_source"`
-	FontSize        uint           `json:"font_size",string`
-	FontRotate      int            `json:"font_rotate",string`
+	FontSize        uint           `json:"font_size,string"`
+	FontRotate      int            `json:"font_rotate,string"`
 	FontColor       string         `json:"font_color"`
 	AlignCenter     ZeroOneBoolean `json:"align_center"`
-	OverlayX        int            `json:"overlay_x",string`
-	OverlayY        int            `json:"overlay_y",string`
+	OverlayX        int            `json:"overlay_x,string"`
+	OverlayY        int            `json:"overlay_y,string"`
 	Size            string         `json:"size"`
-	OverlayStart    float64        `json:"overlay_start",string`
-	OverlayDuration float64        `json:"overlay_duration",string`
+	OverlayStart    float64        `json:"overlay_start,string"`
+	OverlayDuration float64        `json:"overlay_duration,string"`
 }
 
 type Metadata struct {
