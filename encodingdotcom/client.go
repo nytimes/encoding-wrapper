@@ -105,41 +105,41 @@ type Logo struct {
 	LogoSourceURL string `json:"logo_source"`
 	LogoX         int    `json:"logo_x",string`
 	LogoY         int    `json:"logo_y",string`
-	LogoMode      string
-	LogoThreshold string
+	LogoMode      int    `json:"logo_mode",string`
+	LogoThreshold string `json:"logo_threshold"`
 }
 
 type Overlay struct {
-	OverlaySource   string
-	OverlayLeft     string
-	OverlayRight    string
-	OverlayTop      string
-	OverlayBottom   string
-	Size            string
+	OverlaySource   string  `json:"overlay_source"`
+	OverlayLeft     string  `json:"overlay_left"`
+	OverlayRight    string  `json:"overlay_right"`
+	OverlayTop      string  `json:"overlay_top"`
+	OverlayBottom   string  `json:"overlay_bottom`
+	Size            string  `json:"size"`
 	OverlayStart    float64 `json:"overlay_start",string`
 	OverlayDuration float64 `json:"overlay_duration",string`
 }
 
 type TextOverlay struct {
-	Text            []string
-	FontSource      string
-	FontSize        string
-	FontRotate      string
-	FontColor       string
-	AlignCenter     ZeroOneBoolean
-	OverlayX        int `json:"overlay_x",string`
-	OverlayY        int `json:"overlay_y",string`
-	Size            string
-	OverlayStart    float64 `json:"overlay_start",string`
-	OverlayDuration float64 `json:"overlay_duration",string`
+	Text            []string       `json:"text"`
+	FontSourceURL   string         `json:"font_source"`
+	FontSize        uint           `json:"font_size",string`
+	FontRotate      int            `json:"font_rotate",string`
+	FontColor       string         `json:"font_color"`
+	AlignCenter     ZeroOneBoolean `json:"align_center"`
+	OverlayX        int            `json:"overlay_x",string`
+	OverlayY        int            `json:"overlay_y",string`
+	Size            string         `json:"size"`
+	OverlayStart    float64        `json:"overlay_start",string`
+	OverlayDuration float64        `json:"overlay_duration",string`
 }
 
 type Metadata struct {
-	Title       string
-	Copyright   string
-	Author      string
-	Description string
-	Album       string
+	Title       string `json:"title"`
+	Copyright   string `json:"copyright"`
+	Author      string `json:"author"`
+	Description string `json:"description"`
+	Album       string `json:"album"`
 }
 
 type YesNoBoolean bool
