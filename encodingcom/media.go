@@ -1,4 +1,4 @@
-package encodingdotcom
+package encodingcom
 
 // AddMediaResponse represents the response returned by the AddMedia action.
 //

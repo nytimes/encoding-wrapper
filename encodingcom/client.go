@@ -1,8 +1,8 @@
-// Package encodingdotcom provides types and methods for interacting with the
+// Package encodingcom provides types and methods for interacting with the
 // Encoding.com API.
 //
 // You can get more details on the API at http://api.encoding.com/.
-package encodingdotcom
+package encodingcom
 
 import (
 	"encoding/json"

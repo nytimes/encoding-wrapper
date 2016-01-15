@@ -1,4 +1,4 @@
-package encodingdotcom
+package encodingcom
 
 import (
 	"gopkg.in/check.v1"
