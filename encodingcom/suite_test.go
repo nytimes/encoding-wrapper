@@ -1,4 +1,4 @@
-package encodingdotcom
+package encodingcom
 
 import (
 	"encoding/json"
