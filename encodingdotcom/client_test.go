@@ -5,18 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 
 	"gopkg.in/check.v1"
 )
-
-type S struct{}
-
-func Test(t *testing.T) {
-	check.TestingT(t)
-}
-
-var _ = check.Suite(&S{})
 
 func (s *S) TestYesNoBoolean(c *check.C) {
 	bTrue := YesNoBoolean(true)
@@ -38,13 +29,11 @@ func (s *S) TestDoRequirementsParameters(c *check.C) {
 		w.Write([]byte("it worked"))
 	}))
 	defer server.Close()
-	client := Client{Endpoint: server.URL}
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	resp, err := client.do(&Request{
-		UserID:  "myuser",
-		UserKey: "123",
-		Action:  "AddMedia",
-		MediaID: "123456",
-		Source:  []string{"http://some.non.existent/video.mp4"},
+		UserID:  client.UserID,
+		UserKey: client.UserKey,
+		Action:  "GetStatus",
 	})
 	c.Assert(err, check.IsNil)
 	c.Assert(req, check.NotNil)
@@ -58,9 +47,7 @@ func (s *S) TestDoRequirementsParameters(c *check.C) {
 		"query": map[string]interface{}{
 			"userid":  "myuser",
 			"userkey": "123",
-			"action":  "AddMedia",
-			"mediaid": "123456",
-			"source":  []interface{}{"http://some.non.existent/video.mp4"},
+			"action":  "GetStatus",
 		},
 	})
 	c.Assert(resp.StatusCode, check.Equals, http.StatusOK)
