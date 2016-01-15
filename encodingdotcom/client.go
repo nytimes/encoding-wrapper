@@ -1,9 +1,36 @@
 package encodingdotcom
 
-import "time"
+import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+)
 
 type Client struct {
 	Endpoint string
+}
+
+func (c *Client) do(r *Request) (*http.Response, error) {
+	jsonRequest, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+	rawMsg := json.RawMessage(jsonRequest)
+	m := map[string]interface{}{"query": &rawMsg}
+	data, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	params := url.Values{}
+	params.Add("json", string(data))
+	req, err := http.NewRequest("POST", c.Endpoint, strings.NewReader(params.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return http.DefaultClient.Do(req)
 }
 
 type Action string
@@ -13,18 +40,18 @@ const (
 )
 
 type Request struct {
-	UserID                  string      `json:"userid"`
-	UserKey                 string      `json:"userkey"`
-	Action                  Action      `json:"action"`
-	MediaID                 string      `json:"mediaid"`
-	Source                  []string    `json:"source"`
-	SplitScreen             SplitScreen `json:"split_screen,omitempty"`
-	Region                  string      `json:"region,omitempty"`
-	NotifyFormat            string      `json:"notify_format,omitempty"`
-	NotifyURL               string      `json:"notify,omitempty"`
-	NotifyEncodingErrorsURL string      `json:"notify_encoding_errors,omitempty"`
-	NotifyUploadURL         string      `json:"notify_upload,omitempty"`
-	Format                  Format      `json:"format,omitempty"`
+	UserID                  string       `json:"userid"`
+	UserKey                 string       `json:"userkey"`
+	Action                  Action       `json:"action"`
+	MediaID                 string       `json:"mediaid"`
+	Source                  []string     `json:"source"`
+	SplitScreen             *SplitScreen `json:"split_screen,omitempty"`
+	Region                  string       `json:"region,omitempty"`
+	NotifyFormat            string       `json:"notify_format,omitempty"`
+	NotifyURL               string       `json:"notify,omitempty"`
+	NotifyEncodingErrorsURL string       `json:"notify_encoding_errors,omitempty"`
+	NotifyUploadURL         string       `json:"notify_upload,omitempty"`
+	Format                  *Format      `json:"format,omitempty"`
 }
 
 type SplitScreen struct {
@@ -85,9 +112,9 @@ type Format struct {
 	ForceKeyframes          string        `json:"force_keyframes,omitempty"`
 	Bframes                 int           `json:"bframes,string,omitempty"`
 	Gop                     string        `json:"gop,omitempty"`
-	Metadata                Metadata      `json:"metadata,omitempty"`
+	Metadata                *Metadata     `json:"metadata,omitempty"`
 	Destination             []string      `json:"destination,omitempty"`
-	Logo                    Logo          `json:"logo,omitempty"`
+	Logo                    *Logo         `json:"logo,omitempty"`
 	Overlay                 []Overlay     `json:"overlay,omitempty"`
 	TextOverlay             []TextOverlay `json:"text_overlay,omitempty"`
 	VideoCodecParameters    string        `json:"video_codec_parameters,omitempty"`
