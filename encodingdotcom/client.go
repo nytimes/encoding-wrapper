@@ -12,6 +12,8 @@ import (
 
 type Client struct {
 	Endpoint string
+	UserID   string
+	UserKey  string
 }
 
 func (c *Client) do(r *Request, out interface{}) error {
@@ -49,7 +51,7 @@ func (c *Client) do(r *Request, out interface{}) error {
 	if errResp := errRespWrapper["response"]; errResp.Errors != nil {
 		return &APIError{
 			Message: errResp.Message,
-			Errors: errResp.Errors.Error,
+			Errors:  errResp.Errors.Error,
 		}
 	}
 	return json.Unmarshal(respData, out)
@@ -57,7 +59,7 @@ func (c *Client) do(r *Request, out interface{}) error {
 
 type APIError struct {
 	Message string
-	Errors []string
+	Errors  []string
 }
 
 func (apiErr *APIError) Error() string {
@@ -69,8 +71,8 @@ type Request struct {
 	UserID                  string       `json:"userid"`
 	UserKey                 string       `json:"userkey"`
 	Action                  string       `json:"action"`
-	MediaID                 string       `json:"mediaid"`
-	Source                  []string     `json:"source"`
+	MediaID                 string       `json:"mediaid,omitempty"`
+	Source                  []string     `json:"source,omitempty"`
 	SplitScreen             *SplitScreen `json:"split_screen,omitempty"`
 	Region                  string       `json:"region,omitempty"`
 	NotifyFormat            string       `json:"notify_format,omitempty"`
@@ -106,7 +108,7 @@ type GetMediaListResponse struct {
 }
 
 type ErrorResponse struct {
-	Message string `json:"message,omitempty"`
+	Message string  `json:"message,omitempty"`
 	Errors  *Errors `json:"errors,omitempty"`
 }
 

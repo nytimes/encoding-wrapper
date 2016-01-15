@@ -4,18 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 
 	"gopkg.in/check.v1"
 )
-
-type S struct{}
-
-func Test(t *testing.T) {
-	check.TestingT(t)
-}
-
-var _ = check.Suite(&S{})
 
 func (s *S) mockErrorResponseObject(message *string, errors []string) interface{} {
 	errorResponse := map[string]interface{}{
@@ -71,14 +62,12 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 		w.Write([]byte(`{"response": {"status": "added"}}`))
 	}))
 	defer server.Close()
-	client := Client{Endpoint: server.URL}
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	var respObj map[string]interface{}
 	err := client.do(&Request{
-		UserID:  "myuser",
-		UserKey: "123",
-		Action:  "AddMedia",
-		MediaID: "123456",
-		Source:  []string{"http://some.non.existent/video.mp4"},
+		UserID:  client.UserID,
+		UserKey: client.UserKey,
+		Action:  "GetStatus",
 	}, &respObj)
 	c.Assert(err, check.IsNil)
 	c.Assert(req, check.NotNil)
@@ -92,9 +81,7 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 		"query": map[string]interface{}{
 			"userid":  "myuser",
 			"userkey": "123",
-			"action":  "AddMedia",
-			"mediaid": "123456",
-			"source":  []interface{}{"http://some.non.existent/video.mp4"},
+			"action":  "GetStatus",
 		},
 	})
 	c.Assert(respObj, check.DeepEquals, map[string]interface{}{
