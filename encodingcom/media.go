@@ -2,12 +2,15 @@ package encodingcom
 
 import "time"
 
+// DateTimeLayout is the time layout used on Media items
 const DateTimeLayout = "2006-01-02 15:04:05"
 
+// MediaDateTime is a custom time struct to be used on Media items
 type MediaDateTime struct {
 	time.Time
 }
 
+// UnmarshalJSON implementation on MediaDateTime to use DateTimeLayout
 func (mdt *MediaDateTime) UnmarshalJSON(b []byte) (err error) {
 	if b[0] == '"' && b[len(b)-1] == '"' {
 		b = b[1 : len(b)-1]
@@ -31,6 +34,9 @@ type ListMediaResponse struct {
 	Media []ListMediaResponseItem `json:"media,omitempty"`
 }
 
+// ListMediaResponseItem represents each individual item returned by the GetMediaList action.
+//
+// See ListMediaResponse
 type ListMediaResponseItem struct {
 	MediaFile   string        `json:"mediafile,omitempty"`
 	MediaID     string        `json:"mediaid,omitempty"`
