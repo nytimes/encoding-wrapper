@@ -204,7 +204,7 @@ type Overlay struct {
 	OverlayLeft     string  `json:"overlay_left,omitempty"`
 	OverlayRight    string  `json:"overlay_right,omitempty"`
 	OverlayTop      string  `json:"overlay_top,omitempty"`
-	OverlayBottom   string  `json:"overlay_bottom`
+	OverlayBottom   string  `json:"overlay_bottom"`
 	Size            string  `json:"size,omitempty"`
 	OverlayStart    float64 `json:"overlay_start,string,omitempty"`
 	OverlayDuration float64 `json:"overlay_duration,string,omitempty"`
