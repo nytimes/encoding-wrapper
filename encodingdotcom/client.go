@@ -103,6 +103,10 @@ type request struct {
 	Format                  *Format      `json:"format,omitempty"`
 }
 
+// SplitScreen is the set of options for combining several sources to one split
+// screen video.
+//
+// See http://goo.gl/EolKyv for more details.
 type SplitScreen struct {
 	Columns       int `json:"columns,string,omitempty"`
 	Rows          int `json:"rows,string,omitempty"`
@@ -112,6 +116,9 @@ type SplitScreen struct {
 	PaddingTop    int `json:"padding_top,string,omitempty"`
 }
 
+// GetMediaListResponse represents the response returned by the GetMediaList action.
+//
+// See http://goo.gl/J8uncc for more details.
 type GetMediaListResponse struct {
 	Media []struct {
 		MediaFile   string    `json:"mediafile,omitempty"`
@@ -123,6 +130,10 @@ type GetMediaListResponse struct {
 	}
 }
 
+// Format is the set of options for defining the output format when encoding
+// new media files.
+//
+// See http://goo.gl/dcE1pF for more details.
 type Format struct {
 	NoiseReduction          string        `json:"noise_reduction,omitempty"`
 	Output                  []string      `json:"output,omitempty"`
@@ -172,6 +183,10 @@ type Format struct {
 	StripChapters           YesNoBoolean  `json:"strip_chapters,omitempty"`
 }
 
+// Logo is the set of options for watermarking media during encoding, allowing
+// users to add a image to the final media.
+//
+// See http://goo.gl/4z2Q5S for more details.
 type Logo struct {
 	LogoSourceURL string `json:"logo_source,omitempty"`
 	LogoX         int    `json:"logo_x,string,omitempty"`
@@ -180,6 +195,10 @@ type Logo struct {
 	LogoThreshold string `json:"logo_threshold,omitempty"`
 }
 
+// Overlay is the set of options for adding a video overlay in the media being
+// encoded.
+//
+// See http://goo.gl/Q6sjkR for more details.
 type Overlay struct {
 	OverlaySource   string  `json:"overlay_source,omitempty"`
 	OverlayLeft     string  `json:"overlay_left,omitempty"`
@@ -191,6 +210,10 @@ type Overlay struct {
 	OverlayDuration float64 `json:"overlay_duration,string,omitempty"`
 }
 
+// TextOverlay is the set of options for adding a text overlay in the media
+// being encoded.
+//
+// See http://goo.gl/gUKi5t for more details.
 type TextOverlay struct {
 	Text            []string       `json:"text,omitempty"`
 	FontSourceURL   string         `json:"font_source,omitempty"`
@@ -205,6 +228,10 @@ type TextOverlay struct {
 	OverlayDuration float64        `json:"overlay_duration,string,omitempty"`
 }
 
+// Metadata represents media metadata, as provided in the Format struct when
+// encoding new media.
+//
+// See http://goo.gl/jNSio9 for more details.
 type Metadata struct {
 	Title       string `json:"title,omitempty"`
 	Copyright   string `json:"copyright,omitempty"`
@@ -213,14 +240,22 @@ type Metadata struct {
 	Album       string `json:"album,omitempty"`
 }
 
+// YesNoBoolean is a boolean that turns true into "yes" and false into "no"
+// when encoded as JSON.
 type YesNoBoolean bool
 
-type ZeroOneBoolean bool
-
+// MarshalJSON is the method that ensures that YesNoBoolean satisfies the
+// json.Marshaler interface.
 func (b YesNoBoolean) MarshalJSON() ([]byte, error) {
 	return boolToByte(bool(b), "yes", "no"), nil
 }
 
+// ZeroOneBoolean is a boolean that turns true into "1" and false into "0" when
+// encoded as JSON.
+type ZeroOneBoolean bool
+
+// MarshalJSON is the method that ensures that ZeroOneBoolean satisfies the
+// json.Marshaler interface.
 func (b ZeroOneBoolean) MarshalJSON() ([]byte, error) {
 	return boolToByte(bool(b), "1", "0"), nil
 }
