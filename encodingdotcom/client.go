@@ -247,7 +247,7 @@ type YesNoBoolean bool
 // MarshalJSON is the method that ensures that YesNoBoolean satisfies the
 // json.Marshaler interface.
 func (b YesNoBoolean) MarshalJSON() ([]byte, error) {
-	return boolToByte(bool(b), "yes", "no"), nil
+	return boolToBytes(bool(b), "yes", "no"), nil
 }
 
 // ZeroOneBoolean is a boolean that turns true into "1" and false into "0" when
@@ -257,10 +257,10 @@ type ZeroOneBoolean bool
 // MarshalJSON is the method that ensures that ZeroOneBoolean satisfies the
 // json.Marshaler interface.
 func (b ZeroOneBoolean) MarshalJSON() ([]byte, error) {
-	return boolToByte(bool(b), "1", "0"), nil
+	return boolToBytes(bool(b), "1", "0"), nil
 }
 
-func boolToByte(b bool, t, f string) []byte {
+func boolToBytes(b bool, t, f string) []byte {
 	if b {
 		return []byte(`"` + t + `"`)
 	}
