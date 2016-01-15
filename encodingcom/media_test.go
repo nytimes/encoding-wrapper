@@ -50,9 +50,9 @@ func (s *S) TestListMedia(c *check.C) {
 	listMediaResponse, err := client.ListMedia()
 	c.Assert(err, check.IsNil)
 
-	mockCreateDate, _ := time.Parse(DateTimeLayout, "2015-12-31 20:45:30")
-	mockStartDate, _ := time.Parse(DateTimeLayout, "2015-12-31 20:45:50")
-	mockFinishDate, _ := time.Parse(DateTimeLayout, "2015-12-31 20:48:54")
+	mockCreateDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:30")
+	mockStartDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:50")
+	mockFinishDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:48:54")
 
 	c.Assert(listMediaResponse, check.DeepEquals, &ListMediaResponse{
 		Media: []ListMediaResponseItem{

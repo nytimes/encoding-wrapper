@@ -2,20 +2,20 @@ package encodingcom
 
 import "time"
 
-// DateTimeLayout is the time layout used on Media items
-const DateTimeLayout = "2006-01-02 15:04:05"
+// dateTimeLayout is the time layout used on Media items
+const dateTimeLayout = "2006-01-02 15:04:05"
 
 // MediaDateTime is a custom time struct to be used on Media items
 type MediaDateTime struct {
 	time.Time
 }
 
-// UnmarshalJSON implementation on MediaDateTime to use DateTimeLayout
+// UnmarshalJSON implementation on MediaDateTime to use dateTimeLayout
 func (mdt *MediaDateTime) UnmarshalJSON(b []byte) (err error) {
 	if b[0] == '"' && b[len(b)-1] == '"' {
 		b = b[1 : len(b)-1]
 	}
-	mdt.Time, err = time.Parse(DateTimeLayout, string(b))
+	mdt.Time, err = time.Parse(dateTimeLayout, string(b))
 	return err
 }
 
