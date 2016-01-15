@@ -16,7 +16,7 @@ type Client struct {
 	UserKey  string
 }
 
-func (c *Client) do(r *Request, out interface{}) error {
+func (c *Client) do(r *request, out interface{}) error {
 	jsonRequest, err := json.Marshal(r)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (apiErr *APIError) Error() string {
 	return fmt.Sprintf("Error returned by the Encoding.com API: %s", data)
 }
 
-type Request struct {
+type request struct {
 	UserID                  string       `json:"userid"`
 	UserKey                 string       `json:"userkey"`
 	Action                  string       `json:"action"`

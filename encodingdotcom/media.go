@@ -2,7 +2,7 @@ package encodingdotcom
 
 func (c *Client) AddMedia(source []string, format *Format) (*AddMediaResponse, error) {
 	var result map[string]*AddMediaResponse
-	err := c.do(&Request{
+	err := c.do(&request{
 		Action:  "AddMedia",
 		Format:  format,
 		Source:  source,
