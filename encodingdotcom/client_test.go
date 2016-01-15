@@ -2,7 +2,6 @@ package encodingdotcom
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,6 +17,21 @@ func Test(t *testing.T) {
 
 var _ = check.Suite(&S{})
 
+func (s *S) mockErrorResponseObject(message *string, errors []string) interface{} {
+	errorResponse := map[string]interface{}{
+		"response": map[string]interface{}{},
+	}
+	if message != nil {
+		errorResponse["response"].(map[string]interface{})["message"] = *message
+	}
+	if len(errors) > 0 {
+		errorObject := make(map[string][]string)
+		errorObject["error"] = errors
+		errorResponse["response"].(map[string]interface{})["errors"] = errorObject
+	}
+	return errorResponse
+}
+
 func (s *S) TestYesNoBoolean(c *check.C) {
 	bTrue := YesNoBoolean(true)
 	bFalse := YesNoBoolean(false)
@@ -29,23 +43,43 @@ func (s *S) TestYesNoBoolean(c *check.C) {
 	c.Assert(string(data), check.Equals, `"no"`)
 }
 
-func (s *S) TestDoRequirementsParameters(c *check.C) {
+func (s *S) TestDoMissingRequiredParameters(c *check.C) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		byteResponse, _ := json.Marshal(s.mockErrorResponseObject(nil, []string{"Wrong user id or key!"}))
+		w.Write(byteResponse)
+	}))
+	defer server.Close()
+	client := Client{Endpoint: server.URL}
+	err := client.do(&Request{
+		Action:  "AddMedia",
+		MediaID: "123456",
+		Source:  []string{"http://some.non.existent/video.mp4"},
+	}, nil)
+	c.Assert(err, check.NotNil)
+	apiErr, ok := err.(*APIError)
+	c.Assert(ok, check.Equals, true)
+	c.Assert(apiErr.Message, check.Equals, "")
+	c.Assert(apiErr.Errors, check.DeepEquals, []string{"Wrong user id or key!"})
+}
+
+func (s *S) TestDoRequiredParameters(c *check.C) {
 	var req *http.Request
 	var data string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		req = r
 		data = req.FormValue("json")
-		w.Write([]byte("it worked"))
+		w.Write([]byte(`{"response": {"status": "added"}}`))
 	}))
 	defer server.Close()
 	client := Client{Endpoint: server.URL}
-	resp, err := client.do(&Request{
+	var respObj map[string]interface{}
+	err := client.do(&Request{
 		UserID:  "myuser",
 		UserKey: "123",
 		Action:  "AddMedia",
 		MediaID: "123456",
 		Source:  []string{"http://some.non.existent/video.mp4"},
-	})
+	}, &respObj)
 	c.Assert(err, check.IsNil)
 	c.Assert(req, check.NotNil)
 	c.Assert(req.Method, check.Equals, "POST")
@@ -63,8 +97,9 @@ func (s *S) TestDoRequirementsParameters(c *check.C) {
 			"source":  []interface{}{"http://some.non.existent/video.mp4"},
 		},
 	})
-	c.Assert(resp.StatusCode, check.Equals, http.StatusOK)
-	respData, err := ioutil.ReadAll(resp.Body)
-	c.Assert(err, check.IsNil)
-	c.Assert(string(respData), check.Equals, "it worked")
+	c.Assert(respObj, check.DeepEquals, map[string]interface{}{
+		"response": map[string]interface{}{
+			"status": "added",
+		},
+	})
 }

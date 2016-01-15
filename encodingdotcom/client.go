@@ -2,6 +2,8 @@ package encodingdotcom
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -12,25 +14,55 @@ type Client struct {
 	Endpoint string
 }
 
-func (c *Client) do(r *Request) (*http.Response, error) {
+func (c *Client) do(r *Request, out interface{}) error {
 	jsonRequest, err := json.Marshal(r)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	rawMsg := json.RawMessage(jsonRequest)
 	m := map[string]interface{}{"query": &rawMsg}
-	data, err := json.Marshal(m)
+	reqData, err := json.Marshal(m)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	params := url.Values{}
-	params.Add("json", string(data))
+	params.Add("json", string(reqData))
 	req, err := http.NewRequest("POST", c.Endpoint, strings.NewReader(params.Encode()))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	return http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	respData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var errRespWrapper map[string]*ErrorResponse
+	err = json.Unmarshal(respData, &errRespWrapper)
+	if err != nil {
+		return err
+	}
+	if errResp := errRespWrapper["response"]; errResp.Errors != nil {
+		return &APIError{
+			Message: errResp.Message,
+			Errors: errResp.Errors.Error,
+		}
+	}
+	return json.Unmarshal(respData, out)
+}
+
+type APIError struct {
+	Message string
+	Errors []string
+}
+
+func (apiErr *APIError) Error() string {
+	data, _ := json.Marshal(apiErr)
+	return fmt.Sprintf("Error returned by the Encoding.com API: %s", data)
 }
 
 type Request struct {
@@ -71,6 +103,15 @@ type GetMediaListResponse struct {
 		StartDate   time.Time `json:"startdate,string,omitempty"`
 		FinishDate  time.Time `json:"finishdate,string,omitempty"`
 	}
+}
+
+type ErrorResponse struct {
+	Message string `json:"message,omitempty"`
+	Errors  *Errors `json:"errors,omitempty"`
+}
+
+type Errors struct {
+	Error []string `json:"error,omitempty"`
 }
 
 type Format struct {
