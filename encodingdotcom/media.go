@@ -1,11 +1,43 @@
 package encodingdotcom
 
+import "time"
+
+const DateTimeLayout = "2006-01-02 15:04:05"
+
+type MediaDateTime struct {
+	time.Time
+}
+
+func (mdt *MediaDateTime) UnmarshalJSON(b []byte) (err error) {
+	if b[0] == '"' && b[len(b)-1] == '"' {
+		b = b[1 : len(b)-1]
+	}
+	mdt.Time, err = time.Parse(DateTimeLayout, string(b))
+	return err
+}
+
 // AddMediaResponse represents the response returned by the AddMedia action.
 //
 // See http://goo.gl/Aqg8lc for more details.
 type AddMediaResponse struct {
 	Message string `json:"message,omitempty"`
 	MediaID string `json:"mediaid,omitempty"`
+}
+
+// ListMediaResponse represents the response returned by the GetMediaList action.
+//
+// See http://goo.gl/xhVV6v for more details.
+type ListMediaResponse struct {
+	Media []ListMediaResponseItem `json:"media,omitempty"`
+}
+
+type ListMediaResponseItem struct {
+	MediaFile   string        `json:"mediafile,omitempty"`
+	MediaID     string        `json:"mediaid,omitempty"`
+	MediaStatus string        `json:"mediastatus,omitempty"`
+	CreateDate  MediaDateTime `json:"createdate,string,omitempty"`
+	StartDate   MediaDateTime `json:"startdate,string,omitempty"`
+	FinishDate  MediaDateTime `json:"finishdate,string,omitempty"`
 }
 
 // AddMedia adds a new media to user's queue.
@@ -19,6 +51,20 @@ func (c *Client) AddMedia(source []string, format *Format) (*AddMediaResponse, e
 		Action:  "AddMedia",
 		Format:  format,
 		Source:  source,
+		UserID:  c.UserID,
+		UserKey: c.UserKey,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result["response"], nil
+}
+
+// ListMedia (GetMediaList action) returns a list of the user's media in the queue.
+func (c *Client) ListMedia() (*ListMediaResponse, error) {
+	var result map[string]*ListMediaResponse
+	err := c.do(&request{
+		Action:  "GetMediaList",
 		UserID:  c.UserID,
 		UserKey: c.UserKey,
 	}, &result)
