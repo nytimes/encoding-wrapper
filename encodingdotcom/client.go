@@ -49,7 +49,7 @@ func (c *Client) do(r *request, out interface{}) error {
 	if err != nil {
 		return err
 	}
-	var errRespWrapper map[string]*ErrorResponse
+	var errRespWrapper map[string]*errorResponse
 	err = json.Unmarshal(respData, &errRespWrapper)
 	if err != nil {
 		return err
@@ -77,6 +77,15 @@ type APIError struct {
 func (apiErr *APIError) Error() string {
 	data, _ := json.Marshal(apiErr)
 	return fmt.Sprintf("Error returned by the Encoding.com API: %s", data)
+}
+
+type errorResponse struct {
+	Message string  `json:"message,omitempty"`
+	Errors  *errors `json:"errors,omitempty"`
+}
+
+type errors struct {
+	Error []string `json:"error,omitempty"`
 }
 
 type request struct {
@@ -112,15 +121,6 @@ type GetMediaListResponse struct {
 		StartDate   time.Time `json:"startdate,string,omitempty"`
 		FinishDate  time.Time `json:"finishdate,string,omitempty"`
 	}
-}
-
-type ErrorResponse struct {
-	Message string  `json:"message,omitempty"`
-	Errors  *Errors `json:"errors,omitempty"`
-}
-
-type Errors struct {
-	Error []string `json:"error,omitempty"`
 }
 
 type Format struct {
