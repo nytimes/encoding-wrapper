@@ -7,4 +7,4 @@ Collection of Go wrappers for Video encoding providers.
 
 ##Supported providers
 
-- [Encoding.com](https://api.encoding.com)
+- [Encoding.com](http://api.encoding.com)
