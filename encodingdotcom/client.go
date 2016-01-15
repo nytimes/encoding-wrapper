@@ -58,7 +58,7 @@ func (c *Client) do(r *request, out interface{}) error {
 }
 
 type APIError struct {
-	Message string
+	Message string `json:",omitempty"`
 	Errors  []string
 }
 
