@@ -33,12 +33,6 @@ func (c *Client) do(r *Request) (*http.Response, error) {
 	return http.DefaultClient.Do(req)
 }
 
-type Action string
-
-const (
-	AddMedia Action = "AddMedia"
-)
-
 type Request struct {
 	UserID                  string       `json:"userid"`
 	UserKey                 string       `json:"userkey"`
