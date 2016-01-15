@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type Client struct {
-	Endpoint string
-}
-
 func (c *Client) do(r *Request) (*http.Response, error) {
 	jsonRequest, err := json.Marshal(r)
 	if err != nil {
@@ -33,12 +29,18 @@ func (c *Client) do(r *Request) (*http.Response, error) {
 	return http.DefaultClient.Do(req)
 }
 
+type Client struct {
+	Endpoint string
+	UserID   string
+	UserKey  string
+}
+
 type Request struct {
 	UserID                  string       `json:"userid"`
 	UserKey                 string       `json:"userkey"`
 	Action                  string       `json:"action"`
-	MediaID                 string       `json:"mediaid"`
-	Source                  []string     `json:"source"`
+	MediaID                 string       `json:"mediaid,omitempty"`
+	Source                  []string     `json:"source,omitempty"`
 	SplitScreen             *SplitScreen `json:"split_screen,omitempty"`
 	Region                  string       `json:"region,omitempty"`
 	NotifyFormat            string       `json:"notify_format,omitempty"`
