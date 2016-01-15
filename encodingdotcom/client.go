@@ -1,3 +1,7 @@
+// Package encodingdotcom provides types and methods for interacting with the
+// Encoding.com API.
+//
+// You can get more details on the API at http://api.encoding.com/.
 package encodingdotcom
 
 import (
@@ -10,6 +14,8 @@ import (
 	"time"
 )
 
+// Client is the basic type for interacting with the API. It provides methods
+// matching the available actions in the API.
 type Client struct {
 	Endpoint string
 	UserID   string
@@ -57,11 +63,17 @@ func (c *Client) do(r *request, out interface{}) error {
 	return json.Unmarshal(respData, out)
 }
 
+// APIError represents an error returned by the Encoding.com API.
+//
+// See http://goo.gl/BzvXZt for more details.
 type APIError struct {
 	Message string `json:",omitempty"`
 	Errors  []string
 }
 
+// Error converts the whole interlying information to a representative string.
+//
+// It encodes the list of errors in JSON format.
 func (apiErr *APIError) Error() string {
 	data, _ := json.Marshal(apiErr)
 	return fmt.Sprintf("Error returned by the Encoding.com API: %s", data)
@@ -89,11 +101,6 @@ type SplitScreen struct {
 	PaddingRight  int `json:"padding_right,string,omitempty"`
 	PaddingBottom int `json:"padding_bottom,string,omitempty"`
 	PaddingTop    int `json:"padding_top,string,omitempty"`
-}
-
-type AddMediaResponse struct {
-	Message string `json:"message,omitempty"`
-	MediaID string `json:"mediaid,omitempty"`
 }
 
 type GetMediaListResponse struct {
@@ -207,6 +214,7 @@ type Metadata struct {
 }
 
 type YesNoBoolean bool
+
 type ZeroOneBoolean bool
 
 func (b YesNoBoolean) MarshalJSON() ([]byte, error) {
