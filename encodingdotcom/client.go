@@ -36,7 +36,7 @@ func (c *Client) do(r *Request) (*http.Response, error) {
 type Request struct {
 	UserID                  string       `json:"userid"`
 	UserKey                 string       `json:"userkey"`
-	Action                  Action       `json:"action"`
+	Action                  string       `json:"action"`
 	MediaID                 string       `json:"mediaid"`
 	Source                  []string     `json:"source"`
 	SplitScreen             *SplitScreen `json:"split_screen,omitempty"`
