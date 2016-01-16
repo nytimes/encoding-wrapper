@@ -46,6 +46,11 @@ type ListMediaResponseItem struct {
 	FinishDate  MediaDateTime `json:"finishdate,string,omitempty"`
 }
 
+type GenericResponse struct {
+	Message string            `json:"message,omitempty"`
+	Errors  map[string]string `json:"errors,omitempty"`
+}
+
 // AddMedia adds a new media to user's queue.
 //
 // Format specifies details on how the source files are going to be encoded.
@@ -59,6 +64,21 @@ func (c *Client) AddMedia(source []string, format *Format) (*AddMediaResponse, e
 		Source:  source,
 		UserID:  c.UserID,
 		UserKey: c.UserKey,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result["response"], nil
+}
+
+// CancelMedia deletes an existing media on user's queue based on the mediaID.
+func (c *Client) CancelMedia(mediaID string) (*GenericResponse, error) {
+	var result map[string]*GenericResponse
+	err := c.do(&request{
+		Action:  "CancelMedia",
+		UserID:  c.UserID,
+		UserKey: c.UserKey,
+		MediaID: mediaID,
 	}, &result)
 	if err != nil {
 		return nil, err
