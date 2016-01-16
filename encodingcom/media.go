@@ -46,6 +46,7 @@ type ListMediaResponseItem struct {
 	FinishDate  MediaDateTime `json:"finishdate,string,omitempty"`
 }
 
+// GenericResponse represents the generic response for some actions on the API.
 type GenericResponse struct {
 	Message string            `json:"message,omitempty"`
 	Errors  map[string]string `json:"errors,omitempty"`
