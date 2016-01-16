@@ -70,3 +70,47 @@ func (s *S) TestListMedia(c *check.C) {
 	req := <-requests
 	c.Assert(req.query["action"], check.Equals, "GetMediaList")
 }
+
+func (s *S) TestGetMediaInfo(c *check.C) {
+	server, requests := s.startServer(`
+{
+	"response": {
+		"bitrate": "1807k",
+		"duration": "6464.83",
+		"audio_bitrate": "128k",
+		"video_codec": "mpeg4",
+		"video_bitrate": "1679k",
+		"frame_rate": "23.98",
+		"size": "640x352",
+		"pixel_aspect_ratio": "1:1",
+		"display_aspect_ratio": "20:11",
+		"audio_codec": "ac3",
+		"audio_sample_rate": "48000",
+		"audio_channels": "2"
+	}
+}`, http.StatusOK)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	mediaInfo, err := client.GetMediaInfo("m-123")
+	c.Assert(err, check.IsNil)
+
+	c.Assert(mediaInfo, check.DeepEquals, &MediaInfo{
+		Bitrate:            "1807k",
+		Duration:           6464.83,
+		VideoCodec:         "mpeg4",
+		VideoBitrate:       "1679k",
+		Framerate:          "23.98",
+		Size:               "640x352",
+		PixelAspectRatio:   "1:1",
+		DisplayAspectRatio: "20:11",
+		AudioCodec:         "ac3",
+		AudioSampleRate:    uint(48000),
+		AudioChannels:      "2",
+		AudioBitrate:       "128k",
+	})
+
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "GetMediaInfo")
+	c.Assert(req.query["mediaid"], check.Equals, "m-123")
+}
