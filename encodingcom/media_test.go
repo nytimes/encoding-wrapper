@@ -7,19 +7,6 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *S) TestCancelMedia(c *check.C) {
-	server, requests := s.startServer(`{"response": {"message": "Deleted"}}`, http.StatusOK)
-	defer server.Close()
-	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
-	cancelMediaResponse, err := client.CancelMedia("12345")
-	c.Assert(err, check.IsNil)
-	c.Assert(cancelMediaResponse, check.DeepEquals, &GenericResponse{
-		Message: "Deleted",
-	})
-	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "CancelMedia")
-}
-
 func (s *S) TestAddMedia(c *check.C) {
 	server, requests := s.startServer(`{"response": {"message": "Added", "MediaID": "1234567"}}`, http.StatusOK)
 	defer server.Close()

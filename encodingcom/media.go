@@ -72,19 +72,19 @@ func (c *Client) AddMedia(source []string, format *Format) (*AddMediaResponse, e
 	return result["response"], nil
 }
 
+// StopMedia stops an existing media on user's queue based on the mediaID.
+func (c *Client) StopMedia(mediaID string) (*GenericResponse, error) {
+	return c.doGenericAction(mediaID, "StopMedia")
+}
+
 // CancelMedia deletes an existing media on user's queue based on the mediaID.
 func (c *Client) CancelMedia(mediaID string) (*GenericResponse, error) {
-	var result map[string]*GenericResponse
-	err := c.do(&request{
-		Action:  "CancelMedia",
-		UserID:  c.UserID,
-		UserKey: c.UserKey,
-		MediaID: mediaID,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-	return result["response"], nil
+	return c.doGenericAction(mediaID, "CancelMedia")
+}
+
+// RestarMedia restart an existing media on user's queue based on the mediaID.
+func (c *Client) RestartMedia(mediaID string) (*GenericResponse, error) {
+	return c.doGenericAction(mediaID, "RestartMedia")
 }
 
 // ListMedia (GetMediaList action) returns a list of the user's media in the queue.
