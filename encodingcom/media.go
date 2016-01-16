@@ -82,7 +82,7 @@ func (c *Client) CancelMedia(mediaID string) (*GenericResponse, error) {
 	return c.doGenericAction(mediaID, "CancelMedia")
 }
 
-// RestarMedia restart an existing media on user's queue based on the mediaID.
+// RestartMedia restart an existing media on user's queue based on the mediaID.
 func (c *Client) RestartMedia(mediaID string) (*GenericResponse, error) {
 	return c.doGenericAction(mediaID, "RestartMedia")
 }
