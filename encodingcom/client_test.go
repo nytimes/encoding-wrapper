@@ -34,6 +34,19 @@ func (s *S) TestYesNoBoolean(c *check.C) {
 	c.Assert(string(data), check.Equals, `"no"`)
 }
 
+func (s *S) TestDoGenericAction(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Deleted"}}`, http.StatusOK)
+	defer server.Close()
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	cancelMediaResponse, err := client.doGenericAction("12345", "CancelMedia")
+	c.Assert(err, check.IsNil)
+	c.Assert(cancelMediaResponse, check.DeepEquals, &GenericResponse{
+		Message: "Deleted",
+	})
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "CancelMedia")
+}
+
 func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		byteResponse, _ := json.Marshal(s.mockErrorResponseObject(nil, []string{"Wrong user id or key!"}))

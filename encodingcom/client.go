@@ -21,6 +21,20 @@ type Client struct {
 	UserKey  string
 }
 
+func (c *Client) doGenericAction(mediaID string, action string) (*GenericResponse, error) {
+	var result map[string]*GenericResponse
+	err := c.do(&request{
+		Action:  action,
+		UserID:  c.UserID,
+		UserKey: c.UserKey,
+		MediaID: mediaID,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result["response"], nil
+}
+
 func (c *Client) do(r *request, out interface{}) error {
 	jsonRequest, err := json.Marshal(r)
 	if err != nil {
