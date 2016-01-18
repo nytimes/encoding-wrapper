@@ -21,8 +21,14 @@ type Client struct {
 	UserKey  string
 }
 
-func (c *Client) doGenericAction(mediaID string, action string) (*GenericResponse, error) {
-	var result map[string]*GenericResponse
+// Response represents the generic response for some actions on the API.
+type Response struct {
+	Message string            `json:"message,omitempty"`
+	Errors  map[string]string `json:"errors,omitempty"`
+}
+
+func (c *Client) doGenericAction(mediaID string, action string) (*Response, error) {
+	var result map[string]*Response
 	err := c.do(&request{
 		Action:  action,
 		UserID:  c.UserID,

@@ -40,7 +40,7 @@ func (s *S) TestDoGenericAction(c *check.C) {
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	cancelMediaResponse, err := client.doGenericAction("12345", "CancelMedia")
 	c.Assert(err, check.IsNil)
-	c.Assert(cancelMediaResponse, check.DeepEquals, &GenericResponse{
+	c.Assert(cancelMediaResponse, check.DeepEquals, &Response{
 		Message: "Deleted",
 	})
 	req := <-requests

@@ -46,12 +46,6 @@ type ListMediaResponseItem struct {
 	FinishDate  MediaDateTime `json:"finishdate,string,omitempty"`
 }
 
-// GenericResponse represents the generic response for some actions on the API.
-type GenericResponse struct {
-	Message string            `json:"message,omitempty"`
-	Errors  map[string]string `json:"errors,omitempty"`
-}
-
 // AddMedia adds a new media to user's queue.
 //
 // Format specifies details on how the source files are going to be encoded.
@@ -73,17 +67,17 @@ func (c *Client) AddMedia(source []string, format *Format) (*AddMediaResponse, e
 }
 
 // StopMedia stops an existing media on user's queue based on the mediaID.
-func (c *Client) StopMedia(mediaID string) (*GenericResponse, error) {
+func (c *Client) StopMedia(mediaID string) (*Response, error) {
 	return c.doGenericAction(mediaID, "StopMedia")
 }
 
 // CancelMedia deletes an existing media on user's queue based on the mediaID.
-func (c *Client) CancelMedia(mediaID string) (*GenericResponse, error) {
+func (c *Client) CancelMedia(mediaID string) (*Response, error) {
 	return c.doGenericAction(mediaID, "CancelMedia")
 }
 
 // RestartMedia restart an existing media on user's queue based on the mediaID.
-func (c *Client) RestartMedia(mediaID string) (*GenericResponse, error) {
+func (c *Client) RestartMedia(mediaID string) (*Response, error) {
 	return c.doGenericAction(mediaID, "RestartMedia")
 }
 
