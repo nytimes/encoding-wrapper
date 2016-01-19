@@ -21,10 +21,13 @@ type Client struct {
 	UserKey  string
 }
 
-// Response represents the generic response for some actions on the API.
+// Response represents the generic response in the Encoding.com API. It doesn't
+// include error information, as the client will smartly handle errors and
+// return an instance of APIError when something goes wrong.
+//
+// See http://goo.gl/GBEn98 for more details.
 type Response struct {
-	Message string            `json:"message,omitempty"`
-	Errors  map[string]string `json:"errors,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 func (c *Client) doGenericAction(mediaID string, action string) (*Response, error) {
@@ -73,7 +76,7 @@ func (c *Client) do(r *request, out interface{}) error {
 	if err != nil {
 		return err
 	}
-	if errResp := errRespWrapper["response"]; errResp.Errors != nil {
+	if errResp := errRespWrapper["response"]; len(errResp.Errors.Error) > 0 {
 		return &APIError{
 			Message: errResp.Message,
 			Errors:  errResp.Errors.Error,
@@ -99,8 +102,8 @@ func (apiErr *APIError) Error() string {
 }
 
 type errorResponse struct {
-	Message string  `json:"message,omitempty"`
-	Errors  *errors `json:"errors,omitempty"`
+	Message string `json:"message,omitempty"`
+	Errors  errors `json:"errors,omitempty"`
 }
 
 type errors struct {
