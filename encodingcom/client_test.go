@@ -8,19 +8,13 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *S) mockErrorResponseObject(message *string, errors []string) interface{} {
-	errorResponse := map[string]interface{}{
-		"response": map[string]interface{}{},
+func (s *S) mockGenericResponseObject(message string, errors []string) interface{} {
+	return map[string]interface{}{
+		"response": map[string]interface{}{
+			"message": message,
+			"errors":  map[string][]string{"error": errors},
+		},
 	}
-	if message != nil {
-		errorResponse["response"].(map[string]interface{})["message"] = *message
-	}
-	if len(errors) > 0 {
-		errorObject := make(map[string][]string)
-		errorObject["error"] = errors
-		errorResponse["response"].(map[string]interface{})["errors"] = errorObject
-	}
-	return errorResponse
 }
 
 func (s *S) TestYesNoBoolean(c *check.C) {
@@ -49,7 +43,7 @@ func (s *S) TestDoGenericAction(c *check.C) {
 
 func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byteResponse, _ := json.Marshal(s.mockErrorResponseObject(nil, []string{"Wrong user id or key!"}))
+		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("", []string{"Wrong user id or key!"}))
 		w.Write(byteResponse)
 	}))
 	defer server.Close()
@@ -64,6 +58,22 @@ func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 	c.Assert(ok, check.Equals, true)
 	c.Assert(apiErr.Message, check.Equals, "")
 	c.Assert(apiErr.Errors, check.DeepEquals, []string{"Wrong user id or key!"})
+}
+
+func (s *S) TestDoGenericResponse(c *check.C) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("it worked!", nil))
+		w.Write(byteResponse)
+	}))
+	defer server.Close()
+	client := Client{Endpoint: server.URL}
+	var result map[string]*Response
+	err := client.do(&request{
+		Action:  "GetStatus",
+		MediaID: "123456",
+	}, &result)
+	c.Assert(err, check.IsNil)
+	c.Assert(result["response"].Message, check.Equals, "it worked!")
 }
 
 func (s *S) TestDoRequiredParameters(c *check.C) {
