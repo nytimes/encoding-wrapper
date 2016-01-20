@@ -264,6 +264,17 @@ func (b YesNoBoolean) MarshalJSON() ([]byte, error) {
 	return boolToBytes(bool(b), "yes", "no"), nil
 }
 
+// UnmarshalJSON is the method that ensure that YesNoBoolean can be converted
+// back from 1 or 0 to a boolean value.
+func (b *YesNoBoolean) UnmarshalJSON(data []byte) error {
+	v, err := bytesToBool(data, "yes", "no")
+	if err != nil {
+		return err
+	}
+	*b = YesNoBoolean(v)
+	return nil
+}
+
 // ZeroOneBoolean is a boolean that turns true into "1" and false into "0" when
 // encoded as JSON.
 type ZeroOneBoolean bool
@@ -274,9 +285,31 @@ func (b ZeroOneBoolean) MarshalJSON() ([]byte, error) {
 	return boolToBytes(bool(b), "1", "0"), nil
 }
 
+// UnmarshalJSON is the method that ensure that ZeroOneBoolean can be converted
+// back from 1 or 0 to a boolean value.
+func (b *ZeroOneBoolean) UnmarshalJSON(data []byte) error {
+	v, err := bytesToBool(data, "1", "0")
+	if err != nil {
+		return err
+	}
+	*b = ZeroOneBoolean(v)
+	return nil
+}
+
 func boolToBytes(b bool, t, f string) []byte {
 	if b {
 		return []byte(`"` + t + `"`)
 	}
 	return []byte(`"` + f + `"`)
+}
+
+func bytesToBool(data []byte, t, f string) (bool, error) {
+	switch string(data) {
+	case `"` + t + `"`:
+		return true, nil
+	case `"` + f + `"`:
+		return false, nil
+	default:
+		return false, fmt.Errorf("invalid value: %s", data)
+	}
 }

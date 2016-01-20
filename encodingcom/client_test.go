@@ -28,7 +28,7 @@ func (s *S) TestNewClient(c *check.C) {
 	c.Assert(*got, check.DeepEquals, expected)
 }
 
-func (s *S) TestYesNoBoolean(c *check.C) {
+func (s *S) TestYesNoBooleanMarshal(c *check.C) {
 	bTrue := YesNoBoolean(true)
 	bFalse := YesNoBoolean(false)
 	data, err := json.Marshal(bTrue)
@@ -37,6 +37,49 @@ func (s *S) TestYesNoBoolean(c *check.C) {
 	data, err = json.Marshal(bFalse)
 	c.Assert(err, check.IsNil)
 	c.Assert(string(data), check.Equals, `"no"`)
+}
+
+func (s *S) TestYesNoBooleanUnmarshal(c *check.C) {
+	data := []byte(`{"true":"yes", "false":"no"}`)
+	var m map[string]YesNoBoolean
+	err := json.Unmarshal(data, &m)
+	c.Assert(err, check.IsNil)
+	c.Assert(m, check.DeepEquals, map[string]YesNoBoolean{
+		"true":  YesNoBoolean(true),
+		"false": YesNoBoolean(false),
+	})
+
+	invalidData := []byte(`{"true":"true"}`)
+	err = json.Unmarshal(invalidData, &m)
+	c.Assert(err, check.NotNil)
+	c.Assert(err.Error(), check.Equals, `invalid value: "true"`)
+}
+
+func (s *S) TestZeroOneBooleanMarshal(c *check.C) {
+	bTrue := ZeroOneBoolean(true)
+	bFalse := ZeroOneBoolean(false)
+	data, err := json.Marshal(bTrue)
+	c.Assert(err, check.IsNil)
+	c.Assert(string(data), check.Equals, `"1"`)
+	data, err = json.Marshal(bFalse)
+	c.Assert(err, check.IsNil)
+	c.Assert(string(data), check.Equals, `"0"`)
+}
+
+func (s *S) TestZeroOneBooleanUnmarshal(c *check.C) {
+	data := []byte(`{"true":"1", "false":"0"}`)
+	var m map[string]ZeroOneBoolean
+	err := json.Unmarshal(data, &m)
+	c.Assert(err, check.IsNil)
+	c.Assert(m, check.DeepEquals, map[string]ZeroOneBoolean{
+		"true":  ZeroOneBoolean(true),
+		"false": ZeroOneBoolean(false),
+	})
+
+	invalidData := []byte(`{"true":"true"}`)
+	err = json.Unmarshal(invalidData, &m)
+	c.Assert(err, check.NotNil)
+	c.Assert(err.Error(), check.Equals, `invalid value: "true"`)
 }
 
 func (s *S) TestDoGenericAction(c *check.C) {
