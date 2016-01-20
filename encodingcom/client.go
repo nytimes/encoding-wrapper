@@ -115,6 +115,7 @@ type request struct {
 	UserKey                 string       `json:"userkey"`
 	Action                  string       `json:"action"`
 	MediaID                 string       `json:"mediaid,omitempty"`
+	TaskID                  string       `json:"taskid,omitempty"`
 	Source                  []string     `json:"source,omitempty"`
 	SplitScreen             *SplitScreen `json:"split_screen,omitempty"`
 	Region                  string       `json:"region,omitempty"`
