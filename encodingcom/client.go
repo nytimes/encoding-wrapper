@@ -156,7 +156,7 @@ type Format struct {
 	Bitrate                 string        `json:"bitrate,omitempty"`
 	AudioBitrate            string        `json:"audio_bitrate,omitempty"`
 	AudioSampleRate         uint          `json:"audio_sample_rate,string,omitempty"`
-	AudioChannelsNumber     int           `json:"audio_channels_number,string,omitempty"`
+	AudioChannelsNumber     string        `json:"audio_channels_number,omitempty"`
 	AudioVolume             uint          `json:"audio_volume,string,omitempty"`
 	Framerate               string        `json:"framerate,omitempty"`
 	FramerateUpperThreshold string        `json:"framerate_upper_threshold,omitempty"`
