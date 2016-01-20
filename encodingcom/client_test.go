@@ -17,6 +17,17 @@ func (s *S) mockGenericResponseObject(message string, errors []string) interface
 	}
 }
 
+func (s *S) TestNewClient(c *check.C) {
+	expected := Client{
+		Endpoint: "https://manage.encoding.com",
+		UserID:   "myuser",
+		UserKey:  "secret-key",
+	}
+	got, err := NewClient("https://manage.encoding.com", "myuser", "secret-key")
+	c.Assert(err, check.IsNil)
+	c.Assert(*got, check.DeepEquals, expected)
+}
+
 func (s *S) TestYesNoBoolean(c *check.C) {
 	bTrue := YesNoBoolean(true)
 	bFalse := YesNoBoolean(false)

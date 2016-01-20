@@ -21,6 +21,11 @@ type Client struct {
 	UserKey  string
 }
 
+// NewClient creates a instance of the client type.
+func NewClient(endpoint, userID, userKey string) (*Client, error) {
+	return &Client{Endpoint: endpoint, UserID: userID, UserKey: userKey}, nil
+}
+
 // Response represents the generic response in the Encoding.com API. It doesn't
 // include error information, as the client will smartly handle errors and
 // return an instance of APIError when something goes wrong.
