@@ -76,9 +76,30 @@ func (c *Client) CancelMedia(mediaID string) (*Response, error) {
 	return c.doGenericAction(mediaID, "CancelMedia")
 }
 
-// RestartMedia restart an existing media on user's queue based on the mediaID.
-func (c *Client) RestartMedia(mediaID string) (*Response, error) {
-	return c.doGenericAction(mediaID, "RestartMedia")
+// RestartMedia restart the entire job of an existing media on user's queue based on the mediaID.
+// When withErrors enabled it only retry tasks ended with error and not the entire job.
+func (c *Client) RestartMedia(mediaID string, withErrors bool) (*Response, error) {
+	action := "RestartMedia"
+	if withErrors {
+		action = "RestartMediaErrors"
+	}
+	return c.doGenericAction(mediaID, action)
+}
+
+// RestartMediaTask restart a specific task on a job.
+func (c *Client) RestartMediaTask(mediaID string, taskID string) (*Response, error) {
+	var result map[string]*Response
+	err := c.do(&request{
+		Action:  "RestartMediaTask",
+		UserID:  c.UserID,
+		UserKey: c.UserKey,
+		MediaID: mediaID,
+		TaskID:  taskID,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result["response"], nil
 }
 
 // ListMedia (GetMediaList action) returns a list of the user's media in the queue.
