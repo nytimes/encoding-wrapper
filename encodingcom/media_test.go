@@ -1,14 +1,13 @@
 package encodingcom
 
 import (
-	"net/http"
 	"time"
 
 	"gopkg.in/check.v1"
 )
 
 func (s *S) TestAddMedia(c *check.C) {
-	server, requests := s.startServer(`{"response": {"message": "Added", "MediaID": "1234567"}}`, http.StatusOK)
+	server, requests := s.startServer(`{"response": {"message": "Added", "MediaID": "1234567"}}`)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
@@ -44,7 +43,7 @@ func (s *S) TestListMedia(c *check.C) {
             }
         ]
     }
-}`, http.StatusOK)
+}`)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
@@ -88,7 +87,7 @@ func (s *S) TestGetMediaInfo(c *check.C) {
 		"audio_sample_rate": "48000",
 		"audio_channels": "2"
 	}
-}`, http.StatusOK)
+}`)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}

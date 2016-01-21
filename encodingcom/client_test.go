@@ -83,7 +83,7 @@ func (s *S) TestZeroOneBooleanUnmarshal(c *check.C) {
 }
 
 func (s *S) TestDoGenericAction(c *check.C) {
-	server, requests := s.startServer(`{"response": {"message": "Deleted"}}`, http.StatusOK)
+	server, requests := s.startServer(`{"response": {"message": "Deleted"}}`)
 	defer server.Close()
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	cancelMediaResponse, err := client.doGenericAction("12345", "CancelMedia")

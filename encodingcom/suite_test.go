@@ -22,7 +22,7 @@ type fakeServerRequest struct {
 	query map[string]interface{}
 }
 
-func (s *S) startServer(content string, status int) (*httptest.Server, chan fakeServerRequest) {
+func (s *S) startServer(content string) (*httptest.Server, chan fakeServerRequest) {
 	requests := make(chan fakeServerRequest, 1)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data := r.FormValue("json")
@@ -30,7 +30,6 @@ func (s *S) startServer(content string, status int) (*httptest.Server, chan fake
 		json.Unmarshal([]byte(data), &m)
 		fakeRequest := fakeServerRequest{req: r, query: m["query"].(map[string]interface{})}
 		requests <- fakeRequest
-		w.WriteHeader(status)
 		w.Write([]byte(content))
 	}))
 	return server, requests
