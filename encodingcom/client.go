@@ -107,11 +107,11 @@ func (apiErr *APIError) Error() string {
 }
 
 type errorResponse struct {
-	Message string `json:"message,omitempty"`
-	Errors  errors `json:"errors,omitempty"`
+	Message string     `json:"message,omitempty"`
+	Errors  errorsJSON `json:"errors,omitempty"`
 }
 
-type errors struct {
+type errorsJSON struct {
 	Error []string `json:"error,omitempty"`
 }
 
