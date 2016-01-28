@@ -54,11 +54,9 @@ type ListMediaResponseItem struct {
 func (c *Client) AddMedia(source []string, format *Format) (*AddMediaResponse, error) {
 	var result map[string]*AddMediaResponse
 	err := c.do(&request{
-		Action:  "AddMedia",
-		Format:  format,
-		Source:  source,
-		UserID:  c.UserID,
-		UserKey: c.UserKey,
+		Action: "AddMedia",
+		Format: format,
+		Source: source,
 	}, &result)
 	if err != nil {
 		return nil, err
@@ -91,8 +89,6 @@ func (c *Client) RestartMediaTask(mediaID string, taskID string) (*Response, err
 	var result map[string]*Response
 	err := c.do(&request{
 		Action:  "RestartMediaTask",
-		UserID:  c.UserID,
-		UserKey: c.UserKey,
 		MediaID: mediaID,
 		TaskID:  taskID,
 	}, &result)
@@ -105,11 +101,7 @@ func (c *Client) RestartMediaTask(mediaID string, taskID string) (*Response, err
 // ListMedia (GetMediaList action) returns a list of the user's media in the queue.
 func (c *Client) ListMedia() (*ListMediaResponse, error) {
 	var result map[string]*ListMediaResponse
-	err := c.do(&request{
-		Action:  "GetMediaList",
-		UserID:  c.UserID,
-		UserKey: c.UserKey,
-	}, &result)
+	err := c.do(&request{Action: "GetMediaList"}, &result)
 	if err != nil {
 		return nil, err
 	}
