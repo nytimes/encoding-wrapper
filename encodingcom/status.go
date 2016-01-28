@@ -52,8 +52,7 @@ type DestinationStatus struct {
 // StatusResponse, the size of the result slice matches the size of input
 // slice.
 func (c *Client) GetStatus(mediaIDs []string) ([]StatusResponse, error) {
-	switch len(mediaIDs) {
-	case 0:
+	if len(mediaIDs) == 0 {
 		return nil, errors.New("please provide at least one media id")
 	}
 	var m map[string]map[string][]statusJSON
