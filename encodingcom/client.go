@@ -39,8 +39,6 @@ func (c *Client) doGenericAction(mediaID string, action string) (*Response, erro
 	var result map[string]*Response
 	err := c.do(&request{
 		Action:  action,
-		UserID:  c.UserID,
-		UserKey: c.UserKey,
 		MediaID: mediaID,
 	}, &result)
 	if err != nil {
@@ -50,6 +48,8 @@ func (c *Client) doGenericAction(mediaID string, action string) (*Response, erro
 }
 
 func (c *Client) do(r *request, out interface{}) error {
+	r.UserID = c.UserID
+	r.UserKey = c.UserKey
 	jsonRequest, err := json.Marshal(r)
 	if err != nil {
 		return err

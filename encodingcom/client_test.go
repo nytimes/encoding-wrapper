@@ -141,11 +141,7 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 	defer server.Close()
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	var respObj map[string]interface{}
-	err := client.do(&request{
-		UserID:  client.UserID,
-		UserKey: client.UserKey,
-		Action:  "GetStatus",
-	}, &respObj)
+	err := client.do(&request{Action: "GetStatus"}, &respObj)
 	c.Assert(err, check.IsNil)
 	c.Assert(req, check.NotNil)
 	c.Assert(req.Method, check.Equals, "POST")
