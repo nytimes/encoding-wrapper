@@ -10,8 +10,7 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 	server, requests := s.startServer(`
 {
 	"response": {
-		"job": [
-			{
+		"job": {
 				"id": "abc123",
 				"userid": "myuser",
 				"sourcefile": "http://some.video/file.mp4",
@@ -27,8 +26,7 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 				"progress": "100",
 				"time_left_current": "0",
 				"progress_current": "100.0",
-				"format": [
-					{
+				"format": {
 						"id": "f123",
 						"status": "Finished",
 						"created": "2015-12-31 20:45:30",
@@ -36,16 +34,10 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 						"finished": "2015-12-31 21:00:03",
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
-						"destination": [
-							"s3://mynicebucket"
-						],
-						"destination_status": [
-							"Saved"
-						]
+						"destination": "s3://mynicebucket",
+						"destination_status": "Saved"
 					}
-				]
 			}
-		]
 	}
 }`)
 	defer server.Close()
@@ -129,9 +121,28 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
 						"destination": [
-							"s3://mynicebucket"
+							"s3://mynicebucket/file.mp4",
+							"s3://myunclebucket/file.mp4"
 						],
 						"destination_status": [
+							"Saved",
+							"Saved"
+						]
+					},
+					{
+						"id": "f124",
+						"status": "Finished",
+						"created": "2015-12-31 20:45:30",
+						"started": "2015-12-31 20:45:34",
+						"finished": "2015-12-31 21:00:03",
+						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
+						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
+						"destination": [
+							"s3://mynicebucket/file.mp4",
+							"s3://myunclebucket/file.mp4"
+						],
+						"destination_status": [
+							"Saved",
 							"Saved"
 						]
 					}
@@ -153,8 +164,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 				"progress": "100",
 				"time_left_current": "0",
 				"progress_current": "100.0",
-				"format": [
-					{
+				"format": {
 						"id": "f123",
 						"status": "Finished",
 						"created": "2015-12-31 20:45:30",
@@ -163,13 +173,14 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
 						"destination": [
-							"s3://mynicebucket"
+							"s3://mynicebucket/file.mp4",
+							"s3://myunclebucket/file.mp4"
 						],
 						"destination_status": [
+							"Saved",
 							"Saved"
 						]
 					}
-				]
 			}
 		]
 	}
@@ -210,12 +221,18 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 				FinishDate:    expectedFinishDate,
 				S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
 				CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
-				Destinations:  []DestinationStatus{{Name: "s3://mynicebucket", Status: "Saved"}},
+				Destinations: []DestinationStatus{
+					{Name: "s3://mynicebucket/file.mp4", Status: "Saved"},
+					{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
+				},
 			},
 		},
 	}
 	status2 := status1
 	status2.MediaID = "abc124"
+	copy(status2.Formats, status1.Formats)
+	status1.Formats = append(status1.Formats, status1.Formats[0])
+	status1.Formats[1].ID = "f124"
 	expected := []StatusResponse{status1, status2}
 	c.Assert(status, check.DeepEquals, expected)
 

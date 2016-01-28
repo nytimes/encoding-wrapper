@@ -1,6 +1,7 @@
 package encodingcom
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -55,7 +56,8 @@ func (c *Client) GetStatus(mediaIDs []string) ([]StatusResponse, error) {
 	if len(mediaIDs) == 0 {
 		return nil, errors.New("please provide at least one media id")
 	}
-	var m map[string]map[string][]statusJSON
+
+	var m map[string]map[string]interface{}
 	err := c.do(&request{
 		Action:   "GetStatus",
 		MediaID:  strings.Join(mediaIDs, ","),
@@ -64,7 +66,18 @@ func (c *Client) GetStatus(mediaIDs []string) ([]StatusResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	apiStatus := m["response"]["job"]
+
+	var apiStatus []statusJSON
+	rawData := m["response"]["job"]
+	rawBytes, _ := json.Marshal(rawData)
+	if _, ok := rawData.([]interface{}); ok {
+		json.Unmarshal(rawBytes, &apiStatus)
+	} else {
+		var item statusJSON
+		json.Unmarshal(rawBytes, &item)
+		apiStatus = append(apiStatus, item)
+	}
+
 	statusResponse := make([]StatusResponse, len(apiStatus))
 	for i, status := range apiStatus {
 		statusResponse[i] = status.toStruct()
@@ -73,22 +86,22 @@ func (c *Client) GetStatus(mediaIDs []string) ([]StatusResponse, error) {
 }
 
 type statusJSON struct {
-	MediaID             string             `json:"id"`
-	UserID              string             `json:"userid"`
-	SourceFile          string             `json:"sourcefile"`
-	MediaStatus         string             `json:"status"`
-	PreviousMediaStatus string             `json:"prevstatus"`
-	NotifyURL           string             `json:"notifyurl"`
-	CreateDate          MediaDateTime      `json:"created"`
-	StartDate           MediaDateTime      `json:"started"`
-	FinishDate          MediaDateTime      `json:"finished"`
-	DownloadDate        MediaDateTime      `json:"downloaded"`
-	UploadDate          MediaDateTime      `json:"uploaded"`
-	TimeLeft            string             `json:"time_left"`
-	Progress            float64            `json:"progress,string"`
-	TimeLeftCurrentJob  string             `json:"time_left_current"`
-	ProgressCurrentJob  float64            `json:"progress_current,string"`
-	Formats             []formatStatusJSON `json:"format"`
+	MediaID             string        `json:"id"`
+	UserID              string        `json:"userid"`
+	SourceFile          string        `json:"sourcefile"`
+	MediaStatus         string        `json:"status"`
+	PreviousMediaStatus string        `json:"prevstatus"`
+	NotifyURL           string        `json:"notifyurl"`
+	CreateDate          MediaDateTime `json:"created"`
+	StartDate           MediaDateTime `json:"started"`
+	FinishDate          MediaDateTime `json:"finished"`
+	DownloadDate        MediaDateTime `json:"downloaded"`
+	UploadDate          MediaDateTime `json:"uploaded"`
+	TimeLeft            string        `json:"time_left"`
+	Progress            float64       `json:"progress,string"`
+	TimeLeftCurrentJob  string        `json:"time_left_current"`
+	ProgressCurrentJob  float64       `json:"progress_current,string"`
+	Formats             interface{}   `json:"format"`
 }
 
 func (s *statusJSON) toStruct() StatusResponse {
@@ -108,9 +121,24 @@ func (s *statusJSON) toStruct() StatusResponse {
 		Progress:            s.Progress,
 		TimeLeftCurrentJob:  s.TimeLeftCurrentJob,
 		ProgressCurrentJob:  s.ProgressCurrentJob,
-		Formats:             make([]FormatStatus, len(s.Formats)),
 	}
-	for i, formatStatus := range s.Formats {
+
+	// Yes, Encoding.com API is nuts, and when there's a single item in the
+	// list, it returns an object instead of a list with a single item, so
+	// we marshal it back, and then unmarshal in the proper type. The same
+	// happens in the internal list of destinations.
+	var formats []formatStatusJSON
+	data, _ := json.Marshal(s.Formats)
+	if _, ok := s.Formats.([]interface{}); ok {
+		json.Unmarshal(data, &formats)
+	} else {
+		var formatStatus formatStatusJSON
+		json.Unmarshal(data, &formatStatus)
+		formats = append(formats, formatStatus)
+	}
+
+	resp.Formats = make([]FormatStatus, len(formats))
+	for i, formatStatus := range formats {
 		format := FormatStatus{
 			ID:            formatStatus.ID,
 			Status:        formatStatus.Status,
@@ -119,15 +147,26 @@ func (s *statusJSON) toStruct() StatusResponse {
 			FinishDate:    formatStatus.FinishDate.Time,
 			S3Destination: formatStatus.S3Destination,
 			CFDestination: formatStatus.CFDestination,
-			Destinations:  make([]DestinationStatus, len(formatStatus.Destinations)),
 		}
-		for i, dest := range formatStatus.Destinations {
-			destStatus := DestinationStatus{Name: dest}
-			if i < len(formatStatus.DestinationsStatus) {
-				destStatus.Status = formatStatus.DestinationsStatus[i]
+
+		switch dest := formatStatus.Destinations.(type) {
+		case string:
+			destinationStatus := DestinationStatus{
+				Name:   dest,
+				Status: formatStatus.DestinationsStatus.(string),
 			}
-			format.Destinations[i] = destStatus
+			format.Destinations = append(format.Destinations, destinationStatus)
+		case []interface{}:
+			destStats := formatStatus.DestinationsStatus.([]interface{})
+			format.Destinations = make([]DestinationStatus, len(dest))
+			for i, d := range dest {
+				format.Destinations[i] = DestinationStatus{
+					Name:   d.(string),
+					Status: destStats[i].(string),
+				}
+			}
 		}
+
 		resp.Formats[i] = format
 	}
 	return resp
@@ -141,6 +180,6 @@ type formatStatusJSON struct {
 	FinishDate         MediaDateTime `json:"finished"`
 	S3Destination      string        `json:"s3_destination"`
 	CFDestination      string        `json:"cf_destination"`
-	Destinations       []string      `json:"destination"`
-	DestinationsStatus []string      `json:"destination_status"`
+	Destinations       interface{}   `json:"destination"`
+	DestinationsStatus interface{}   `json:"destination_status"`
 }
