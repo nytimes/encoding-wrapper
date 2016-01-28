@@ -189,6 +189,7 @@ type Format struct {
 	TextOverlay             []TextOverlay `json:"text_overlay,omitempty"`
 	VideoCodecParameters    string        `json:"video_codec_parameters,omitempty"`
 	Profile                 string        `json:"profile,omitempty"`
+	TwoPass                 YesNoBoolean  `json:"two_pass,omitempty"`
 	Turbo                   string        `json:"turbo,omitempty"`
 	Rotate                  string        `json:"rotate,omitempty"`
 	SetRotate               string        `json:"set_rotate,omitempty"`
