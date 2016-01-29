@@ -125,7 +125,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 							"s3://myunclebucket/file.mp4"
 						],
 						"destination_status": [
-							"Saved",
+							null,
 							"Saved"
 						]
 					},
@@ -196,44 +196,85 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 	expectedFinishDate, _ := time.Parse(dateTimeLayout, "2015-12-31 21:00:03")
 	expectedDownloadDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:32")
 	expectedUploadDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:59:54")
-	status1 := StatusResponse{
-		MediaID:             "abc123",
-		UserID:              "myuser",
-		SourceFile:          "http://some.video/file.mp4",
-		MediaStatus:         "Finished",
-		PreviousMediaStatus: "Saving",
-		NotifyURL:           "http://ping.me/please",
-		CreateDate:          expectedCreateDate,
-		StartDate:           expectedStartDate,
-		FinishDate:          expectedFinishDate,
-		DownloadDate:        expectedDownloadDate,
-		UploadDate:          expectedUploadDate,
-		TimeLeft:            "0",
-		Progress:            100.0,
-		TimeLeftCurrentJob:  "0",
-		ProgressCurrentJob:  100.0,
-		Formats: []FormatStatus{
-			{
-				ID:            "f123",
-				Status:        "Finished",
-				CreateDate:    expectedCreateDate,
-				StartDate:     expectedStartDate,
-				FinishDate:    expectedFinishDate,
-				S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
-				CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
-				Destinations: []DestinationStatus{
-					{Name: "s3://mynicebucket/file.mp4", Status: "Saved"},
-					{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
+	expected := []StatusResponse{
+		{
+			MediaID:             "abc123",
+			UserID:              "myuser",
+			SourceFile:          "http://some.video/file.mp4",
+			MediaStatus:         "Finished",
+			PreviousMediaStatus: "Saving",
+			NotifyURL:           "http://ping.me/please",
+			CreateDate:          expectedCreateDate,
+			StartDate:           expectedStartDate,
+			FinishDate:          expectedFinishDate,
+			DownloadDate:        expectedDownloadDate,
+			UploadDate:          expectedUploadDate,
+			TimeLeft:            "0",
+			Progress:            100.0,
+			TimeLeftCurrentJob:  "0",
+			ProgressCurrentJob:  100.0,
+			Formats: []FormatStatus{
+				{
+					ID:            "f123",
+					Status:        "Finished",
+					CreateDate:    expectedCreateDate,
+					StartDate:     expectedStartDate,
+					FinishDate:    expectedFinishDate,
+					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
+					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
+					Destinations: []DestinationStatus{
+						{Name: "s3://mynicebucket/file.mp4", Status: ""},
+						{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
+					},
+				},
+				{
+					ID:            "f124",
+					Status:        "Finished",
+					CreateDate:    expectedCreateDate,
+					StartDate:     expectedStartDate,
+					FinishDate:    expectedFinishDate,
+					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
+					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
+					Destinations: []DestinationStatus{
+						{Name: "s3://mynicebucket/file.mp4", Status: "Saved"},
+						{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
+					},
+				},
+			},
+		},
+		{
+			MediaID:             "abc124",
+			UserID:              "myuser",
+			SourceFile:          "http://some.video/file.mp4",
+			MediaStatus:         "Finished",
+			PreviousMediaStatus: "Saving",
+			NotifyURL:           "http://ping.me/please",
+			CreateDate:          expectedCreateDate,
+			StartDate:           expectedStartDate,
+			FinishDate:          expectedFinishDate,
+			DownloadDate:        expectedDownloadDate,
+			UploadDate:          expectedUploadDate,
+			TimeLeft:            "0",
+			Progress:            100.0,
+			TimeLeftCurrentJob:  "0",
+			ProgressCurrentJob:  100.0,
+			Formats: []FormatStatus{
+				{
+					ID:            "f123",
+					Status:        "Finished",
+					CreateDate:    expectedCreateDate,
+					StartDate:     expectedStartDate,
+					FinishDate:    expectedFinishDate,
+					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
+					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
+					Destinations: []DestinationStatus{
+						{Name: "s3://mynicebucket/file.mp4", Status: "Saved"},
+						{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
+					},
 				},
 			},
 		},
 	}
-	status2 := status1
-	status2.MediaID = "abc124"
-	copy(status2.Formats, status1.Formats)
-	status1.Formats = append(status1.Formats, status1.Formats[0])
-	status1.Formats[1].ID = "f124"
-	expected := []StatusResponse{status1, status2}
 	c.Assert(status, check.DeepEquals, expected)
 
 	req := <-requests

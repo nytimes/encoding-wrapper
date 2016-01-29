@@ -151,18 +151,18 @@ func (s *statusJSON) toStruct() StatusResponse {
 
 		switch dest := formatStatus.Destinations.(type) {
 		case string:
-			destinationStatus := DestinationStatus{
-				Name:   dest,
-				Status: formatStatus.DestinationsStatus.(string),
+			destinationStatus := DestinationStatus{Name: dest}
+			if statusStr, ok := formatStatus.DestinationsStatus.(string); ok {
+				destinationStatus.Status = statusStr
 			}
 			format.Destinations = append(format.Destinations, destinationStatus)
 		case []interface{}:
 			destStats := formatStatus.DestinationsStatus.([]interface{})
 			format.Destinations = make([]DestinationStatus, len(dest))
 			for i, d := range dest {
-				format.Destinations[i] = DestinationStatus{
-					Name:   d.(string),
-					Status: destStats[i].(string),
+				format.Destinations[i] = DestinationStatus{Name: d.(string)}
+				if statusStr, ok := destStats[i].(string); ok {
+					format.Destinations[i].Status = statusStr
 				}
 			}
 		}
