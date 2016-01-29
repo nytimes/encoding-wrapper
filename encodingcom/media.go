@@ -15,6 +15,10 @@ func (mdt *MediaDateTime) UnmarshalJSON(b []byte) (err error) {
 	if b[0] == '"' && b[len(b)-1] == '"' {
 		b = b[1 : len(b)-1]
 	}
+	if string(b) == "0000-00-00 00:00:00" {
+		mdt.Time = time.Time{}
+		return nil
+	}
 	mdt.Time, err = time.Parse(dateTimeLayout, string(b))
 	return err
 }

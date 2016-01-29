@@ -242,6 +242,60 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 	c.Assert(req.query["extended"], check.Equals, "yes")
 }
 
+func (s *S) TestGetStatusZeroTime(c *check.C) {
+	server, _ := s.startServer(`
+{
+	"response": {
+		"job": {
+			"id":"abc123",
+			"userid":"myuser",
+			"sourcefile":"http://some.file/wait-wat",
+			"status":"Error",
+			"created":"2016-01-29 19:32:32",
+			"started":"2016-01-29 19:32:32",
+			"finished":"0000-00-00 00:00:00",
+			"downloaded":"0000-00-00 00:00:00",
+			"description":"Download error:  The requested URL returned error: 403 Forbidden",
+			"processor":"AMAZON",
+			"region":"oak-private-clive",
+			"time_left":"50",
+			"progress":"50.0",
+			"time_left_current":"0",
+			"progress_current":"0.0",
+			"format":{
+				"id":"164478401",
+				"status":"New",
+				"created":"2016-01-29 19:32:32",
+				"started":"0000-00-00 00:00:00",
+				"finished":"0000-00-00 00:00:00",
+				"destination":"http://s4.amazonaws.com/future",
+				"destination_status":"Open",
+				"convertedsize":"0",
+				"queued":"0000-00-00 00:00:00",
+				"converttime":"0",
+				"time_left":"40",
+				"progress":"0.0",
+				"time_left_current":"0",
+				"progress_current":"0.0"
+			},
+			"queue_time":"0"
+		}
+	}
+}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	status, err := client.GetStatus([]string{"abc123"})
+	c.Assert(err, check.IsNil)
+	c.Assert(status, check.HasLen, 1)
+
+	expectedCreateDate, _ := time.Parse(dateTimeLayout, "2016-01-29 19:32:32")
+	c.Assert(status[0].MediaID, check.Equals, "abc123")
+	c.Assert(status[0].CreateDate, check.DeepEquals, expectedCreateDate)
+	c.Assert(status[0].FinishDate.IsZero(), check.Equals, true)
+	c.Assert(status[0].DownloadDate.IsZero(), check.Equals, true)
+}
+
 func (s *S) TestGetStatusNoMedia(c *check.C) {
 	var client Client
 	status, err := client.GetStatus(nil)
