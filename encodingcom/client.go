@@ -129,7 +129,7 @@ type request struct {
 	NotifyEncodingErrorsURL string       `json:"notify_encoding_errors,omitempty"`
 	NotifyUploadURL         string       `json:"notify_upload,omitempty"`
 	Extended                YesNoBoolean `json:"extended,omitempty"`
-	Format                  *Format      `json:"format,omitempty"`
+	Format                  []Format     `json:"format,omitempty"`
 }
 
 // SplitScreen is the set of options for combining several sources to one split

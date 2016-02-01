@@ -11,13 +11,15 @@ func (s *S) TestAddMedia(c *check.C) {
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
-	addMediaResponse, err := client.AddMedia([]string{"http://another.non.existent/video.mov"}, &Format{
+	format := Format{
 		Output:       []string{"http://another.non.existent/video.mp4"},
 		VideoCodec:   "x264",
 		AudioCodec:   "aac",
 		Bitrate:      "900k",
 		AudioBitrate: "64k",
-	})
+	}
+	addMediaResponse, err := client.AddMedia([]string{"http://another.non.existent/video.mov"},
+		[]Format{format})
 
 	c.Assert(err, check.IsNil)
 	c.Assert(addMediaResponse, check.DeepEquals, &AddMediaResponse{
