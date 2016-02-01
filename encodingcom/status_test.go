@@ -121,7 +121,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
 						"destination": [
-							"s3://mynicebucket/file.mp4",
+							null,
 							"s3://myunclebucket/file.mp4"
 						],
 						"destination_status": [
@@ -141,10 +141,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 							"s3://mynicebucket/file.mp4",
 							"s3://myunclebucket/file.mp4"
 						],
-						"destination_status": [
-							"Saved",
-							"Saved"
-						]
+						"destination_status": null
 					}
 				]
 			},
@@ -223,7 +220,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
 					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
 					Destinations: []DestinationStatus{
-						{Name: "s3://mynicebucket/file.mp4", Status: ""},
+						{Name: "", Status: ""},
 						{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
 					},
 				},
@@ -236,8 +233,8 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
 					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
 					Destinations: []DestinationStatus{
-						{Name: "s3://mynicebucket/file.mp4", Status: "Saved"},
-						{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
+						{Name: "s3://mynicebucket/file.mp4", Status: ""},
+						{Name: "s3://myunclebucket/file.mp4", Status: ""},
 					},
 				},
 			},
