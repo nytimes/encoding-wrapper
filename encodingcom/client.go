@@ -190,7 +190,8 @@ type Format struct {
 	VideoCodecParameters    string        `json:"video_codec_parameters,omitempty"`
 	Profile                 string        `json:"profile,omitempty"`
 	TwoPass                 YesNoBoolean  `json:"two_pass,omitempty"`
-	Turbo                   string        `json:"turbo,omitempty"`
+	Turbo                   YesNoBoolean  `json:"turbo,omitempty"`
+	TwinTurbo               YesNoBoolean  `json:"twin_turbo,omitempty"`
 	Rotate                  string        `json:"rotate,omitempty"`
 	SetRotate               string        `json:"set_rotate,omitempty"`
 	AudioSync               string        `json:"audio_sync,omitempty"`
