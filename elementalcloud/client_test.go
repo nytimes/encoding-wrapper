@@ -1,10 +1,13 @@
 package elementalcloud
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/xml"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"time"
 
 	"gopkg.in/check.v1"
 )
@@ -29,9 +32,19 @@ func (s *S) TestNewClient(c *check.C) {
 	c.Assert(*got, check.DeepEquals, expected)
 }
 
-// func (s *S) TestCreateAuthKey(c *check.C) {
-// 	client := Client{Host: server.URL, UserID: "myuser", APIKey: "123", 30}
-// }
+func (s *S) TestCreateAuthKey(c *check.C) {
+	path := "/jobs"
+	userID := "myuser"
+	APIKey := "api-key"
+	expire := time.Unix(1, 0)
+	innerKeyMD5 := md5.Sum([]byte(path + userID + APIKey + string(expire.Unix())))
+	innerKey2 := hex.EncodeToString(innerKeyMD5[:])
+	value := md5.Sum([]byte(APIKey + innerKey2))
+	expected := hex.EncodeToString(value[:])
+	client := NewClient("https://mycluster.cloud.elementaltechnologies.com", userID, APIKey, 45)
+	got := client.createAuthKey(path, expire)
+	c.Assert(got, check.Equals, expected)
+}
 
 func (s *S) TestDoRequiredParameters(c *check.C) {
 	var req *http.Request

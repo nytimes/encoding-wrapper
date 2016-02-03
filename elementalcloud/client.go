@@ -38,7 +38,8 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 		return err
 	}
 	req.Header.Set("Content-Type", "application/xml")
-	req.Header.Set("Authorization", c.createAuthKey(path, c.ExpirationTime))
+	expireTime := time.Now().Add(time.Duration(c.ExpirationTime) * time.Second)
+	req.Header.Set("Authorization", c.createAuthKey(path, expireTime))
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
@@ -52,17 +53,17 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 	return xml.Unmarshal(respData, out)
 }
 
-func (c *Client) createAuthKey(URL string, expireInSeconds int) string {
-	now := time.Now()
-	expire := string(now.Add(time.Duration(expireInSeconds) * time.Second).Unix())
-
+func (c *Client) createAuthKey(URL string, expire time.Time) string {
+	expireString := string(expire.Unix())
 	hasher := md5.New()
 	hasher.Write([]byte(URL))
 	hasher.Write([]byte(c.UserID))
 	hasher.Write([]byte(c.APIKey))
-	hasher.Write([]byte(expire))
-
-	// innerKey := string((md5.Sum(URL + c.UserID + c.APIKey + expire)))
+	hasher.Write([]byte(expireString))
+	innerKey := hex.EncodeToString(hasher.Sum(nil))
+	hasher = md5.New()
+	hasher.Write([]byte(c.APIKey))
+	hasher.Write([]byte(innerKey))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
