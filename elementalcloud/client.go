@@ -5,23 +5,27 @@
 package elementalcloud
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/xml"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // Client is the basic type for interacting with the API. It provides methods
 // matching the available actions in the API.
 type Client struct {
-	Host    string
-	UserID  string
-	UserKey string
+	Host           string
+	UserID         string
+	APIKey         string
+	ExpirationTime int
 }
 
 // NewClient creates a instance of the client type.
-func NewClient(host, userID, userKey string) (*Client, error) {
-	return &Client{Host: host, UserID: userID, UserKey: userKey}, nil
+func NewClient(host, userID, apiKey string, expirationTime int) *Client {
+	return &Client{Host: host, UserID: userID, APIKey: apiKey, ExpirationTime: expirationTime}
 }
 
 func (c *Client) do(method string, path string, body interface{}, out interface{}) error {
@@ -34,6 +38,7 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 		return err
 	}
 	req.Header.Set("Content-Type", "application/xml")
+	req.Header.Set("Authorization", c.createAuthKey(path, c.ExpirationTime))
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
@@ -45,6 +50,20 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 		return err
 	}
 	return xml.Unmarshal(respData, out)
+}
+
+func (c *Client) createAuthKey(URL string, expireInSeconds int) string {
+	now := time.Now()
+	expire := string(now.Add(time.Duration(expireInSeconds) * time.Second).Unix())
+
+	hasher := md5.New()
+	hasher.Write([]byte(URL))
+	hasher.Write([]byte(c.UserID))
+	hasher.Write([]byte(c.APIKey))
+	hasher.Write([]byte(expire))
+
+	// innerKey := string((md5.Sum(URL + c.UserID + c.APIKey + expire)))
+	return hex.EncodeToString(hasher.Sum(nil))
 }
 
 // FileInput contains location of the video file to be encoded

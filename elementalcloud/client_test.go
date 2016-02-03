@@ -20,14 +20,18 @@ func (s *S) mockGenericResponseObject(message string, errors []string) interface
 
 func (s *S) TestNewClient(c *check.C) {
 	expected := Client{
-		Host:    "https://mycluster.cloud.elementaltechnologies.com",
-		UserID:  "myuser",
-		UserKey: "secret-key",
+		Host:           "https://mycluster.cloud.elementaltechnologies.com",
+		UserID:         "myuser",
+		APIKey:         "secret-key",
+		ExpirationTime: 45,
 	}
-	got, err := NewClient("https://mycluster.cloud.elementaltechnologies.com", "myuser", "secret-key")
-	c.Assert(err, check.IsNil)
+	got := NewClient("https://mycluster.cloud.elementaltechnologies.com", "myuser", "secret-key", 45)
 	c.Assert(*got, check.DeepEquals, expected)
 }
+
+// func (s *S) TestCreateAuthKey(c *check.C) {
+// 	client := Client{Host: server.URL, UserID: "myuser", APIKey: "123", 30}
+// }
 
 func (s *S) TestDoRequiredParameters(c *check.C) {
 	var req *http.Request
@@ -38,7 +42,7 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 		w.Write([]byte(`<response>test</response>`))
 	}))
 	defer server.Close()
-	client := Client{Host: server.URL, UserID: "myuser", UserKey: "123"}
+	client := NewClient(server.URL, "myuser", "secret-key", 45)
 
 	var respObj interface{}
 	myJob := Job{FileInput: FileInput{URI: "some-file"}, Profile: "6"}
