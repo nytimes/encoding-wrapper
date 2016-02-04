@@ -23,10 +23,10 @@ func (s *S) mockGenericResponseObject(message string, errors []string) interface
 
 func (s *S) TestNewClient(c *check.C) {
 	expected := Client{
-		Host:           "https://mycluster.cloud.elementaltechnologies.com",
-		UserID:         "myuser",
-		APIKey:         "secret-key",
-		ExpirationTime: 45,
+		Host:        "https://mycluster.cloud.elementaltechnologies.com",
+		UserLogin:   "myuser",
+		APIKey:      "secret-key",
+		AuthExpires: 45,
 	}
 	got := NewClient("https://mycluster.cloud.elementaltechnologies.com", "myuser", "secret-key", 45)
 	c.Assert(*got, check.DeepEquals, expected)

@@ -19,10 +19,10 @@ import (
 // Client is the basic type for interacting with the API. It provides methods
 // matching the available actions in the API.
 type Client struct {
-	Host           string
-	UserID         string
-	APIKey         string
-	ExpirationTime int
+	Host        string
+	UserLogin   string
+	APIKey      string
+	AuthExpires int
 }
 
 // FileInput contains location of the video file to be encoded
@@ -55,8 +55,8 @@ func (apiErr *APIError) Error() string {
 }
 
 // NewClient creates a instance of the client type.
-func NewClient(host, userID, apiKey string, expirationTime int) *Client {
-	return &Client{Host: host, UserID: userID, APIKey: apiKey, ExpirationTime: expirationTime}
+func NewClient(host, userLogin, apiKey string, authExpires int) *Client {
+	return &Client{Host: host, UserLogin: userLogin, APIKey: apiKey, AuthExpires: authExpires}
 }
 
 func (c *Client) do(method string, path string, body interface{}, out interface{}) error {
@@ -69,7 +69,7 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 		return err
 	}
 	req.Header.Set("Content-Type", "application/xml")
-	expireTime := time.Now().Add(time.Duration(c.ExpirationTime) * time.Second)
+	expireTime := time.Now().Add(time.Duration(c.AuthExpires) * time.Second)
 	req.Header.Set("Authorization", c.createAuthKey(path, expireTime))
 	resp, err := http.DefaultClient.Do(req)
 
@@ -94,7 +94,7 @@ func (c *Client) createAuthKey(URL string, expire time.Time) string {
 	expireString := string(expire.Unix())
 	hasher := md5.New()
 	hasher.Write([]byte(URL))
-	hasher.Write([]byte(c.UserID))
+	hasher.Write([]byte(c.UserLogin))
 	hasher.Write([]byte(c.APIKey))
 	hasher.Write([]byte(expireString))
 	innerKey := hex.EncodeToString(hasher.Sum(nil))
