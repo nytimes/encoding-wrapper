@@ -26,18 +26,6 @@ type Client struct {
 	AuthExpires int
 }
 
-// FileInput contains location of the video file to be encoded
-type FileInput struct {
-	URI string `xml:"uri"`
-}
-
-// Job specifies the parameters for the Elemental Cloud job,
-// where Profile is the id of an existing profile
-type Job struct {
-	FileInput FileInput `xml:"file_input"`
-	Profile   string    `xml:"profile"`
-}
-
 // APIError represents an error returned by the Elemental Cloud REST API.
 //
 // See https://<elemental_server>/help/rest_api#rest_basics_errors_and_warnings
@@ -77,6 +65,7 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 	expiresTime := time.Now().Add(time.Duration(c.AuthExpires) * time.Second)
 	expiresTimestamp := getUnixTimestamp(expiresTime)
 	req.Header.Set("Accept", "application/xml")
+	req.Header.Set("Content-type", "application/xml")
 	req.Header.Set("X-Auth-User", c.UserLogin)
 	req.Header.Set("X-Auth-Expires", expiresTimestamp)
 	req.Header.Set("X-Auth-Key", c.createAuthKey(path, expiresTime))

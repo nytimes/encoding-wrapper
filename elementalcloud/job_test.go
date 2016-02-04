@@ -33,8 +33,54 @@ func (s *S) TestGetJobsOnEmptyList(c *check.C) {
 
 	getJobsResponse, err := client.GetJobs()
 	c.Assert(err, check.IsNil)
-	c.Assert(err, check.IsNil)
 	c.Assert(getJobsResponse, check.DeepEquals, &GetJobsResponse{
 		Empty: "There are currently no jobs",
 	})
+}
+
+func (s *S) TestPostJob(c *check.C) {
+	server, _ := s.startServer(http.StatusOK, `<response>job added</response>`)
+	defer server.Close()
+
+	client := NewClient(server.URL, "myuser", "secret-key", 45)
+	jobInput := Job{
+		Input: Input{
+			FileInput: Location{
+				URI:      "http://another.non.existent/video.mp4",
+				Username: "user",
+				Password: "pass123",
+			},
+		},
+		Priority: 50,
+		OutputGroup: OutputGroup{
+			Order: 1,
+			FileGroupSettings: FileGroupSettings{
+				Destination: Location{
+					URI:      "http://destination/video.mp4",
+					Username: "user",
+					Password: "pass123",
+				},
+			},
+			Type: "file_group_settings",
+			Output: []Output{
+				{
+					StreamAssemblyName: "stream_1",
+					NameModifier:       "_high",
+					Order:              1,
+					Extension:          ".mp4",
+				},
+			},
+		},
+		StreamAssembly: []StreamAssembly{
+			{
+				Name:   "stream_1",
+				Preset: "17",
+			},
+		},
+	}
+
+	postJobResponse, err := client.PostJob(jobInput)
+
+	c.Assert(err, check.IsNil)
+	c.Assert(postJobResponse, check.NotNil)
 }

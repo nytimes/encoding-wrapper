@@ -60,7 +60,15 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 	client := NewClient(server.URL, "myuser", "secret-key", 45)
 
 	var respObj interface{}
-	myJob := Job{FileInput: FileInput{URI: "some-file"}, Profile: "6"}
+	myJob := Job{
+		Input: Input{
+			FileInput: Location{
+				URI:      "http://another.non.existent/video.mp4",
+				Username: "user",
+				Password: "pass123",
+			},
+		},
+	}
 	err := client.do("POST", "/jobs", myJob, &respObj)
 
 	c.Assert(err, check.IsNil)
@@ -68,6 +76,7 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 	c.Assert(req.Method, check.Equals, "POST")
 	c.Assert(req.URL.Path, check.Equals, "/api/jobs")
 	c.Assert(req.Header.Get("Accept"), check.Equals, "application/xml")
+	c.Assert(req.Header.Get("Content-type"), check.Equals, "application/xml")
 	c.Assert(req.Header.Get("X-Auth-User"), check.Equals, client.UserLogin)
 
 	c.Assert(req.Header.Get("X-Auth-Expires"), check.NotNil)
