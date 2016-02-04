@@ -72,5 +72,4 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 
 	c.Assert(err, check.IsNil)
 	c.Assert(reqJob, check.DeepEquals, myJob)
-
 }

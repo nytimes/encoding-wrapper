@@ -1,13 +1,15 @@
 // Package elementalcloud provides types and methods for interacting with the
-// ElementalCloud.com API.
+// ElementalCloud API.
 //
-// You can get more details on the API at http://api.encoding.com/.
+// You can get more details on the API at https://<elemental_server>/help/rest_api.
 package elementalcloud
 
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -21,6 +23,35 @@ type Client struct {
 	UserID         string
 	APIKey         string
 	ExpirationTime int
+}
+
+// FileInput contains location of the video file to be encoded
+type FileInput struct {
+	URI string `xml:"uri"`
+}
+
+// Job specifies the parameters for the Elemental Cloud job,
+// where Profile is the id of an existing profile
+type Job struct {
+	FileInput FileInput `xml:"file_input"`
+	Profile   string    `xml:"profile"`
+}
+
+// APIError represents an error returned by the Elemental Cloud REST API.
+//
+// See https://<elemental_server>/help/rest_api#rest_basics_errors_and_warnings
+// for more details.
+type APIError struct {
+	Status int    `json:"status,omitempty"`
+	Errors string `json:"errors,omitempty"`
+}
+
+// Error converts the whole interlying information to a representative string.
+//
+// It encodes the list of errors in JSON format.
+func (apiErr *APIError) Error() string {
+	data, _ := json.Marshal(apiErr)
+	return fmt.Sprintf("Error returned by the Elemental Cloud REST Interface: %s", data)
 }
 
 // NewClient creates a instance of the client type.
@@ -50,6 +81,12 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 	if err != nil {
 		return err
 	}
+	if resp.StatusCode != http.StatusOK {
+		return &APIError{
+			Status: resp.StatusCode,
+			Errors: string(respData),
+		}
+	}
 	return xml.Unmarshal(respData, out)
 }
 
@@ -65,16 +102,4 @@ func (c *Client) createAuthKey(URL string, expire time.Time) string {
 	hasher.Write([]byte(c.APIKey))
 	hasher.Write([]byte(innerKey))
 	return hex.EncodeToString(hasher.Sum(nil))
-}
-
-// FileInput contains location of the video file to be encoded
-type FileInput struct {
-	URI string `xml:"uri"`
-}
-
-// Job specifies the parameters for the Elemental Cloud job,
-// where Profile is the id of an existing profile
-type Job struct {
-	FileInput FileInput `xml:"file_input"`
-	Profile   string    `xml:"profile"`
 }

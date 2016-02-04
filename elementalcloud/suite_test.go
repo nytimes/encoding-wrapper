@@ -22,12 +22,13 @@ type fakeServerRequest struct {
 	body []byte
 }
 
-func (s *S) startServer(content string) (*httptest.Server, chan fakeServerRequest) {
+func (s *S) startServer(status int, content string) (*httptest.Server, chan fakeServerRequest) {
 	requests := make(chan fakeServerRequest, 1)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, _ := ioutil.ReadAll(r.Body)
 		fakeRequest := fakeServerRequest{req: r, body: data}
 		requests <- fakeRequest
+		w.WriteHeader(status)
 		w.Write([]byte(content))
 	}))
 	return server, requests
