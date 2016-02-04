@@ -60,18 +60,23 @@ func NewClient(host, userLogin, apiKey string, authExpires int) *Client {
 	return &Client{Host: host, UserLogin: userLogin, APIKey: apiKey, AuthExpires: authExpires}
 }
 
+func getUnixTimestamp(givenTime time.Time) string {
+	return strconv.FormatInt(givenTime.UTC().Unix(), 10)
+}
+
 func (c *Client) do(method string, path string, body interface{}, out interface{}) error {
+	apiPath := "/api" + path
 	xmlRequest, err := xml.Marshal(body)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(method, c.Host+path, strings.NewReader(string(xmlRequest)))
+	req, err := http.NewRequest(method, c.Host+apiPath, strings.NewReader(string(xmlRequest)))
 	if err != nil {
 		return err
 	}
 	expiresTime := time.Now().Add(time.Duration(c.AuthExpires) * time.Second)
-	expiresTimestamp := strconv.FormatInt(expiresTime.UTC().UnixNano(), 10)
-	req.Header.Set("Content-Type", "application/xml")
+	expiresTimestamp := getUnixTimestamp(expiresTime)
+	req.Header.Set("Accept", "application/xml")
 	req.Header.Set("X-Auth-User", c.UserLogin)
 	req.Header.Set("X-Auth-Expires", expiresTimestamp)
 	req.Header.Set("X-Auth-Key", c.createAuthKey(path, expiresTime))
@@ -95,7 +100,7 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 }
 
 func (c *Client) createAuthKey(URL string, expire time.Time) string {
-	expireString := string(expire.Unix())
+	expireString := getUnixTimestamp(expire)
 	hasher := md5.New()
 	hasher.Write([]byte(URL))
 	hasher.Write([]byte(c.UserLogin))
