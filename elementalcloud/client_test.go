@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"time"
 
 	"gopkg.in/check.v1"
@@ -66,6 +67,18 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 	c.Assert(req.Method, check.Equals, "POST")
 	c.Assert(req.URL.Path, check.Equals, "/jobs")
 	c.Assert(req.Header.Get("Content-Type"), check.Equals, "application/xml")
+	c.Assert(req.Header.Get("X-Auth-User"), check.Equals, client.UserLogin)
+
+	c.Assert(req.Header.Get("X-Auth-Expires"), check.NotNil)
+	timestampInt, err := strconv.ParseInt(req.Header.Get("X-Auth-Expires"), 10, 64)
+	c.Assert(err, check.IsNil)
+	timestampTime := time.Unix(timestampInt, 0)
+
+	c.Assert(
+		req.Header.Get("X-Auth-Key"),
+		check.Equals,
+		client.createAuthKey(req.URL.Path, timestampTime),
+	)
 	var reqJob Job
 
 	err = xml.Unmarshal(data, &reqJob)

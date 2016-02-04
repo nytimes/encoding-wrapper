@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -68,9 +69,12 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 	if err != nil {
 		return err
 	}
+	expiresTime := time.Now().Add(time.Duration(c.AuthExpires) * time.Second)
+	expiresTimestamp := strconv.FormatInt(expiresTime.UTC().UnixNano(), 10)
 	req.Header.Set("Content-Type", "application/xml")
-	expireTime := time.Now().Add(time.Duration(c.AuthExpires) * time.Second)
-	req.Header.Set("Authorization", c.createAuthKey(path, expireTime))
+	req.Header.Set("X-Auth-User", c.UserLogin)
+	req.Header.Set("X-Auth-Expires", expiresTimestamp)
+	req.Header.Set("X-Auth-Key", c.createAuthKey(path, expiresTime))
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
