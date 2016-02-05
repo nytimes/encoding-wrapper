@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-const defaultJobPriority = 50
-const defaultOutputGroupOrder = 1
-const defaultExtension = ".mp4"
-
 // GetJobs returns a list of the user's jobs
 func (c *Client) GetJobs() (*JobList, error) {
 	var result *JobList
