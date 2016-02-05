@@ -7,4 +7,5 @@ Collection of Go wrappers for Video encoding providers.
 
 ##Supported providers
 
+- [Elemental Conductor](https://www.elementaltechnologies.com/products/elemental-conductor)
 - [Encoding.com](http://api.encoding.com)
