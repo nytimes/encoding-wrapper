@@ -1,19 +1,17 @@
 package elementalcloud
 
-// GetJobsResponse represents the response returned by
-// a query for job metadata
-type GetJobsResponse struct {
-	Empty string `xml:"empty,omitempty,omitempty"`
-}
+import (
+	"encoding/xml"
+	"strings"
+)
 
-// PostJobResponse represents the response returned when
-// creating a new job
-type PostJobResponse struct {
-}
+const defaultJobPriority = 50
+const defaultOutputGroupOrder = 1
+const defaultExtension = ".mp4"
 
 // GetJobs returns a list of the user's jobs
-func (c *Client) GetJobs() (*GetJobsResponse, error) {
-	var result *GetJobsResponse
+func (c *Client) GetJobs() (*JobList, error) {
+	var result *JobList
 	err := c.do("GET", "/jobs", nil, &result)
 	if err != nil {
 		return nil, err
@@ -22,8 +20,8 @@ func (c *Client) GetJobs() (*GetJobsResponse, error) {
 }
 
 // GetJob returns metadata on a single job
-func (c *Client) GetJob(jobID string) (*GetJobsResponse, error) {
-	var result *GetJobsResponse
+func (c *Client) GetJob(jobID string) (*JobList, error) {
+	var result *JobList
 	err := c.do("GET", "/jobs/"+jobID, nil, &result)
 	if err != nil {
 		return nil, err
@@ -33,17 +31,39 @@ func (c *Client) GetJob(jobID string) (*GetJobsResponse, error) {
 
 // PostJob sends a single job to the current Elemental
 // Cloud deployment for processing
-func (c *Client) PostJob(job Job) (*PostJobResponse, error) {
-	var result *PostJobResponse
-	err := c.do("POST", "/jobs", job, &result)
+func (c *Client) PostJob(job *Job) (*Job, error) {
+	var result *Job
+	err := c.do("POST", "/jobs", *job, &result)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
 }
 
+// GetID is a convenience function to parse the job id
+// out of the Href attribute in Job
+func (j *Job) GetID() string {
+	if j.Href != "" {
+		hrefData := strings.Split(j.Href, "/")
+		if len(hrefData) > 1 {
+			return hrefData[len(hrefData)-1]
+		}
+	}
+	return ""
+}
+
+// JobList represents the response returned by
+// a query for the list of jobs
+type JobList struct {
+	XMLName xml.Name `xml:"job_list"`
+	Empty   string   `xml:"empty,omitempty"`
+	Job     []Job    `xml:"job"`
+}
+
 // Job represents a job to be sent to Elemental Cloud
 type Job struct {
+	XMLName        xml.Name         `xml:"job"`
+	Href           string           `xml:"href,attr,omitempty"`
 	Input          Input            `xml:"input,omitempty"`
 	Priority       int              `xml:"priority,omitempty"`
 	OutputGroup    OutputGroup      `xml:"output_group,omitempty"`

@@ -1,6 +1,7 @@
 package elementalcloud
 
 import (
+	"encoding/xml"
 	"net/http"
 
 	"gopkg.in/check.v1"
@@ -13,7 +14,7 @@ func (s *S) TestGetJobError(c *check.C) {
 </errors>`
 	server, _ := s.startServer(http.StatusNotFound, errorResponse)
 	defer server.Close()
-	client := NewClient(server.URL, "myuser", "secret-key", 45)
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getJobsResponse, err := client.GetJob("1")
 	c.Assert(getJobsResponse, check.IsNil)
@@ -29,21 +30,56 @@ func (s *S) TestGetJobsOnEmptyList(c *check.C) {
   <empty>There are currently no jobs</empty>
 </job_list>`)
 	defer server.Close()
-	client := NewClient(server.URL, "myuser", "secret-key", 45)
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getJobsResponse, err := client.GetJobs()
 	c.Assert(err, check.IsNil)
-	c.Assert(getJobsResponse, check.DeepEquals, &GetJobsResponse{
+	c.Assert(getJobsResponse, check.DeepEquals, &JobList{
+		XMLName: xml.Name{
+			Local: "job_list",
+		},
 		Empty: "There are currently no jobs",
 	})
 }
 
 func (s *S) TestPostJob(c *check.C) {
-	server, _ := s.startServer(http.StatusOK, `<response>job added</response>`)
+	jobResponseXML := `<job>
+    <input>
+        <file_input>
+            <uri>http://another.non.existent/video.mp4</uri>
+            <username>user</username>
+            <password>pass123</password>
+        </file_input>
+    </input>
+    <priority>50</priority>
+    <output_group>
+        <order>1</order>
+        <file_group_settings>
+            <destination>
+                <uri>http://destination/video.mp4</uri>
+                <username>user</username>
+                <password>pass123</password>
+            </destination>
+        </file_group_settings>
+        <type>file_group_settings</type>
+        <output>
+            <stream_assembly_name>stream_1</stream_assembly_name>
+            <name_modifier>_high</name_modifier>
+            <order>1</order>
+            <extension>.mp4</extension>
+        </output>
+    </output_group>
+    <stream_assembly>
+        <name>stream_1</name>
+        <preset>17</preset>
+    </stream_assembly>
+</job>`
+	server, _ := s.startServer(http.StatusOK, jobResponseXML)
 	defer server.Close()
-
-	client := NewClient(server.URL, "myuser", "secret-key", 45)
 	jobInput := Job{
+		XMLName: xml.Name{
+			Local: "job",
+		},
 		Input: Input{
 			FileInput: Location{
 				URI:      "http://another.non.existent/video.mp4",
@@ -78,9 +114,10 @@ func (s *S) TestPostJob(c *check.C) {
 			},
 		},
 	}
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
-	postJobResponse, err := client.PostJob(jobInput)
-
+	postJobResponse, err := client.PostJob(&jobInput)
 	c.Assert(err, check.IsNil)
 	c.Assert(postJobResponse, check.NotNil)
+	c.Assert(postJobResponse, check.DeepEquals, &jobInput)
 }

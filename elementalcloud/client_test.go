@@ -24,12 +24,15 @@ func (s *S) mockGenericResponseObject(message string, errors []string) interface
 
 func (s *S) TestNewClient(c *check.C) {
 	expected := Client{
-		Host:        "https://mycluster.cloud.elementaltechnologies.com",
-		UserLogin:   "myuser",
-		APIKey:      "secret-key",
-		AuthExpires: 45,
+		Host:            "https://mycluster.cloud.elementaltechnologies.com",
+		UserLogin:       "myuser",
+		APIKey:          "elemental-secret-key",
+		AuthExpires:     45,
+		AccessKeyID:     "aws-access-key",
+		SecretAccessKey: "aws-secret-key",
+		Destination:     "destination",
 	}
-	got := NewClient("https://mycluster.cloud.elementaltechnologies.com", "myuser", "secret-key", 45)
+	got := NewClient("https://mycluster.cloud.elementaltechnologies.com", "myuser", "elemental-secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 	c.Assert(*got, check.DeepEquals, expected)
 }
 
@@ -43,7 +46,7 @@ func (s *S) TestCreateAuthKey(c *check.C) {
 	innerKey2 := hex.EncodeToString(innerKeyMD5[:])
 	value := md5.Sum([]byte(APIKey + innerKey2))
 	expected := hex.EncodeToString(value[:])
-	client := NewClient("https://mycluster.cloud.elementaltechnologies.com", userID, APIKey, 45)
+	client := NewClient("https://mycluster.cloud.elementaltechnologies.com", userID, APIKey, 45, "aws-access-key", "aws-secret-key", "destination")
 	got := client.createAuthKey(path, expire)
 	c.Assert(got, check.Equals, expected)
 }
@@ -57,10 +60,13 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 		w.Write([]byte(`<response>test</response>`))
 	}))
 	defer server.Close()
-	client := NewClient(server.URL, "myuser", "secret-key", 45)
+	client := NewClient(server.URL, "myuser", "elemental-secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	var respObj interface{}
 	myJob := Job{
+		XMLName: xml.Name{
+			Local: "job",
+		},
 		Input: Input{
 			FileInput: Location{
 				URI:      "http://another.non.existent/video.mp4",
@@ -104,7 +110,7 @@ func (s *S) TestInvalidAuth(c *check.C) {
 </errors>`
 	server, _ := s.startServer(http.StatusUnauthorized, errorResponse)
 	defer server.Close()
-	client := NewClient(server.URL, "myuser", "secret-key", 45)
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getJobsResponse, err := client.GetJob("1")
 	c.Assert(getJobsResponse, check.IsNil)

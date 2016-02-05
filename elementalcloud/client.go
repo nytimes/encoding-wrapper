@@ -20,10 +20,13 @@ import (
 // Client is the basic type for interacting with the API. It provides methods
 // matching the available actions in the API.
 type Client struct {
-	Host        string
-	UserLogin   string
-	APIKey      string
-	AuthExpires int
+	Host            string
+	UserLogin       string
+	APIKey          string
+	AuthExpires     int
+	AccessKeyID     string
+	SecretAccessKey string
+	Destination     string
 }
 
 // APIError represents an error returned by the Elemental Cloud REST API.
@@ -44,8 +47,16 @@ func (apiErr *APIError) Error() string {
 }
 
 // NewClient creates a instance of the client type.
-func NewClient(host, userLogin, apiKey string, authExpires int) *Client {
-	return &Client{Host: host, UserLogin: userLogin, APIKey: apiKey, AuthExpires: authExpires}
+func NewClient(host, userLogin, apiKey string, authExpires int, accessKeyID string, secretAccessKey string, destination string) *Client {
+	return &Client{
+		Host:            host,
+		UserLogin:       userLogin,
+		APIKey:          apiKey,
+		AuthExpires:     authExpires,
+		AccessKeyID:     accessKeyID,
+		SecretAccessKey: secretAccessKey,
+		Destination:     destination,
+	}
 }
 
 func getUnixTimestamp(givenTime time.Time) string {
