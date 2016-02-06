@@ -1,8 +1,8 @@
-// Package elementalcloud provides types and methods for interacting with the
-// ElementalCloud API.
+// Package elementalconductor provides types and methods for interacting with the
+// Elemental Conductor API.
 //
 // You can get more details on the API at https://<elemental_server>/help/rest_api.
-package elementalcloud
+package elementalconductor
 
 import (
 	"crypto/md5"
