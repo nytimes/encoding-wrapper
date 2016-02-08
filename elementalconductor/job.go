@@ -3,7 +3,78 @@ package elementalconductor
 import (
 	"encoding/xml"
 	"strings"
+	"time"
 )
+
+// dateTimeLayout is the time layout used on jobs
+const dateTimeLayout = "2006-01-02 15:04:05 -0700"
+
+// errorDateTimeLayout is the time layout used on job errors
+const errorDateTimeLayout = "2006-01-02T15:04:05-07:00"
+
+// JobDateTime is a custom time struct to be used on Media items
+type JobDateTime struct {
+	time.Time
+}
+
+// JobErrorDateTime is a custom time struct to be used on Media items
+type JobErrorDateTime struct {
+	time.Time
+}
+
+// MarshalXML implementation on JobDateTime to skip "zero" time values
+func (jdt JobDateTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if jdt.IsZero() {
+		return nil
+	}
+	e.EncodeElement(jdt.Time, start)
+	return nil
+}
+
+// UnmarshalXML implementation on JobDateTime to use dateTimeLayout
+func (jdt *JobDateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
+	var content string
+	if err := d.DecodeElement(&content, &start); err != nil {
+		return err
+	}
+	if content == "" {
+		jdt.Time = time.Time{}
+		return nil
+	}
+	if content == "0001-01-01T00:00:00Z" {
+		jdt.Time = time.Time{}
+		return nil
+	}
+	jdt.Time, err = time.Parse(dateTimeLayout, content)
+	return err
+}
+
+// MarshalXML implementation on JobErrorDateTime to skip "zero" time values
+func (jdt JobErrorDateTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if jdt.IsZero() {
+		return nil
+	}
+	e.EncodeElement(jdt.Time, start)
+	return nil
+}
+
+// UnmarshalXML implementation on JobErrorDateTime to use errorDateTimeLayout
+func (jdt *JobErrorDateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
+	var content string
+	if err := d.DecodeElement(&content, &start); err != nil {
+		return err
+	}
+	if content == "" {
+		jdt.Time = time.Time{}
+		return nil
+	}
+	if content == "0001-01-01T00:00:00Z" {
+		jdt.Time = time.Time{}
+		return nil
+	}
+	jdt.Time, err = time.Parse(errorDateTimeLayout, content)
+	return err
+}
 
 // GetJobs returns a list of the user's jobs
 func (c *Client) GetJobs() (*JobList, error) {
@@ -16,8 +87,8 @@ func (c *Client) GetJobs() (*JobList, error) {
 }
 
 // GetJob returns metadata on a single job
-func (c *Client) GetJob(jobID string) (*JobList, error) {
-	var result *JobList
+func (c *Client) GetJob(jobID string) (*Job, error) {
+	var result *Job
 	err := c.do("GET", "/jobs/"+jobID, nil, &result)
 	if err != nil {
 		return nil, err
@@ -58,12 +129,26 @@ type JobList struct {
 
 // Job represents a job to be sent to Elemental Cloud
 type Job struct {
-	XMLName        xml.Name         `xml:"job"`
-	Href           string           `xml:"href,attr,omitempty"`
-	Input          Input            `xml:"input,omitempty"`
-	Priority       int              `xml:"priority,omitempty"`
-	OutputGroup    OutputGroup      `xml:"output_group,omitempty"`
-	StreamAssembly []StreamAssembly `xml:"stream_assembly,omitempty"`
+	XMLName         xml.Name         `xml:"job"`
+	Href            string           `xml:"href,attr,omitempty"`
+	Input           Input            `xml:"input,omitempty"`
+	Priority        int              `xml:"priority,omitempty"`
+	OutputGroup     OutputGroup      `xml:"output_group,omitempty"`
+	StreamAssembly  []StreamAssembly `xml:"stream_assembly,omitempty"`
+	Status          string           `xml:"status,omitempty"`
+	Submitted       JobDateTime      `xml:"submitted,omitempty"`
+	StartTime       JobDateTime      `xml:"start_time,omitempty"`
+	CompleteTime    JobDateTime      `xml:"complete_time,omitempty"`
+	ErroredTime     JobDateTime      `xml:"errored_time,omitempty"`
+	PercentComplete int              `xml:"pct_complete,omitempty"`
+	ErrorMessages   []JobError       `xml:"error_messages,omitempty"`
+}
+
+// JobError represents an individual error on a job
+type JobError struct {
+	Code      int              `xml:"error>code,omitempty"`
+	CreatedAt JobErrorDateTime `xml:"error>created_at,omitempty"`
+	Message   string           `xml:"error>message,omitempty"`
 }
 
 // Input represents the spec for the job's input

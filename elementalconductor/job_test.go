@@ -43,7 +43,7 @@ func (s *S) TestGetJobsOnEmptyList(c *check.C) {
 }
 
 func (s *S) TestPostJob(c *check.C) {
-	jobResponseXML := `<job>
+	jobResponseXML := `<job href="/jobs/1">
     <input>
         <file_input>
             <uri>http://another.non.existent/video.mp4</uri>
@@ -74,12 +74,13 @@ func (s *S) TestPostJob(c *check.C) {
         <preset>17</preset>
     </stream_assembly>
 </job>`
-	server, _ := s.startServer(http.StatusOK, jobResponseXML)
+	server, _ := s.startServer(http.StatusCreated, jobResponseXML)
 	defer server.Close()
 	jobInput := Job{
 		XMLName: xml.Name{
 			Local: "job",
 		},
+		Href: "/jobs/1",
 		Input: Input{
 			FileInput: Location{
 				URI:      "http://another.non.existent/video.mp4",
@@ -120,4 +121,85 @@ func (s *S) TestPostJob(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(postJobResponse, check.NotNil)
 	c.Assert(postJobResponse, check.DeepEquals, &jobInput)
+}
+
+func (s *S) TestGetJob(c *check.C) {
+	jobResponseXML := `<job href="/jobs/1">
+    <input>
+        <file_input>
+            <uri>http://another.non.existent/video.mp4</uri>
+            <username>user</username>
+            <password>pass123</password>
+        </file_input>
+    </input>
+    <priority>50</priority>
+    <output_group>
+        <order>1</order>
+        <file_group_settings>
+            <destination>
+                <uri>http://destination/video.mp4</uri>
+                <username>user</username>
+                <password>pass123</password>
+            </destination>
+        </file_group_settings>
+        <type>file_group_settings</type>
+        <output>
+            <stream_assembly_name>stream_1</stream_assembly_name>
+            <name_modifier>_high</name_modifier>
+            <order>1</order>
+            <extension>.mp4</extension>
+        </output>
+    </output_group>
+    <stream_assembly>
+        <name>stream_1</name>
+        <preset>17</preset>
+    </stream_assembly>
+</job>`
+	server, _ := s.startServer(http.StatusOK, jobResponseXML)
+	defer server.Close()
+	expectedJob := Job{
+		XMLName: xml.Name{
+			Local: "job",
+		},
+		Href: "/jobs/1",
+		Input: Input{
+			FileInput: Location{
+				URI:      "http://another.non.existent/video.mp4",
+				Username: "user",
+				Password: "pass123",
+			},
+		},
+		Priority: 50,
+		OutputGroup: OutputGroup{
+			Order: 1,
+			FileGroupSettings: FileGroupSettings{
+				Destination: Location{
+					URI:      "http://destination/video.mp4",
+					Username: "user",
+					Password: "pass123",
+				},
+			},
+			Type: "file_group_settings",
+			Output: []Output{
+				{
+					StreamAssemblyName: "stream_1",
+					NameModifier:       "_high",
+					Order:              1,
+					Extension:          ".mp4",
+				},
+			},
+		},
+		StreamAssembly: []StreamAssembly{
+			{
+				Name:   "stream_1",
+				Preset: "17",
+			},
+		},
+	}
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
+
+	getJobsResponse, err := client.GetJob("1")
+	c.Assert(err, check.IsNil)
+	c.Assert(getJobsResponse, check.NotNil)
+	c.Assert(getJobsResponse, check.DeepEquals, &expectedJob)
 }

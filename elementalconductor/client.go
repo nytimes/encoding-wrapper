@@ -90,7 +90,7 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		return &APIError{
 			Status: resp.StatusCode,
 			Errors: string(respData),
