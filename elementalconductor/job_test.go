@@ -61,7 +61,14 @@ func (s *S) TestPostJob(c *check.C) {
                 <password>pass123</password>
             </destination>
         </file_group_settings>
-        <type>file_group_settings</type>
+        <apple_live_group_settings>
+            <destination>
+                <uri>http://destination/video.mp4</uri>
+                <username>user</username>
+                <password>pass123</password>
+            </destination>
+        </apple_live_group_settings>
+        <type>apple_live_group_settings</type>
         <output>
             <stream_assembly_name>stream_1</stream_assembly_name>
             <name_modifier>_high</name_modifier>
@@ -98,7 +105,14 @@ func (s *S) TestPostJob(c *check.C) {
 					Password: "pass123",
 				},
 			},
-			Type: "file_group_settings",
+			AppleLiveGroupSettings: AppleLiveGroupSettings{
+				Destination: Location{
+					URI:      "http://destination/video.mp4",
+					Username: "user",
+					Password: "pass123",
+				},
+			},
+			Type: AppleLiveOutputGroupType,
 			Output: []Output{
 				{
 					StreamAssemblyName: "stream_1",
@@ -179,7 +193,7 @@ func (s *S) TestGetJob(c *check.C) {
 					Password: "pass123",
 				},
 			},
-			Type: "file_group_settings",
+			Type: FileOutputGroupType,
 			Output: []Output{
 				{
 					StreamAssemblyName: "stream_1",

@@ -12,6 +12,28 @@ const dateTimeLayout = "2006-01-02 15:04:05 -0700"
 // errorDateTimeLayout is the time layout used on job errors
 const errorDateTimeLayout = "2006-01-02T15:04:05-07:00"
 
+// OutputGroupType is a custom type for OutputGroup type field values
+type OutputGroupType string
+
+const (
+	// FileOutputGroupType is the value for the type field on OutputGroup
+	// for jobs with a file output
+	FileOutputGroupType = OutputGroupType("file_group_settings")
+	// AppleLiveOutputGroupType is the value for the type field on OutputGroup
+	// for jobs with Apple's HTTP Live Streaming (HLS) output
+	AppleLiveOutputGroupType = OutputGroupType("apple_live_group_settings")
+)
+
+// Container is the Video container type for a job
+type Container string
+
+const (
+	// AppleHTTPLiveStreaming is the container for HLS video files
+	AppleHTTPLiveStreaming = Container("m3u8")
+	// MPEG4 is the container for MPEG-4 video files
+	MPEG4 = Container("mp4")
+)
+
 // JobDateTime is a custom time struct to be used on Media items
 type JobDateTime struct {
 	time.Time
@@ -167,10 +189,11 @@ type Location struct {
 
 // OutputGroup is a list of the indended outputs for the job
 type OutputGroup struct {
-	Order             int               `xml:"order,omitempty"`
-	FileGroupSettings FileGroupSettings `xml:"file_group_settings,omitempty"`
-	Type              string            `xml:"type,omitempty"`
-	Output            []Output          `xml:"output,omitempty"`
+	Order                  int                    `xml:"order,omitempty"`
+	FileGroupSettings      FileGroupSettings      `xml:"file_group_settings,omitempty"`
+	AppleLiveGroupSettings AppleLiveGroupSettings `xml:"apple_live_group_settings,omitempty"`
+	Type                   OutputGroupType        `xml:"type,omitempty"`
+	Output                 []Output               `xml:"output,omitempty"`
 }
 
 // FileGroupSettings define where the file job output should go
@@ -178,13 +201,19 @@ type FileGroupSettings struct {
 	Destination Location `xml:"destination,omitempty"`
 }
 
+// AppleLiveGroupSettings define where the HLS job output should go
+type AppleLiveGroupSettings struct {
+	Destination Location `xml:"destination,omitempty"`
+}
+
 // Output defines the different processing stream assemblies
 // for the job
 type Output struct {
-	StreamAssemblyName string `xml:"stream_assembly_name,omitempty"`
-	NameModifier       string `xml:"name_modifier,omitempty"`
-	Order              int    `xml:"order,omitempty"`
-	Extension          string `xml:"extension,omitempty"`
+	StreamAssemblyName string    `xml:"stream_assembly_name,omitempty"`
+	NameModifier       string    `xml:"name_modifier,omitempty"`
+	Order              int       `xml:"order,omitempty"`
+	Extension          string    `xml:"extension,omitempty"`
+	Container          Container `xml:"container,omitempty"`
 }
 
 // StreamAssembly defines how each processing stream should behave
