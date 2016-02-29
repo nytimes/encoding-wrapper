@@ -6,9 +6,6 @@ import (
 	"time"
 )
 
-// dateTimeLayout is the time layout used on jobs
-const dateTimeLayout = "2006-01-02 15:04:05 -0700"
-
 // errorDateTimeLayout is the time layout used on job errors
 const errorDateTimeLayout = "2006-01-02T15:04:05-07:00"
 
@@ -34,41 +31,9 @@ const (
 	MPEG4 = Container("mp4")
 )
 
-// JobDateTime is a custom time struct to be used on Media items
-type JobDateTime struct {
-	time.Time
-}
-
 // JobErrorDateTime is a custom time struct to be used on Media items
 type JobErrorDateTime struct {
 	time.Time
-}
-
-// MarshalXML implementation on JobDateTime to skip "zero" time values
-func (jdt JobDateTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	if jdt.IsZero() {
-		return nil
-	}
-	e.EncodeElement(jdt.Time, start)
-	return nil
-}
-
-// UnmarshalXML implementation on JobDateTime to use dateTimeLayout
-func (jdt *JobDateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
-	var content string
-	if err := d.DecodeElement(&content, &start); err != nil {
-		return err
-	}
-	if content == "" {
-		jdt.Time = time.Time{}
-		return nil
-	}
-	if content == "0001-01-01T00:00:00Z" {
-		jdt.Time = time.Time{}
-		return nil
-	}
-	jdt.Time, err = time.Parse(dateTimeLayout, content)
-	return err
 }
 
 // MarshalXML implementation on JobErrorDateTime to skip "zero" time values
@@ -158,10 +123,10 @@ type Job struct {
 	OutputGroup     OutputGroup      `xml:"output_group,omitempty"`
 	StreamAssembly  []StreamAssembly `xml:"stream_assembly,omitempty"`
 	Status          string           `xml:"status,omitempty"`
-	Submitted       JobDateTime      `xml:"submitted,omitempty"`
-	StartTime       JobDateTime      `xml:"start_time,omitempty"`
-	CompleteTime    JobDateTime      `xml:"complete_time,omitempty"`
-	ErroredTime     JobDateTime      `xml:"errored_time,omitempty"`
+	Submitted       DateTime         `xml:"submitted,omitempty"`
+	StartTime       DateTime         `xml:"start_time,omitempty"`
+	CompleteTime    DateTime         `xml:"complete_time,omitempty"`
+	ErroredTime     DateTime         `xml:"errored_time,omitempty"`
 	PercentComplete int              `xml:"pct_complete,omitempty"`
 	ErrorMessages   []JobError       `xml:"error_messages,omitempty"`
 }
