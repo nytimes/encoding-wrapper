@@ -22,3 +22,21 @@ func (s *S) TestAPIStatus(c *check.C) {
 		Incident:   "Our encoding queue is processing slower than normal.  Check back for updates.",
 	})
 }
+
+func (s *S) TestAPIStatusOK(c *check.C) {
+	var tests = []struct {
+		input string
+		want  bool
+	}{
+		{"ok", true},
+		{"encoding_delay", false},
+		{"api_out", false},
+		{"maintenance", false},
+		{"pc_queue_slow", false},
+	}
+	for _, test := range tests {
+		status := APIStatusResponse{StatusCode: test.input}
+		got := status.OK()
+		c.Check(got, check.Equals, test.want)
+	}
+}

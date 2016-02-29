@@ -15,6 +15,12 @@ type APIStatusResponse struct {
 	Incident   string `json:"incident"`
 }
 
+// OK returns whether the given status represents no problem in the
+// Encoding.com API.
+func (s *APIStatusResponse) OK() bool {
+	return s.StatusCode == "ok"
+}
+
 // APIStatus queries the current status of the Encoding.com API.
 //
 // The host parameter is optional, and when omitted, will default to
