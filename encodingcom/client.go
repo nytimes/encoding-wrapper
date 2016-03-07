@@ -184,6 +184,7 @@ type Format struct {
 	Gop                     string        `json:"gop,omitempty"`
 	Metadata                *Metadata     `json:"metadata,omitempty"`
 	Destination             []string      `json:"destination,omitempty"`
+	SegmentDuration         uint          `json:"segment_duration,omitempty"`
 	Logo                    *Logo         `json:"logo,omitempty"`
 	Overlay                 []Overlay     `json:"overlay,omitempty"`
 	TextOverlay             []TextOverlay `json:"text_overlay,omitempty"`
