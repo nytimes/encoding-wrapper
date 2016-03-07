@@ -168,7 +168,8 @@ type FileGroupSettings struct {
 
 // AppleLiveGroupSettings define where the HLS job output should go
 type AppleLiveGroupSettings struct {
-	Destination Location `xml:"destination,omitempty"`
+	Destination     Location `xml:"destination,omitempty"`
+	SegmentDuration uint     `xml:"segment_length,omitempty"`
 }
 
 // Output defines the different processing stream assemblies
