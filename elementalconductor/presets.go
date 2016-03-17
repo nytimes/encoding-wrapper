@@ -21,6 +21,17 @@ func (c *Client) GetPreset(presetID string) (*Preset, error) {
 	return result, nil
 }
 
+// DeletePreset removes a preset based on its presetID
+func (c *Client) DeletePreset(presetID string) (*Preset, error) {
+	var result *Preset
+	err := c.do("DELETE", "/presets/"+presetID, nil, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // PresetList represents the response returned by
 // a query for the list of jobs
 type PresetList struct {
