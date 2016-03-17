@@ -83,9 +83,9 @@ func (c *Client) GetJob(jobID string) (*Job, error) {
 	return result, nil
 }
 
-// PostJob sends a single job to the current Elemental
+// CreateJob sends a single job to the current Elemental
 // Cloud deployment for processing
-func (c *Client) PostJob(job *Job) (*Job, error) {
+func (c *Client) CreateJob(job *Job) (*Job, error) {
 	var result *Job
 	err := c.do("POST", "/jobs", *job, &result)
 	if err != nil {

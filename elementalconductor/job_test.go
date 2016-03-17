@@ -42,7 +42,7 @@ func (s *S) TestGetJobsOnEmptyList(c *check.C) {
 	})
 }
 
-func (s *S) TestPostJob(c *check.C) {
+func (s *S) TestCreateJob(c *check.C) {
 	jobResponseXML := `<job href="/jobs/1">
     <input>
         <file_input>
@@ -131,7 +131,7 @@ func (s *S) TestPostJob(c *check.C) {
 	}
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
-	postJobResponse, err := client.PostJob(&jobInput)
+	postJobResponse, err := client.CreateJob(&jobInput)
 	c.Assert(err, check.IsNil)
 	c.Assert(postJobResponse, check.NotNil)
 	c.Assert(postJobResponse, check.DeepEquals, &jobInput)
