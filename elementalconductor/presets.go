@@ -21,6 +21,16 @@ func (c *Client) GetPreset(presetID string) (*Preset, error) {
 	return result, nil
 }
 
+// CreatePreset creates a new preset
+func (c *Client) CreatePreset(p *Preset) (*Preset, error) {
+	err := c.do("POST", "/presets/", p, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return p, nil
+}
+
 // DeletePreset removes a preset based on its presetID
 func (c *Client) DeletePreset(presetID string) (*Preset, error) {
 	var result *Preset
@@ -38,7 +48,7 @@ type PresetList struct {
 	Presets []Preset `xml:"preset"`
 }
 
-// Preset represents a preset stored on Elemental Cloud
+// Preset represents a preset
 type Preset struct {
 	Name          string `xml:"name"`
 	Href          string `xml:"href,attr,omitempty"`

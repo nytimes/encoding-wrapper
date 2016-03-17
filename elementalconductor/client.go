@@ -96,7 +96,10 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 			Errors: string(respData),
 		}
 	}
-	return xml.Unmarshal(respData, out)
+	if out != nil {
+		return xml.Unmarshal(respData, out)
+	}
+	return nil
 }
 
 func (c *Client) createAuthKey(URL string, expire time.Time) string {

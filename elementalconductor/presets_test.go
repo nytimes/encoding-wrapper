@@ -43,7 +43,7 @@ func (s *S) TestGetPresets(c *check.C) {
 	expectedOutput.Presets[0] = expectedPreset1
 	expectedOutput.Presets[1] = expectedPreset2
 
-	server, _ := s.startServer(http.StatusCreated, presetsResponseXML)
+	server, _ := s.startServer(http.StatusOK, presetsResponseXML)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
@@ -182,7 +182,7 @@ func (s *S) TestGetPreset(c *check.C) {
 		InterlaceMode: "progressive",
 	}
 
-	server, _ := s.startServer(http.StatusCreated, presetResponseXML)
+	server, _ := s.startServer(http.StatusOK, presetResponseXML)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
@@ -329,11 +329,39 @@ func (s *S) TestGetPresetForHls(c *check.C) {
 		InterlaceMode: "progressive",
 	}
 
-	server, _ := s.startServer(http.StatusCreated, presetHLSResponseXML)
+	server, _ := s.startServer(http.StatusOK, presetHLSResponseXML)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getPresetResponse, _ := client.GetPreset("149")
 	c.Assert(getPresetResponse, check.DeepEquals, &expectedPreset)
+}
+
+func (s *S) TestCreatePreset(c *check.C) {
+	server, _ := s.startServer(http.StatusOK, "")
+	defer server.Close()
+
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
+
+	preset := Preset{
+		Name:          "nyt_hls_720p_high_uhd",
+		Href:          "/presets/149",
+		Permalink:     "nyt_hls_720p_high_uhd",
+		Container:     "m3u8",
+		VideoCodec:    "h.264",
+		AudioCodec:    "aac",
+		Height:        "720",
+		VideoBitrate:  "3800000",
+		AudioBitrate:  "64000",
+		GopSize:       "90",
+		GopMode:       "fixed",
+		Profile:       "Main",
+		ProfileLevel:  "3.1",
+		RateControl:   "VBR",
+		InterlaceMode: "progressive",
+	}
+
+	res, _ := client.CreatePreset(&preset)
+	c.Assert(res, check.DeepEquals, &preset)
 }
