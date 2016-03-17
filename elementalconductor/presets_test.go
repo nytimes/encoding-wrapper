@@ -190,3 +190,150 @@ func (s *S) TestGetPreset(c *check.C) {
 	getPresetResponse, _ := client.GetPreset("1")
 	c.Assert(getPresetResponse, check.DeepEquals, &expectedPreset)
 }
+
+func (s *S) TestGetPresetForHls(c *check.C) {
+	presetHLSResponseXML := `<preset href="/presets/149" product="Elemental Conductor File + Audio Normalization Package + Audio Package" version="2.7.2vd.32545">
+  <name>nyt_hls_720p_high_uhd</name>
+  <permalink>nyt_hls_720p_high_uhd</permalink>
+  <description></description>
+  <preset_category href="/preset_categories/6">Devices</preset_category>
+  <container>m3u8</container>
+  <m3u8_settings>
+    <audio_packets_per_pes>16</audio_packets_per_pes>
+    <id>200</id>
+    <pat_interval>0</pat_interval>
+    <pcr_every_pes>true</pcr_every_pes>
+    <pcr_period nil="true"/>
+    <pmt_interval>0</pmt_interval>
+    <program_num>1</program_num>
+    <transport_stream_id nil="true"/>
+    <audio_pids>482-498</audio_pids>
+    <pmt_pid>480</pmt_pid>
+    <private_metadata_pid>503</private_metadata_pid>
+    <scte35_pid>500</scte35_pid>
+    <timed_metadata_pid>502</timed_metadata_pid>
+    <video_pid>481</video_pid>
+    <pcr_pid>481</pcr_pid>
+  </m3u8_settings>
+  <log_edit_points>false</log_edit_points>
+  <video_description>
+    <afd_signaling>None</afd_signaling>
+    <anti_alias>true</anti_alias>
+    <drop_frame_timecode>true</drop_frame_timecode>
+    <encoder_type nil="true"/>
+    <fixed_afd nil="true"/>
+    <force_cpu_encode>false</force_cpu_encode>
+    <height>720</height>
+    <id>501</id>
+    <insert_color_metadata>false</insert_color_metadata>
+    <respond_to_afd>None</respond_to_afd>
+    <sharpness>50</sharpness>
+    <stretch_to_output>false</stretch_to_output>
+    <timecode_passthrough>false</timecode_passthrough>
+    <vbi_passthrough>false</vbi_passthrough>
+    <width nil="true"/>
+    <h264_settings>
+      <adaptive_quantization>medium</adaptive_quantization>
+      <bitrate>3800000</bitrate>
+      <buf_fill_pct nil="true"/>
+      <buf_size>7600000</buf_size>
+      <cabac>false</cabac>
+      <flicker_reduction>off</flicker_reduction>
+      <force_field_pictures>false</force_field_pictures>
+      <framerate_denominator nil="true"/>
+      <framerate_follow_source>true</framerate_follow_source>
+      <framerate_numerator nil="true"/>
+      <gop_b_reference>false</gop_b_reference>
+      <gop_closed_cadence>1</gop_closed_cadence>
+      <gop_markers>false</gop_markers>
+      <gop_num_b_frames>2</gop_num_b_frames>
+      <gop_size>90</gop_size>
+      <id>439</id>
+      <interpolate_frc>false</interpolate_frc>
+      <look_ahead_rate_control>high</look_ahead_rate_control>
+      <max_bitrate>4750000</max_bitrate>
+      <max_qp nil="true"/>
+      <min_i_interval>0</min_i_interval>
+      <min_qp nil="true"/>
+      <num_ref_frames>1</num_ref_frames>
+      <par_denominator>1</par_denominator>
+      <par_follow_source>false</par_follow_source>
+      <par_numerator>1</par_numerator>
+      <passes>2</passes>
+      <qp nil="true"/>
+      <qp_step nil="true"/>
+      <repeat_pps>false</repeat_pps>
+      <scd>true</scd>
+      <sei_timecode>false</sei_timecode>
+      <slices>1</slices>
+      <slow_pal>false</slow_pal>
+      <softness nil="true"/>
+      <svq>0</svq>
+      <telecine>None</telecine>
+      <transition_detection>false</transition_detection>
+      <level>3.1</level>
+      <profile>Main</profile>
+      <rate_control_mode>VBR</rate_control_mode>
+      <gop_mode>fixed</gop_mode>
+      <interlace_mode>progressive</interlace_mode>
+    </h264_settings>
+    <gpu/>
+    <selected_gpu nil="true"/>
+    <codec>h.264</codec>
+    <video_preprocessors>
+      <deinterlacer>
+        <algorithm>interpolate</algorithm>
+        <deinterlace_mode>Deinterlace</deinterlace_mode>
+        <force>false</force>
+        <id>376</id>
+      </deinterlacer>
+    </video_preprocessors>
+  </video_description>
+  <audio_description>
+    <audio_type>0</audio_type>
+    <follow_input_audio_type>false</follow_input_audio_type>
+    <follow_input_language_code>false</follow_input_language_code>
+    <id>516</id>
+    <language_code nil="true"/>
+    <order>1</order>
+    <stream_name nil="true"/>
+    <aac_settings>
+      <bitrate>64000</bitrate>
+      <coding_mode>2_0</coding_mode>
+      <id>435</id>
+      <latm_loas>false</latm_loas>
+      <mpeg2>false</mpeg2>
+      <sample_rate>44100</sample_rate>
+      <profile>LC</profile>
+      <rate_control_mode>CBR</rate_control_mode>
+    </aac_settings>
+    <codec>aac</codec>
+  </audio_description>
+</preset>`
+
+	expectedPreset := Preset{
+		Name:          "nyt_hls_720p_high_uhd",
+		Href:          "/presets/149",
+		Permalink:     "nyt_hls_720p_high_uhd",
+		Container:     "m3u8",
+		VideoCodec:    "h.264",
+		AudioCodec:    "aac",
+		Height:        "720",
+		VideoBitrate:  "3800000",
+		AudioBitrate:  "64000",
+		GopSize:       "90",
+		GopMode:       "fixed",
+		Profile:       "Main",
+		ProfileLevel:  "3.1",
+		RateControl:   "VBR",
+		InterlaceMode: "progressive",
+	}
+
+	server, _ := s.startServer(http.StatusCreated, presetHLSResponseXML)
+	defer server.Close()
+
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
+
+	getPresetResponse, _ := client.GetPreset("149")
+	c.Assert(getPresetResponse, check.DeepEquals, &expectedPreset)
+}
