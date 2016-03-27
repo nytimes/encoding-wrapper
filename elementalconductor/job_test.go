@@ -98,15 +98,15 @@ func (s *S) TestCreateJob(c *check.C) {
 		Priority: 50,
 		OutputGroup: OutputGroup{
 			Order: 1,
-			FileGroupSettings: FileGroupSettings{
-				Destination: Location{
+			FileGroupSettings: &FileGroupSettings{
+				Destination: &Location{
 					URI:      "http://destination/video.mp4",
 					Username: "user",
 					Password: "pass123",
 				},
 			},
-			AppleLiveGroupSettings: AppleLiveGroupSettings{
-				Destination: Location{
+			AppleLiveGroupSettings: &AppleLiveGroupSettings{
+				Destination: &Location{
 					URI:      "http://destination/video.mp4",
 					Username: "user",
 					Password: "pass123",
@@ -186,8 +186,8 @@ func (s *S) TestGetJob(c *check.C) {
 		Priority: 50,
 		OutputGroup: OutputGroup{
 			Order: 1,
-			FileGroupSettings: FileGroupSettings{
-				Destination: Location{
+			FileGroupSettings: &FileGroupSettings{
+				Destination: &Location{
 					URI:      "http://destination/video.mp4",
 					Username: "user",
 					Password: "pass123",
