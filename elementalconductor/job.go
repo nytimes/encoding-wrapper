@@ -154,22 +154,22 @@ type Location struct {
 
 // OutputGroup is a list of the indended outputs for the job
 type OutputGroup struct {
-	Order                  int                    `xml:"order,omitempty"`
-	FileGroupSettings      FileGroupSettings      `xml:"file_group_settings,omitempty"`
-	AppleLiveGroupSettings AppleLiveGroupSettings `xml:"apple_live_group_settings,omitempty"`
-	Type                   OutputGroupType        `xml:"type,omitempty"`
-	Output                 []Output               `xml:"output,omitempty"`
+	Order                  int                     `xml:"order,omitempty"`
+	FileGroupSettings      *FileGroupSettings      `xml:"file_group_settings,omitempty"`
+	AppleLiveGroupSettings *AppleLiveGroupSettings `xml:"apple_live_group_settings,omitempty"`
+	Type                   OutputGroupType         `xml:"type,omitempty"`
+	Output                 []Output                `xml:"output,omitempty"`
 }
 
 // FileGroupSettings define where the file job output should go
 type FileGroupSettings struct {
-	Destination Location `xml:"destination,omitempty"`
+	Destination *Location `xml:"destination,omitempty"`
 }
 
 // AppleLiveGroupSettings define where the HLS job output should go
 type AppleLiveGroupSettings struct {
-	Destination     Location `xml:"destination,omitempty"`
-	SegmentDuration uint     `xml:"segment_length,omitempty"`
+	Destination     *Location `xml:"destination,omitempty"`
+	SegmentDuration uint      `xml:"segment_length,omitempty"`
 }
 
 // Output defines the different processing stream assemblies
