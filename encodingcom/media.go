@@ -61,9 +61,7 @@ func (c *Client) AddMedia(source []string, format []Format, region string) (*Add
 		Action: "AddMedia",
 		Format: format,
 		Source: source,
-	}
-	if region != "" {
-		req.Region = region
+		Region: region,
 	}
 	err := c.do(&req, &result)
 	if err != nil {
