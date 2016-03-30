@@ -79,12 +79,12 @@ func (c *Client) do(r *request, out interface{}) error {
 	var errRespWrapper map[string]*errorResponse
 	err = json.Unmarshal(respData, &errRespWrapper)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error unmarshaling response: %s", err.Error())
 	}
-	if errResp := errRespWrapper["response"]; len(errResp.Errors.Error) > 0 {
+	if errResp := errRespWrapper["response"]; errResp.Errors.Error != "" {
 		return &APIError{
 			Message: errResp.Message,
-			Errors:  errResp.Errors.Error,
+			Errors:  []string{errResp.Errors.Error},
 		}
 	}
 	return json.Unmarshal(respData, out)
@@ -112,7 +112,7 @@ type errorResponse struct {
 }
 
 type errorsJSON struct {
-	Error []string `json:"error,omitempty"`
+	Error string `json:"error,omitempty"`
 }
 
 type request struct {

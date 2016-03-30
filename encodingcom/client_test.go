@@ -8,11 +8,11 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *S) mockGenericResponseObject(message string, errors []string) interface{} {
+func (s *S) mockGenericResponseObject(message string, errors string) interface{} {
 	return map[string]interface{}{
 		"response": map[string]interface{}{
 			"message": message,
-			"errors":  map[string][]string{"error": errors},
+			"errors":  map[string]string{"error": errors},
 		},
 	}
 }
@@ -97,7 +97,7 @@ func (s *S) TestDoGenericAction(c *check.C) {
 
 func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("", []string{"Wrong user id or key!"}))
+		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("", "Wrong user id or key!"))
 		w.Write(byteResponse)
 	}))
 	defer server.Close()
@@ -116,7 +116,7 @@ func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 
 func (s *S) TestDoGenericResponse(c *check.C) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("it worked!", nil))
+		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("it worked!", ""))
 		w.Write(byteResponse)
 	}))
 	defer server.Close()
