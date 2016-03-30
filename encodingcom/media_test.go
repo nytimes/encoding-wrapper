@@ -19,7 +19,7 @@ func (s *S) TestAddMedia(c *check.C) {
 		AudioBitrate: "64k",
 	}
 	addMediaResponse, err := client.AddMedia([]string{"http://another.non.existent/video.mov"},
-		[]Format{format})
+		[]Format{format}, "us-east-1")
 
 	c.Assert(err, check.IsNil)
 	c.Assert(addMediaResponse, check.DeepEquals, &AddMediaResponse{

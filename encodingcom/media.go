@@ -55,13 +55,17 @@ type ListMediaResponseItem struct {
 // Format specifies details on how the source files are going to be encoded.
 //
 // See http://goo.gl/whvHwJ for more details on the source file formatting.
-func (c *Client) AddMedia(source []string, format []Format) (*AddMediaResponse, error) {
+func (c *Client) AddMedia(source []string, format []Format, region string) (*AddMediaResponse, error) {
 	var result map[string]*AddMediaResponse
-	err := c.do(&request{
+	req := request{
 		Action: "AddMedia",
 		Format: format,
 		Source: source,
-	}, &result)
+	}
+	if region != "" {
+		req.Region = region
+	}
+	err := c.do(&req, &result)
 	if err != nil {
 		return nil, err
 	}
