@@ -40,7 +40,7 @@ func (c *Client) CreatePreset(preset *Preset) (*Preset, error) {
 func (c *Client) DeletePreset(presetID string) (*Preset, error) {
 	var result *Preset
 	err := c.do("DELETE", "/presets/"+presetID, nil, &result)
-	if err != nil {
+	if err.Error() != "EOF" {
 		return nil, err
 	}
 
