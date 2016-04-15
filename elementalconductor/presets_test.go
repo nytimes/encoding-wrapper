@@ -469,3 +469,14 @@ func (s *S) TestCreatePreset(c *check.C) {
 	res, _ := client.CreatePreset(&preset)
 	c.Assert(res, check.DeepEquals, &preset)
 }
+
+func (s *S) TestDeletePreset(c *check.C) {
+	presetsResponse := ` `
+	server, _ := s.startServer(http.StatusOK, presetsResponse)
+	defer server.Close()
+
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
+
+	deletePresetResponse := client.DeletePreset("preset123")
+	c.Assert(deletePresetResponse, check.DeepEquals, nil)
+}

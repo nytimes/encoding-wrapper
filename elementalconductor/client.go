@@ -96,7 +96,7 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 			Errors: string(respData),
 		}
 	}
-	if out != nil {
+	if (out != nil) && (string(respData) != " ") {
 		return xml.Unmarshal(respData, out)
 	}
 	return nil
