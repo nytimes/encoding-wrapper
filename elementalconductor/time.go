@@ -40,6 +40,6 @@ func (jdt *DateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err e
 	if err != nil {
 		return err
 	}
-	jdt.Time = jdt.Time.In(time.UTC)
+	jdt.Time = jdt.Time.UTC()
 	return nil
 }
