@@ -96,29 +96,31 @@ func (s *S) TestCreateJob(c *check.C) {
 			},
 		},
 		Priority: 50,
-		OutputGroup: OutputGroup{
-			Order: 1,
-			FileGroupSettings: &FileGroupSettings{
-				Destination: &Location{
-					URI:      "http://destination/video.mp4",
-					Username: "user",
-					Password: "pass123",
+		OutputGroup: []OutputGroup{
+			{
+				Order: 1,
+				FileGroupSettings: &FileGroupSettings{
+					Destination: &Location{
+						URI:      "http://destination/video.mp4",
+						Username: "user",
+						Password: "pass123",
+					},
 				},
-			},
-			AppleLiveGroupSettings: &AppleLiveGroupSettings{
-				Destination: &Location{
-					URI:      "http://destination/video.mp4",
-					Username: "user",
-					Password: "pass123",
+				AppleLiveGroupSettings: &AppleLiveGroupSettings{
+					Destination: &Location{
+						URI:      "http://destination/video.mp4",
+						Username: "user",
+						Password: "pass123",
+					},
 				},
-			},
-			Type: AppleLiveOutputGroupType,
-			Output: []Output{
-				{
-					StreamAssemblyName: "stream_1",
-					NameModifier:       "_high",
-					Order:              1,
-					Extension:          ".mp4",
+				Type: AppleLiveOutputGroupType,
+				Output: []Output{
+					{
+						StreamAssemblyName: "stream_1",
+						NameModifier:       "_high",
+						Order:              1,
+						Extension:          ".mp4",
+					},
 				},
 			},
 		},
@@ -184,22 +186,24 @@ func (s *S) TestGetJob(c *check.C) {
 			},
 		},
 		Priority: 50,
-		OutputGroup: OutputGroup{
-			Order: 1,
-			FileGroupSettings: &FileGroupSettings{
-				Destination: &Location{
-					URI:      "http://destination/video.mp4",
-					Username: "user",
-					Password: "pass123",
+		OutputGroup: []OutputGroup{
+			{
+				Order: 1,
+				FileGroupSettings: &FileGroupSettings{
+					Destination: &Location{
+						URI:      "http://destination/video.mp4",
+						Username: "user",
+						Password: "pass123",
+					},
 				},
-			},
-			Type: FileOutputGroupType,
-			Output: []Output{
-				{
-					StreamAssemblyName: "stream_1",
-					NameModifier:       "_high",
-					Order:              1,
-					Extension:          ".mp4",
+				Type: FileOutputGroupType,
+				Output: []Output{
+					{
+						StreamAssemblyName: "stream_1",
+						NameModifier:       "_high",
+						Order:              1,
+						Extension:          ".mp4",
+					},
 				},
 			},
 		},

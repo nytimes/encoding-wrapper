@@ -119,3 +119,11 @@ func (s *S) TestInvalidAuth(c *check.C) {
 		Errors: errorResponse,
 	})
 }
+
+func (s *S) TestClientInterface(c *check.C) {
+	var i interface{} = &Client{}
+	_, ok := i.(ClientInterface)
+	if !ok {
+		c.Error("Client struct does not implement ClientInterface")
+	}
+}
