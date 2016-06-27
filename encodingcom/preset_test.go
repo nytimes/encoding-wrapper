@@ -189,3 +189,54 @@ func (s *S) TestGetPresetsList(c *check.C) {
 	c.Assert(req.query["action"], check.Equals, "GetPresetsList")
 	c.Assert(req.query["type"], check.Equals, string(AllPresets))
 }
+
+func (s *S) TestGetPreset(c *check.C) {
+	server, requests := s.startServer(`
+{
+	"response": {
+		"name":"webm_1080p",
+		"type":"user",
+		"output":"webm",
+		"format":{
+			"output":"webm",
+			"audio_bitrate":"192k",
+			"audio_sample_rate":"48000",
+			"bitrate":"5000k",
+			"framerate":"30",
+			"keep_aspect_ratio":"no",
+			"set_aspect_ratio":"1280 x 1080",
+			"video_codec":"libvpx",
+			"video_codec_parameters":"no",
+			"size":"1920x1080"
+		}
+	}
+}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	preset, err := client.GetPreset("webm_1080p")
+	c.Assert(err, check.IsNil)
+	expected := Preset{
+		Name:   "webm_1080p",
+		Type:   "user",
+		Output: "webm",
+		Format: PresetFormat{
+			Output:               "webm",
+			AudioBitrate:         "192k",
+			AudioSampleRate:      48000,
+			Bitrate:              "5000k",
+			Framerate:            "30",
+			KeepAspectRatio:      YesNoBoolean(false),
+			SetAspectRatio:       "1280 x 1080",
+			VideoCodec:           "libvpx",
+			VideoCodecParameters: "no",
+			Size:                 "1920x1080",
+		},
+	}
+	c.Assert(*preset, check.DeepEquals, expected)
+
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "GetPreset")
+	c.Assert(req.query["type"], check.Equals, string(AllPresets))
+	c.Assert(req.query["name"], check.Equals, "webm_1080p")
+}

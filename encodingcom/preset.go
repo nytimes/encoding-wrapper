@@ -98,3 +98,16 @@ func (c *Client) ListPresets(presetType PresetType) (*ListPresetsResponse, error
 	}
 	return result["response"], nil
 }
+
+// GetPreset returns details about a given preset in the Encoding.com API. It
+// queries both user and UI presets.
+//
+// See http://goo.gl/6Sdjeb for more details.
+func (c *Client) GetPreset(name string) (*Preset, error) {
+	var result map[string]*Preset
+	err := c.do(&request{Action: "GetPreset", Type: "all", Name: name}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result["response"], nil
+}

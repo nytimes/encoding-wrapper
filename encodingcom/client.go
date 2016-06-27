@@ -130,6 +130,7 @@ type request struct {
 	NotifyUploadURL         string       `json:"notify_upload,omitempty"`
 	Extended                YesNoBoolean `json:"extended,omitempty"`
 	Type                    string       `json:"type,omitempty"`
+	Name                    string       `json:"name,omitempty"`
 	Format                  []Format     `json:"format,omitempty"`
 }
 
