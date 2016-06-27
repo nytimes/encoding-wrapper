@@ -278,3 +278,23 @@ func (s *S) TestSavePreset(c *check.C) {
 	c.Assert(req.query["name"], check.Equals, "mp4_1080p")
 	c.Assert(req.query["format"], check.DeepEquals, expectedFormat)
 }
+
+func (s *S) TestDeletePreset(c *check.C) {
+	server, requests := s.startServer(`
+	{
+		"response":{
+			"message":"Deleted"
+		}
+	}
+`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.DeletePreset("mp4_1080p")
+	c.Assert(err, check.IsNil)
+	c.Assert(resp.Message, check.Equals, "Deleted")
+
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "DeletePreset")
+	c.Assert(req.query["name"], check.Equals, "mp4_1080p")
+}

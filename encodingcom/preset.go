@@ -132,3 +132,15 @@ func (c *Client) ListPresets(presetType PresetType) (*ListPresetsResponse, error
 	}
 	return result["response"], nil
 }
+
+// DeletePreset delets the given preset from the Encoding.com API.
+//
+// See http://goo.gl/yrYTn5 for more details.
+func (c *Client) DeletePreset(name string) (*Response, error) {
+	var result map[string]*Response
+	err := c.do(&request{Action: "DeletePreset", Name: name}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result["response"], nil
+}
