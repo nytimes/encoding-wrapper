@@ -129,6 +129,7 @@ type request struct {
 	NotifyEncodingErrorsURL string       `json:"notify_encoding_errors,omitempty"`
 	NotifyUploadURL         string       `json:"notify_upload,omitempty"`
 	Extended                YesNoBoolean `json:"extended,omitempty"`
+	Type                    string       `json:"type,omitempty"`
 	Format                  []Format     `json:"format,omitempty"`
 }
 
