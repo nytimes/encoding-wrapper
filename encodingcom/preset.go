@@ -77,6 +77,40 @@ type PresetFormat struct {
 	StripChapters           YesNoBoolean `json:"strip_chapters,omitempty"`
 }
 
+// SavePresetResponse is the response returned in the SavePreset method.
+//
+// See http://goo.gl/q0xPuh for more details.
+type SavePresetResponse struct {
+	SavedPreset string
+}
+
+// SavePreset uses the given name and the given format to create a new preset
+// in the Encoding.com API. The remote API will generate and return the preset
+// name if the name is not provided.
+//
+// See http://goo.gl/q0xPuh for more details.
+func (c *Client) SavePreset(name string, format Format) (*SavePresetResponse, error) {
+	var result map[string]struct{ SavedPreset []string }
+	err := c.do(&request{Action: "SavePreset", Name: name, Format: []Format{format}}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &SavePresetResponse{SavedPreset: result["response"].SavedPreset[0]}, nil
+}
+
+// GetPreset returns details about a given preset in the Encoding.com API. It
+// queries both user and UI presets.
+//
+// See http://goo.gl/6Sdjeb for more details.
+func (c *Client) GetPreset(name string) (*Preset, error) {
+	var result map[string]*Preset
+	err := c.do(&request{Action: "GetPreset", Type: "all", Name: name}, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result["response"], nil
+}
+
 // ListPresetsResponse represents the response returned by the GetPresetsList
 // action.
 //
@@ -93,19 +127,6 @@ type ListPresetsResponse struct {
 func (c *Client) ListPresets(presetType PresetType) (*ListPresetsResponse, error) {
 	var result map[string]*ListPresetsResponse
 	err := c.do(&request{Action: "GetPresetsList", Type: string(presetType)}, &result)
-	if err != nil {
-		return nil, err
-	}
-	return result["response"], nil
-}
-
-// GetPreset returns details about a given preset in the Encoding.com API. It
-// queries both user and UI presets.
-//
-// See http://goo.gl/6Sdjeb for more details.
-func (c *Client) GetPreset(name string) (*Preset, error) {
-	var result map[string]*Preset
-	err := c.do(&request{Action: "GetPreset", Type: "all", Name: name}, &result)
 	if err != nil {
 		return nil, err
 	}

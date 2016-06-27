@@ -1,6 +1,10 @@
 package encodingcom
 
-import "gopkg.in/check.v1"
+import (
+	"encoding/json"
+
+	"gopkg.in/check.v1"
+)
 
 func (s *S) TestGetPresetsList(c *check.C) {
 	server, requests := s.startServer(`
@@ -239,4 +243,38 @@ func (s *S) TestGetPreset(c *check.C) {
 	c.Assert(req.query["action"], check.Equals, "GetPreset")
 	c.Assert(req.query["type"], check.Equals, string(AllPresets))
 	c.Assert(req.query["name"], check.Equals, "webm_1080p")
+}
+
+func (s *S) TestSavePreset(c *check.C) {
+	server, requests := s.startServer(`
+	{
+		"response": {
+			"message": "Saved",
+			"SavedPreset": ["mp4_1080p"]
+		}
+	}
+`)
+	defer server.Close()
+
+	format := Format{
+		VideoCodec:   "x264",
+		AudioCodec:   "aac",
+		Bitrate:      "900k",
+		AudioBitrate: "64k",
+		Size:         "1920x1080",
+	}
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.SavePreset("mp4_1080p", format)
+	c.Assert(err, check.IsNil)
+	c.Assert(resp.SavedPreset, check.Equals, "mp4_1080p")
+
+	rawFormat, err := json.Marshal([]Format{format})
+	c.Assert(err, check.IsNil)
+	var expectedFormat []interface{}
+	err = json.Unmarshal(rawFormat, &expectedFormat)
+	c.Assert(err, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "SavePreset")
+	c.Assert(req.query["name"], check.Equals, "mp4_1080p")
+	c.Assert(req.query["format"], check.DeepEquals, expectedFormat)
 }
