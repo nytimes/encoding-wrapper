@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -152,55 +153,147 @@ type SplitScreen struct {
 //
 // See http://goo.gl/dcE1pF for more details.
 type Format struct {
-	NoiseReduction          string        `json:"noise_reduction,omitempty"`
-	Output                  []string      `json:"output,omitempty"`
-	VideoCodec              string        `json:"video_codec,omitempty"`
-	AudioCodec              string        `json:"audio_codec,omitempty"`
-	Bitrate                 string        `json:"bitrate,omitempty"`
-	AudioBitrate            string        `json:"audio_bitrate,omitempty"`
-	AudioSampleRate         uint          `json:"audio_sample_rate,string,omitempty"`
-	AudioChannelsNumber     string        `json:"audio_channels_number,omitempty"`
-	AudioVolume             uint          `json:"audio_volume,string,omitempty"`
-	Framerate               string        `json:"framerate,omitempty"`
-	FramerateUpperThreshold string        `json:"framerate_upper_threshold,omitempty"`
-	Size                    string        `json:"size,omitempty"`
-	FadeIn                  string        `json:"fade_in,omitempty"`
-	FadeOut                 string        `json:"fade_out,omitempty"`
-	CropLeft                int           `json:"crop_left,string,omitempty"`
-	CropTop                 int           `json:"crop_top,string,omitempty"`
-	CropRight               int           `json:"crop_right,string,omitempty"`
-	CropBottom              int           `json:"crop_bottom,string,omitempty"`
-	KeepAspectRatio         YesNoBoolean  `json:"keep_aspect_ratio,omitempty"`
-	SetAspectRatio          string        `json:"set_aspect_ratio,omitempty"`
-	AddMeta                 YesNoBoolean  `json:"add_meta,omitempty"`
-	Hint                    YesNoBoolean  `json:"hint,omitempty"`
-	RcInitOccupancy         string        `json:"rc_init_occupancy,omitempty"`
-	MinRate                 string        `json:"minrate,omitempty"`
-	MaxRate                 string        `json:"maxrate,omitempty"`
-	BufSize                 string        `json:"bufsize,omitempty"`
-	Keyframe                []string      `json:"keyframe,omitempty"`
-	Start                   string        `json:"start,omitempty"`
-	Duration                string        `json:"duration,omitempty"`
-	ForceKeyframes          string        `json:"force_keyframes,omitempty"`
-	Bframes                 int           `json:"bframes,string,omitempty"`
-	Gop                     string        `json:"gop,omitempty"`
-	Metadata                *Metadata     `json:"metadata,omitempty"`
-	Destination             []string      `json:"destination,omitempty"`
-	SegmentDuration         uint          `json:"segment_duration,omitempty"`
-	Logo                    *Logo         `json:"logo,omitempty"`
-	Overlay                 []Overlay     `json:"overlay,omitempty"`
-	TextOverlay             []TextOverlay `json:"text_overlay,omitempty"`
-	VideoCodecParameters    string        `json:"video_codec_parameters,omitempty"`
-	Profile                 string        `json:"profile,omitempty"`
-	TwoPass                 YesNoBoolean  `json:"two_pass,omitempty"`
-	Turbo                   YesNoBoolean  `json:"turbo,omitempty"`
-	TwinTurbo               YesNoBoolean  `json:"twin_turbo,omitempty"`
-	Rotate                  string        `json:"rotate,omitempty"`
-	SetRotate               string        `json:"set_rotate,omitempty"`
-	AudioSync               string        `json:"audio_sync,omitempty"`
-	VideoSync               string        `json:"video_sync,omitempty"`
-	ForceInterlaced         string        `json:"force_interlaced,omitempty"`
-	StripChapters           YesNoBoolean  `json:"strip_chapters,omitempty"`
+	NoiseReduction          string               `json:"noise_reduction,omitempty"`
+	Output                  []string             `json:"output,omitempty"`
+	VideoCodec              string               `json:"video_codec,omitempty"`
+	AudioCodec              string               `json:"audio_codec,omitempty"`
+	Bitrate                 string               `json:"bitrate,omitempty"`
+	AudioBitrate            string               `json:"audio_bitrate,omitempty"`
+	AudioSampleRate         uint                 `json:"audio_sample_rate,string,omitempty"`
+	AudioChannelsNumber     string               `json:"audio_channels_number,omitempty"`
+	AudioVolume             uint                 `json:"audio_volume,string,omitempty"`
+	Framerate               string               `json:"framerate,omitempty"`
+	FramerateUpperThreshold string               `json:"framerate_upper_threshold,omitempty"`
+	Size                    string               `json:"size,omitempty"`
+	FadeIn                  string               `json:"fade_in,omitempty"`
+	FadeOut                 string               `json:"fade_out,omitempty"`
+	CropLeft                int                  `json:"crop_left,string,omitempty"`
+	CropTop                 int                  `json:"crop_top,string,omitempty"`
+	CropRight               int                  `json:"crop_right,string,omitempty"`
+	CropBottom              int                  `json:"crop_bottom,string,omitempty"`
+	KeepAspectRatio         YesNoBoolean         `json:"keep_aspect_ratio,omitempty"`
+	SetAspectRatio          string               `json:"set_aspect_ratio,omitempty"`
+	AddMeta                 YesNoBoolean         `json:"add_meta,omitempty"`
+	Hint                    YesNoBoolean         `json:"hint,omitempty"`
+	RcInitOccupancy         string               `json:"rc_init_occupancy,omitempty"`
+	MinRate                 string               `json:"minrate,omitempty"`
+	MaxRate                 string               `json:"maxrate,omitempty"`
+	BufSize                 string               `json:"bufsize,omitempty"`
+	Keyframe                []string             `json:"keyframe,omitempty"`
+	Start                   string               `json:"start,omitempty"`
+	Duration                string               `json:"duration,omitempty"`
+	ForceKeyframes          string               `json:"force_keyframes,omitempty"`
+	Bframes                 int                  `json:"bframes,string,omitempty"`
+	Gop                     string               `json:"gop,omitempty"`
+	Metadata                *Metadata            `json:"metadata,omitempty"`
+	Destination             []string             `json:"destination,omitempty"`
+	SegmentDuration         uint                 `json:"segment_duration,omitempty"`
+	Logo                    *Logo                `json:"logo,omitempty"`
+	Overlay                 []Overlay            `json:"overlay,omitempty"`
+	TextOverlay             []TextOverlay        `json:"text_overlay,omitempty"`
+	VideoCodecParameters    VideoCodecParameters `json:"video_codec_parameters,omitempty"`
+	Profile                 string               `json:"profile,omitempty"`
+	TwoPass                 YesNoBoolean         `json:"two_pass,omitempty"`
+	Turbo                   YesNoBoolean         `json:"turbo,omitempty"`
+	TwinTurbo               YesNoBoolean         `json:"twin_turbo,omitempty"`
+	Rotate                  string               `json:"rotate,omitempty"`
+	SetRotate               string               `json:"set_rotate,omitempty"`
+	AudioSync               string               `json:"audio_sync,omitempty"`
+	VideoSync               string               `json:"video_sync,omitempty"`
+	ForceInterlaced         string               `json:"force_interlaced,omitempty"`
+	StripChapters           YesNoBoolean         `json:"strip_chapters,omitempty"`
+	Stream                  []Stream             `json:"stream,omitempty"`
+	PackFiles               *YesNoBoolean        `json:"pack_files,omitempty"`
+}
+
+// Stream is the set of options for defining Advanced HLS stream output
+// when encoding new media files.
+//
+// See http://goo.gl/I7qRNo for more details.
+type Stream struct {
+	AddIframeStream         YesNoBoolean `json:"add_iframe_stream,omitempty"`
+	AudioBitrate            string       `json:"audio_bitrate,omitempty"`
+	AudioChannelsNumber     string       `json:"audio_channels_number,omitempty"`
+	AudioCodec              string       `json:"audio_codec,omitempty"`
+	AudioOnly               YesNoBoolean `json:"audio_only,omitempty"`
+	AudioSampleRate         uint         `json:"audio_sample_rate,string,omitempty"`
+	AudioVolume             uint         `json:"audio_volume,string,omitempty"`
+	Bitrate                 string       `json:"bitrate,omitempty"`
+	ByteRange               YesNoBoolean `json:"byte_range,omitempty"`
+	Cbr                     YesNoBoolean `json:"cbr,omitempty"`
+	CopyNielsenMetadata     YesNoBoolean `json:"copy_nielsen_metadata,omitempty"`
+	CopyTimestamps          YesNoBoolean `json:"copy_timestamps,omitempty"`
+	Deinterlacing           string       `json:"deinterlacing,omitempty"`
+	DownmixMode             string       `json:"downmix_mode,omitempty"`
+	DurationPrecision       uint         `json:"duration_precision,string,omitempty"`
+	Encoder                 string       `json:"encoder,omitempty"`
+	Encryption              YesNoBoolean `json:"encryption,omitempty"`
+	EncryptionMethod        string       `json:"encryption_method,omitempty"`
+	Framerate               uint         `json:"framerate,string,omitempty"`
+	HardCbr                 YesNoBoolean `json:"hard_cbr,omitempty"`
+	Hint                    YesNoBoolean `json:"hint,omitempty"`
+	KeepAspectRatio         YesNoBoolean `json:"keep_aspect_ratio,omitempty"`
+	Keyframe                string       `json:"keyframe,omitempty"`
+	MediaPath               string       `json:"media_path,omitempty"`
+	MetadataCopy            YesNoBoolean `json:"metadata_copy,omitempty"`
+	PixFormat               string       `json:"pix_format,omitempty"`
+	Profile                 string       `json:"profile,omitempty"`
+	Rotate                  string       `json:"rotate,omitempty"`
+	SetRotate               string       `json:"set_rotate,omitempty"`
+	Size                    string       `json:"size,omitempty"`
+	StillImage              YesNoBoolean `json:"still_image,omitempty"`
+	StillImageSize          string       `json:"still_image_size,omitempty"`
+	StillImageTime          string       `json:"still_image_time,omitempty"`
+	StripChapters           YesNoBoolean `json:"strip_chapters,omitempty"`
+	SubPath                 string       `json:"sub_path,omitempty"`
+	TwoPass                 YesNoBoolean `json:"two_pass,omitempty"`
+	VeryFast                string       `json:"veryfast,omitempty"`
+	VideoCodec              string       `json:"video_codec,omitempty"`
+	VideoCodecParametersRaw interface{}  `json:"video_codec_parameters,omitempty"`
+	VideoOnly               YesNoBoolean `json:"video_only,omitempty"`
+	VideoSync               string       `json:"video_sync,omitempty"`
+}
+
+// VideoCodecParameters function returns settings for H.264 video codec.
+func (s Stream) VideoCodecParameters() VideoCodecParameters {
+	newVideoCodecParameters := VideoCodecParameters{}
+	plainString := ""
+	rawParameters, _ := json.Marshal(s.VideoCodecParametersRaw)
+	err := json.Unmarshal(rawParameters, &newVideoCodecParameters)
+	if err != nil {
+		errWithString := json.Unmarshal(rawParameters, &plainString)
+		if errWithString != nil {
+			log.Printf("Could NOT parse video codec params from Stream data: %s", err.Error())
+			log.Printf("Could NOT parse video codec string from Stream data: %s", errWithString.Error())
+			return newVideoCodecParameters
+		}
+	}
+	return newVideoCodecParameters
+}
+
+// VideoCodecParameters are settings for H.264 video codec.
+//
+// See http://goo.gl/8y7VSU for more details.
+type VideoCodecParameters struct {
+	Coder       string `json:"coder,omitempty"`
+	Flags       string `json:"flags,omitempty"`
+	Flags2      string `json:"flags2,omitempty"`
+	Cmp         string `json:"cmp,omitempty"`
+	Partitions  string `json:"partitions,omitempty"`
+	MeMethod    string `json:"me_method,omitempty"`
+	Subq        string `json:"subq,omitempty"`
+	MeRange     string `json:"me_range,omitempty"`
+	KeyIntMin   string `json:"keyint_min,omitempty"`
+	ScThreshold string `json:"sc_threshold,omitempty"`
+	Iqfactor    string `json:"i_qfactor,omitempty"`
+	Bstrategy   string `json:"b_strategy,omitempty"`
+	Qcomp       string `json:"qcomp,omitempty"`
+	Qmin        string `json:"qmin,omitempty"`
+	Qmax        string `json:"qmax,omitempty"`
+	Qdiff       string `json:"qdiff,omitempty"`
+	DirectPred  string `json:"directpred,omitempty"`
+	Level       string `json:"level,omitempty"`
+	Vprofile    string `json:"vprofile,omitempty"`
 }
 
 // Logo is the set of options for watermarking media during encoding, allowing

@@ -1,5 +1,10 @@
 package encodingcom
 
+import (
+	"encoding/json"
+	"log"
+)
+
 const (
 	// AllPresets is used to retrieve all presets in the response of
 	// ListPresets or GetPreset methods.
@@ -62,7 +67,7 @@ type PresetFormat struct {
 	Bframes                 int          `json:"bframes,string,omitempty"`
 	Gop                     string       `json:"gop,omitempty"`
 	Metadata                *Metadata    `json:"metadata,omitempty"`
-	SegmentDuration         uint         `json:"segment_duration,omitempty"`
+	SegmentDuration         string       `json:"segment_duration,omitempty"`
 	Logo                    *Logo        `json:"logo,omitempty"`
 	VideoCodecParameters    string       `json:"video_codec_parameters,omitempty"`
 	Profile                 string       `json:"profile,omitempty"`
@@ -75,6 +80,27 @@ type PresetFormat struct {
 	VideoSync               string       `json:"video_sync,omitempty"`
 	ForceInterlaced         string       `json:"force_interlaced,omitempty"`
 	StripChapters           YesNoBoolean `json:"strip_chapters,omitempty"`
+	StreamRawMap            interface{}  `json:"stream,omitempty"`
+}
+
+// Stream function returns a slice of Advanced HLS stream settings for a
+// preset format.
+func (p PresetFormat) Stream() []Stream {
+	streamSlice := []Stream{}
+	newStream := Stream{}
+	streamRaw, _ := json.Marshal(p.StreamRawMap)
+	err := json.Unmarshal(streamRaw, &newStream)
+	if err != nil {
+		errWithSlice := json.Unmarshal(streamRaw, &streamSlice)
+		if errWithSlice != nil {
+			log.Printf("Could NOT parse Preset stream data into Stream object: %s", err.Error())
+			log.Printf("Could NOT parse Preset stream data into Stream slice: %s", errWithSlice.Error())
+			return streamSlice
+		}
+	} else {
+		streamSlice = append(streamSlice, newStream)
+	}
+	return streamSlice
 }
 
 // SavePresetResponse is the response returned in the SavePreset method.
@@ -90,12 +116,15 @@ type SavePresetResponse struct {
 //
 // See http://goo.gl/q0xPuh for more details.
 func (c *Client) SavePreset(name string, format Format) (*SavePresetResponse, error) {
-	var result map[string]struct{ SavedPreset []string }
+	var result map[string]struct {
+		Message     string `json:"message,omitempty"`
+		SavedPreset string `json:"SavedPreset,omitempty"`
+	}
 	err := c.do(&request{Action: "SavePreset", Name: name, Format: []Format{format}}, &result)
 	if err != nil {
 		return nil, err
 	}
-	return &SavePresetResponse{SavedPreset: result["response"].SavedPreset[0]}, nil
+	return &SavePresetResponse{SavedPreset: result["response"].SavedPreset}, nil
 }
 
 // GetPreset returns details about a given preset in the Encoding.com API. It

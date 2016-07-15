@@ -41,6 +41,29 @@ func (s *S) TestGetPresetsList(c *check.C) {
 				"video_codec_parameters":"no",
 				"size":"1280x480"
 			}
+		},
+		{
+			"name":"sample_hls",
+			"type":"user",
+			"output":"advanced_hls",
+			"format":{
+				"output":"advanced_hls",
+				"stream":{
+					"audio_bitrate":"64k",
+					"audio_codec":"dolby_aac",
+					"audio_volume":"100",
+					"bitrate":"1000k",
+					"keyframe":"90",
+					"profile":"Main",
+					"size":"1080x720",
+					"two_pass":"yes",
+					"video_codec":"libx264",
+					"video_codec_parameters": {
+						"keyint_min": "25",
+						"sc_threshold": "40"
+					}
+				}
+			}
 		}],
 		"ui": [
 		{
@@ -135,6 +158,29 @@ func (s *S) TestGetPresetsList(c *check.C) {
 					Size:                 "1280x480",
 				},
 			},
+			{
+				Name:   "sample_hls",
+				Type:   "user",
+				Output: "advanced_hls",
+				Format: PresetFormat{
+					Output: "advanced_hls",
+					StreamRawMap: map[string]interface{}{
+						"audio_bitrate": "64k",
+						"audio_volume":  "100",
+						"size":          "1080x720",
+						"two_pass":      "yes",
+						"video_codec":   "libx264",
+						"audio_codec":   "dolby_aac",
+						"bitrate":       "1000k",
+						"keyframe":      "90",
+						"profile":       "Main",
+						"video_codec_parameters": map[string]interface{}{
+							"keyint_min":   "25",
+							"sc_threshold": "40",
+						},
+					},
+				},
+			},
 		},
 		UIPresets: []Preset{
 			{
@@ -192,6 +238,33 @@ func (s *S) TestGetPresetsList(c *check.C) {
 	req := <-requests
 	c.Assert(req.query["action"], check.Equals, "GetPresetsList")
 	c.Assert(req.query["type"], check.Equals, string(AllPresets))
+
+	sampleHlsStream := Stream{
+		AudioBitrate: "64k",
+		AudioVolume:  100,
+		Size:         "1080x720",
+		TwoPass:      YesNoBoolean(true),
+		VideoCodec:   "libx264",
+		AudioCodec:   "dolby_aac",
+		Bitrate:      "1000k",
+		Keyframe:     "90",
+		Profile:      "Main",
+		VideoCodecParametersRaw: map[string]interface{}{
+			"sc_threshold": "40",
+			"keyint_min":   "25",
+		},
+	}
+	sampleVideoCodecParams := VideoCodecParameters{
+		ScThreshold: "40",
+		KeyIntMin:   "25",
+	}
+	for _, hlsPreset := range resp.UserPresets {
+		if hlsPreset.Output == "advanced_hls" {
+			streams := hlsPreset.Format.Stream()
+			c.Assert(streams[0], check.DeepEquals, sampleHlsStream)
+			c.Assert(streams[0].VideoCodecParameters(), check.DeepEquals, sampleVideoCodecParams)
+		}
+	}
 }
 
 func (s *S) TestGetPreset(c *check.C) {
@@ -250,7 +323,7 @@ func (s *S) TestSavePreset(c *check.C) {
 	{
 		"response": {
 			"message": "Saved",
-			"SavedPreset": ["mp4_1080p"]
+			"SavedPreset": "mp4_1080p"
 		}
 	}
 `)
