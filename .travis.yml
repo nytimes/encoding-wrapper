@@ -5,6 +5,6 @@ script:
   - make test
 go:
   - 1.5.4
-  - 1.6.2
-  - 1.7rc1
+  - 1.6.3
+  - 1.7rc3
   - tip
