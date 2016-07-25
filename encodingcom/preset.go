@@ -69,7 +69,7 @@ type PresetFormat struct {
 	Metadata                *Metadata    `json:"metadata,omitempty"`
 	SegmentDuration         string       `json:"segment_duration,omitempty"`
 	Logo                    *Logo        `json:"logo,omitempty"`
-	VideoCodecParameters    string       `json:"video_codec_parameters,omitempty"`
+	VideoCodecParameters    interface{}  `json:"video_codec_parameters,omitempty"`
 	Profile                 string       `json:"profile,omitempty"`
 	TwoPass                 YesNoBoolean `json:"two_pass,omitempty"`
 	Turbo                   YesNoBoolean `json:"turbo,omitempty"`
