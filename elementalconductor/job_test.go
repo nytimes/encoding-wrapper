@@ -221,3 +221,110 @@ func (s *S) TestGetJob(c *check.C) {
 	c.Assert(getJobsResponse, check.NotNil)
 	c.Assert(getJobsResponse, check.DeepEquals, &expectedJob)
 }
+
+func (s *S) TestCancelJob(c *check.C) {
+	jobResponseXML := `<job href="/jobs/1">
+    <status>canceled</status>
+    <input>
+        <file_input>
+            <uri>http://another.non.existent/video.mp4</uri>
+            <username>user</username>
+            <password>pass123</password>
+        </file_input>
+    </input>
+    <priority>50</priority>
+    <output_group>
+        <order>1</order>
+        <file_group_settings>
+            <destination>
+                <uri>http://destination/video.mp4</uri>
+                <username>user</username>
+                <password>pass123</password>
+            </destination>
+        </file_group_settings>
+        <type>file_group_settings</type>
+        <output>
+            <stream_assembly_name>stream_1</stream_assembly_name>
+            <name_modifier>_high</name_modifier>
+            <order>1</order>
+            <extension>.mp4</extension>
+        </output>
+    </output_group>
+    <stream_assembly>
+        <name>stream_1</name>
+        <preset>17</preset>
+    </stream_assembly>
+</job>`
+	server, reqs := s.startServer(http.StatusOK, jobResponseXML)
+	defer server.Close()
+	expectedJob := Job{
+		XMLName: xml.Name{
+			Local: "job",
+		},
+		Href: "/jobs/1",
+		Input: Input{
+			FileInput: Location{
+				URI:      "http://another.non.existent/video.mp4",
+				Username: "user",
+				Password: "pass123",
+			},
+		},
+		Priority: 50,
+		OutputGroup: []OutputGroup{
+			{
+				Order: 1,
+				FileGroupSettings: &FileGroupSettings{
+					Destination: &Location{
+						URI:      "http://destination/video.mp4",
+						Username: "user",
+						Password: "pass123",
+					},
+				},
+				Type: FileOutputGroupType,
+				Output: []Output{
+					{
+						StreamAssemblyName: "stream_1",
+						NameModifier:       "_high",
+						Order:              1,
+						Extension:          ".mp4",
+					},
+				},
+			},
+		},
+		StreamAssembly: []StreamAssembly{
+			{
+				Name:   "stream_1",
+				Preset: "17",
+			},
+		},
+		Status: "canceled",
+	}
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
+
+	job, err := client.CancelJob("1")
+	c.Assert(err, check.IsNil)
+	c.Assert(job, check.NotNil)
+	c.Assert(job, check.DeepEquals, &expectedJob)
+
+	req := <-reqs
+	c.Assert(req.req.Method, check.Equals, "POST")
+	c.Assert(req.req.URL.Path, check.Equals, "/api/jobs/1/cancel")
+	c.Assert(string(req.body), check.Equals, "<cancel></cancel>")
+}
+
+func (s *S) TestCancelJobError(c *check.C) {
+	errorResponse := `<?xml version="1.0" encoding="UTF-8"?>
+<errors>
+  <error type="ActiveRecord::RecordNotFound">Couldn't find Job with id=1</error>
+</errors>`
+	server, _ := s.startServer(http.StatusNotFound, errorResponse)
+	defer server.Close()
+	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
+
+	job, err := client.CancelJob("1")
+	c.Assert(job, check.IsNil)
+	c.Assert(err, check.DeepEquals, &APIError{
+		Status: http.StatusNotFound,
+		Errors: errorResponse,
+	})
+}
