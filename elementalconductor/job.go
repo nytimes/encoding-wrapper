@@ -94,6 +94,19 @@ func (c *Client) CreateJob(job *Job) (*Job, error) {
 	return result, nil
 }
 
+// CancelJob cancels the given job in the Elemental Conductor API.
+func (c *Client) CancelJob(jobID string) (*Job, error) {
+	var job *Job
+	var payload = struct {
+		XMLName xml.Name `xml:"cancel"`
+	}{}
+	err := c.do("POST", "/jobs/"+jobID+"/cancel", payload, &job)
+	if err != nil {
+		return nil, err
+	}
+	return job, nil
+}
+
 // GetID is a convenience function to parse the job id
 // out of the Href attribute in Job
 func (j *Job) GetID() string {
