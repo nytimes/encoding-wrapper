@@ -29,20 +29,6 @@ type Client struct {
 	Destination     string
 }
 
-// ClientInterface describes the behavior the client API provides.
-type ClientInterface interface {
-	GetPreset(presetID string) (*Preset, error)
-	CreatePreset(preset *Preset) (*Preset, error)
-	DeletePreset(presetID string) error
-	CreateJob(job *Job) (*Job, error)
-	GetJob(jobID string) (*Job, error)
-	GetNodes() ([]Node, error)
-	GetCloudConfig() (*CloudConfig, error)
-	GetAccessKeyID() string
-	GetSecretAccessKey() string
-	GetDestination() string
-}
-
 // APIError represents an error returned by the Elemental Cloud REST API.
 //
 // See https://<elemental_server>/help/rest_api#rest_basics_errors_and_warnings
