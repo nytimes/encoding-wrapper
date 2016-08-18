@@ -155,6 +155,7 @@ type SplitScreen struct {
 type Format struct {
 	NoiseReduction          string               `json:"noise_reduction,omitempty"`
 	Output                  []string             `json:"output,omitempty"`
+	OutputPreset            string               `json:"output_preset,omitempty"`
 	VideoCodec              string               `json:"video_codec,omitempty"`
 	AudioCodec              string               `json:"audio_codec,omitempty"`
 	Bitrate                 string               `json:"bitrate,omitempty"`
