@@ -98,7 +98,7 @@ func (s *S) TestGetMediaInfo(c *check.C) {
 
 	c.Assert(mediaInfo, check.DeepEquals, &MediaInfo{
 		Bitrate:            "1807k",
-		Duration:           6464.83,
+		Duration:           6464*time.Second + time.Duration(0.83*float64(time.Second)),
 		VideoCodec:         "mpeg4",
 		VideoBitrate:       "1679k",
 		Framerate:          "23.98",

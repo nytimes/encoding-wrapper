@@ -118,26 +118,33 @@ func (c *Client) ListMedia() (*ListMediaResponse, error) {
 //
 // See http://goo.gl/OTX0Ua for more details.
 type MediaInfo struct {
-	Duration           float64 `json:"duration,string"`
-	Bitrate            string  `json:"bitrate"`
-	VideoCodec         string  `json:"video_codec"`
-	VideoBitrate       string  `json:"video_bitrate"`
-	Framerate          string  `json:"frame_rate"`
-	Size               string  `json:"size"`
-	PixelAspectRatio   string  `json:"pixel_aspect_ratio"`
-	DisplayAspectRatio string  `json:"display_aspect_ratio"`
-	AudioCodec         string  `json:"audio_codec"`
-	AudioBitrate       string  `json:"audio_bitrate"`
-	AudioSampleRate    uint    `json:"audio_sample_rate,string"`
-	AudioChannels      string  `json:"audio_channels"`
+	Duration           time.Duration `json:"duration,string"`
+	Bitrate            string        `json:"bitrate"`
+	VideoCodec         string        `json:"video_codec"`
+	VideoBitrate       string        `json:"video_bitrate"`
+	Framerate          string        `json:"frame_rate"`
+	Size               string        `json:"size"`
+	PixelAspectRatio   string        `json:"pixel_aspect_ratio"`
+	DisplayAspectRatio string        `json:"display_aspect_ratio"`
+	AudioCodec         string        `json:"audio_codec"`
+	AudioBitrate       string        `json:"audio_bitrate"`
+	AudioSampleRate    uint          `json:"audio_sample_rate,string"`
+	AudioChannels      string        `json:"audio_channels"`
+}
+
+type mediaInfo struct {
+	MediaInfo
+	Duration float64 `json:"duration,string"`
 }
 
 // GetMediaInfo returns video parameters of the specified media when available.
 func (c *Client) GetMediaInfo(mediaID string) (*MediaInfo, error) {
-	var result map[string]*MediaInfo
+	var result map[string]*mediaInfo
 	err := c.do(&request{Action: "GetMediaInfo", MediaID: mediaID}, &result)
 	if err != nil {
 		return nil, err
 	}
-	return result["response"], nil
+	info := result["response"].MediaInfo
+	info.Duration = time.Duration(result["response"].Duration * float64(time.Second))
+	return &info, nil
 }
