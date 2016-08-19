@@ -132,6 +132,7 @@ type Job struct {
 	XMLName         xml.Name         `xml:"job"`
 	Href            string           `xml:"href,attr,omitempty"`
 	Input           Input            `xml:"input,omitempty"`
+	ContentDuration ContentDuration  `xml:"content_duration,omitempty"`
 	Priority        int              `xml:"priority,omitempty"`
 	OutputGroup     []OutputGroup    `xml:"output_group,omitempty"`
 	StreamAssembly  []StreamAssembly `xml:"stream_assembly,omitempty"`
@@ -154,6 +155,12 @@ type JobError struct {
 // Input represents the spec for the job's input
 type Input struct {
 	FileInput Location `xml:"file_input,omitempty"`
+}
+
+// ContentDuration contains information about the content of the media in the
+// job.
+type ContentDuration struct {
+	InputDuration int `xml:"input_duration"`
 }
 
 // Location defines where a file is or needs to be.

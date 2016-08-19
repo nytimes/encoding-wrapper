@@ -148,6 +148,14 @@ func (s *S) TestGetJob(c *check.C) {
             <password>pass123</password>
         </file_input>
     </input>
+    <content_duration>
+        <input_duration>716</input_duration>
+        <clipped_input_duration>716</clipped_input_duration>
+        <stream_count>1</stream_count>
+        <total_stream_duration>716</total_stream_duration>
+        <package_count>1</package_count>
+        <total_package_duration>716</total_package_duration>
+    </content_duration>
     <priority>50</priority>
     <output_group>
         <order>1</order>
@@ -184,6 +192,9 @@ func (s *S) TestGetJob(c *check.C) {
 				Username: "user",
 				Password: "pass123",
 			},
+		},
+		ContentDuration: ContentDuration{
+			InputDuration: 716,
 		},
 		Priority: 50,
 		OutputGroup: []OutputGroup{
