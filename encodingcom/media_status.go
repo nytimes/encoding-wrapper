@@ -40,6 +40,8 @@ type FormatStatus struct {
 	FinishDate    time.Time
 	S3Destination string
 	CFDestination string
+	Size          string
+	Bitrate       string
 	Destinations  []DestinationStatus
 }
 
@@ -52,7 +54,7 @@ type DestinationStatus struct {
 // GetStatus returns the status of the given media ids, it returns an slice of
 // StatusResponse, the size of the result slice matches the size of input
 // slice.
-func (c *Client) GetStatus(mediaIDs []string) ([]StatusResponse, error) {
+func (c *Client) GetStatus(mediaIDs []string, extended bool) ([]StatusResponse, error) {
 	if len(mediaIDs) == 0 {
 		return nil, errors.New("please provide at least one media id")
 	}
@@ -61,7 +63,7 @@ func (c *Client) GetStatus(mediaIDs []string) ([]StatusResponse, error) {
 	err := c.do(&request{
 		Action:   "GetStatus",
 		MediaID:  strings.Join(mediaIDs, ","),
-		Extended: true,
+		Extended: YesNoBoolean(extended),
 	}, &m)
 	if err != nil {
 		return nil, err
@@ -147,6 +149,8 @@ func (s *statusJSON) toStruct() StatusResponse {
 			FinishDate:    formatStatus.FinishDate.Time,
 			S3Destination: formatStatus.S3Destination,
 			CFDestination: formatStatus.CFDestination,
+			Size:          formatStatus.Size,
+			Bitrate:       formatStatus.Bitrate,
 		}
 
 		switch dest := formatStatus.Destinations.(type) {
@@ -188,4 +192,6 @@ type formatStatusJSON struct {
 	CFDestination      string        `json:"cf_destination"`
 	Destinations       interface{}   `json:"destination"`
 	DestinationsStatus interface{}   `json:"destination_status"`
+	Size               string        `json:"size"`
+	Bitrate            string        `json:"bitrate"`
 }
