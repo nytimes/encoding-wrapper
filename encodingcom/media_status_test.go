@@ -282,44 +282,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 
 // Some data are only available when extended=no
 func (s *S) TestGetStatusNotExtended(c *check.C) {
-	server, requests := s.startServer(`
-{
-	"response": {
-		"job": {
-				"id": "abc123",
-				"userid": "myuser",
-				"sourcefile": "http://some.video/file.mp4",
-				"status": "Finished",
-				"notifyurl": "http://ping.me/please",
-				"created": "2015-12-31 20:45:30",
-				"started": "2015-12-31 20:45:34",
-				"finished": "2015-12-31 21:00:03",
-				"prevstatus": "Saving",
-				"downloaded": "2015-12-31 20:45:32",
-				"uploaded": "2015-12-31 20:59:54",
-				"time_left": "0",
-				"progress": "100",
-				"time_left_current": "0",
-				"progress_current": "100.0",
-				"format": {
-						"id": "f123",
-						"status": "Finished",
-						"created": "2015-12-31 20:45:30",
-						"started": "2015-12-31 20:45:34",
-						"finished": "2015-12-31 21:00:03",
-						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
-						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
-						"destination": "s3://mynicebucket",
-						"destination_status": "Saved",
-						"size": "0x1080",
-						"bitrate": "3500k",
-						"video_codec": "libx264",
-						"audio_codec": "dolby_aac",
-						"output": "mp4"
-					}
-			}
-	}
-}`)
+	server, requests := s.startServer(nonExtendedStatus)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
@@ -330,39 +293,31 @@ func (s *S) TestGetStatusNotExtended(c *check.C) {
 	expectedStartDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:34")
 	expectedFinishDate, _ := time.Parse(dateTimeLayout, "2015-12-31 21:00:03")
 	expectedDownloadDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:32")
-	expectedUploadDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:59:54")
 	expected := []StatusResponse{
 		{
-			MediaID:             "abc123",
-			UserID:              "myuser",
-			SourceFile:          "http://some.video/file.mp4",
-			MediaStatus:         "Finished",
-			PreviousMediaStatus: "Saving",
-			NotifyURL:           "http://ping.me/please",
-			CreateDate:          expectedCreateDate,
-			StartDate:           expectedStartDate,
-			FinishDate:          expectedFinishDate,
-			DownloadDate:        expectedDownloadDate,
-			UploadDate:          expectedUploadDate,
-			TimeLeft:            "0",
-			Progress:            100.0,
-			TimeLeftCurrentJob:  "0",
-			ProgressCurrentJob:  100.0,
+			MediaID:      "abc123",
+			UserID:       "myuser",
+			SourceFile:   "http://some.video/file.mp4",
+			MediaStatus:  "Finished",
+			CreateDate:   expectedCreateDate,
+			StartDate:    expectedStartDate,
+			FinishDate:   expectedFinishDate,
+			DownloadDate: expectedDownloadDate,
+			TimeLeft:     "21",
+			Progress:     100.0,
 			Formats: []FormatStatus{
 				{
-					ID:            "f123",
-					Status:        "Finished",
-					CreateDate:    expectedCreateDate,
-					StartDate:     expectedStartDate,
-					FinishDate:    expectedFinishDate,
-					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
-					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
-					Destinations:  []DestinationStatus{{Name: "s3://mynicebucket", Status: "Saved"}},
-					Size:          "0x1080",
-					Bitrate:       "3500k",
-					Output:        "mp4",
-					VideoCodec:    "libx264",
-					AudioCodec:    "dolby_aac",
+					ID:           "f123",
+					Status:       "Finished",
+					CreateDate:   expectedCreateDate,
+					StartDate:    expectedStartDate,
+					FinishDate:   expectedFinishDate,
+					Destinations: []DestinationStatus{{Name: "s3://mynicebucket", Status: "Saved"}},
+					Size:         "0x1080",
+					Bitrate:      "3500k",
+					Output:       "mp4",
+					VideoCodec:   "libx264",
+					AudioCodec:   "dolby_aac",
 				},
 			},
 		},

@@ -73,7 +73,12 @@ func (c *Client) GetStatus(mediaIDs []string, extended bool) ([]StatusResponse, 
 	}
 
 	var apiStatus []statusJSON
-	rawData := m["response"]["job"]
+	var rawData interface{}
+	if extended {
+		rawData = m["response"]["job"]
+	} else {
+		rawData = m["response"]
+	}
 	rawBytes, _ := json.Marshal(rawData)
 	if _, ok := rawData.([]interface{}); ok {
 		json.Unmarshal(rawBytes, &apiStatus)
