@@ -42,6 +42,9 @@ type FormatStatus struct {
 	CFDestination string
 	Size          string
 	Bitrate       string
+	Output        string
+	VideoCodec    string
+	AudioCodec    string
 	Destinations  []DestinationStatus
 }
 
@@ -151,6 +154,9 @@ func (s *statusJSON) toStruct() StatusResponse {
 			CFDestination: formatStatus.CFDestination,
 			Size:          formatStatus.Size,
 			Bitrate:       formatStatus.Bitrate,
+			AudioCodec:    formatStatus.AudioCodec,
+			Output:        formatStatus.Output,
+			VideoCodec:    formatStatus.VideoCodec,
 		}
 
 		switch dest := formatStatus.Destinations.(type) {
@@ -194,4 +200,7 @@ type formatStatusJSON struct {
 	DestinationsStatus interface{}   `json:"destination_status"`
 	Size               string        `json:"size"`
 	Bitrate            string        `json:"bitrate"`
+	AudioCodec         string        `json:"audio_codec"`
+	VideoCodec         string        `json:"video_codec"`
+	Output             string        `json:"output"`
 }

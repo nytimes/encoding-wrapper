@@ -312,7 +312,10 @@ func (s *S) TestGetStatusNotExtended(c *check.C) {
 						"destination": "s3://mynicebucket",
 						"destination_status": "Saved",
 						"size": "0x1080",
-						"bitrate": "3500k"
+						"bitrate": "3500k",
+						"video_codec": "libx264",
+						"audio_codec": "dolby_aac",
+						"output": "mp4"
 					}
 			}
 	}
@@ -357,6 +360,9 @@ func (s *S) TestGetStatusNotExtended(c *check.C) {
 					Destinations:  []DestinationStatus{{Name: "s3://mynicebucket", Status: "Saved"}},
 					Size:          "0x1080",
 					Bitrate:       "3500k",
+					Output:        "mp4",
+					VideoCodec:    "libx264",
+					AudioCodec:    "dolby_aac",
 				},
 			},
 		},
