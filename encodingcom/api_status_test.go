@@ -8,9 +8,7 @@ import (
 )
 
 func (s *S) TestAPIStatus(c *check.C) {
-	var req *http.Request
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		req = r
 		w.Write([]byte(`{"status":"Encoding Queue Processing Delays","status_code":"queue_slow","incident":"Our encoding queue is processing slower than normal.  Check back for updates."}`))
 	}))
 	defer server.Close()

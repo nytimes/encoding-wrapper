@@ -52,10 +52,7 @@ type PresetFormat struct {
 	CropTop                 int          `json:"crop_top,string,omitempty"`
 	CropRight               int          `json:"crop_right,string,omitempty"`
 	CropBottom              int          `json:"crop_bottom,string,omitempty"`
-	KeepAspectRatio         YesNoBoolean `json:"keep_aspect_ratio,omitempty"`
 	SetAspectRatio          string       `json:"set_aspect_ratio,omitempty"`
-	AddMeta                 YesNoBoolean `json:"add_meta,omitempty"`
-	Hint                    YesNoBoolean `json:"hint,omitempty"`
 	RcInitOccupancy         string       `json:"rc_init_occupancy,omitempty"`
 	MinRate                 string       `json:"minrate,omitempty"`
 	MaxRate                 string       `json:"maxrate,omitempty"`
@@ -71,14 +68,17 @@ type PresetFormat struct {
 	Logo                    *Logo        `json:"logo,omitempty"`
 	VideoCodecParameters    interface{}  `json:"video_codec_parameters,omitempty"`
 	Profile                 string       `json:"profile,omitempty"`
-	TwoPass                 YesNoBoolean `json:"two_pass,omitempty"`
-	Turbo                   YesNoBoolean `json:"turbo,omitempty"`
-	TwinTurbo               YesNoBoolean `json:"twin_turbo,omitempty"`
 	Rotate                  string       `json:"rotate,omitempty"`
 	SetRotate               string       `json:"set_rotate,omitempty"`
 	AudioSync               string       `json:"audio_sync,omitempty"`
 	VideoSync               string       `json:"video_sync,omitempty"`
 	ForceInterlaced         string       `json:"force_interlaced,omitempty"`
+	KeepAspectRatio         YesNoBoolean `json:"keep_aspect_ratio,omitempty"`
+	AddMeta                 YesNoBoolean `json:"add_meta,omitempty"`
+	Hint                    YesNoBoolean `json:"hint,omitempty"`
+	TwoPass                 YesNoBoolean `json:"two_pass,omitempty"`
+	Turbo                   YesNoBoolean `json:"turbo,omitempty"`
+	TwinTurbo               YesNoBoolean `json:"twin_turbo,omitempty"`
 	StripChapters           YesNoBoolean `json:"strip_chapters,omitempty"`
 	StreamRawMap            interface{}  `json:"stream,omitempty"`
 }

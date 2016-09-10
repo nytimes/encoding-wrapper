@@ -38,12 +38,7 @@ func (c *Client) CreatePreset(preset *Preset) (*Preset, error) {
 
 // DeletePreset removes a preset based on its presetID
 func (c *Client) DeletePreset(presetID string) error {
-	err := c.do("DELETE", "/presets/"+presetID, nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.do("DELETE", "/presets/"+presetID, nil, nil)
 }
 
 // PresetList represents the response returned by

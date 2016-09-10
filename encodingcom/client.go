@@ -153,29 +153,26 @@ type SplitScreen struct {
 //
 // See http://goo.gl/dcE1pF for more details.
 type Format struct {
-	NoiseReduction          string               `json:"noise_reduction,omitempty"`
 	Output                  []string             `json:"output,omitempty"`
+	NoiseReduction          string               `json:"noise_reduction,omitempty"`
 	OutputPreset            string               `json:"output_preset,omitempty"`
 	VideoCodec              string               `json:"video_codec,omitempty"`
 	AudioCodec              string               `json:"audio_codec,omitempty"`
 	Bitrate                 string               `json:"bitrate,omitempty"`
 	AudioBitrate            string               `json:"audio_bitrate,omitempty"`
-	AudioSampleRate         uint                 `json:"audio_sample_rate,string,omitempty"`
 	AudioChannelsNumber     string               `json:"audio_channels_number,omitempty"`
-	AudioVolume             uint                 `json:"audio_volume,string,omitempty"`
 	Framerate               string               `json:"framerate,omitempty"`
 	FramerateUpperThreshold string               `json:"framerate_upper_threshold,omitempty"`
 	Size                    string               `json:"size,omitempty"`
 	FadeIn                  string               `json:"fade_in,omitempty"`
 	FadeOut                 string               `json:"fade_out,omitempty"`
+	AudioSampleRate         uint                 `json:"audio_sample_rate,string,omitempty"`
+	AudioVolume             uint                 `json:"audio_volume,string,omitempty"`
 	CropLeft                int                  `json:"crop_left,string,omitempty"`
 	CropTop                 int                  `json:"crop_top,string,omitempty"`
 	CropRight               int                  `json:"crop_right,string,omitempty"`
 	CropBottom              int                  `json:"crop_bottom,string,omitempty"`
-	KeepAspectRatio         YesNoBoolean         `json:"keep_aspect_ratio,omitempty"`
 	SetAspectRatio          string               `json:"set_aspect_ratio,omitempty"`
-	AddMeta                 YesNoBoolean         `json:"add_meta,omitempty"`
-	Hint                    YesNoBoolean         `json:"hint,omitempty"`
 	RcInitOccupancy         string               `json:"rc_init_occupancy,omitempty"`
 	MinRate                 string               `json:"minrate,omitempty"`
 	MaxRate                 string               `json:"maxrate,omitempty"`
@@ -194,16 +191,19 @@ type Format struct {
 	TextOverlay             []TextOverlay        `json:"text_overlay,omitempty"`
 	VideoCodecParameters    VideoCodecParameters `json:"video_codec_parameters,omitempty"`
 	Profile                 string               `json:"profile,omitempty"`
-	TwoPass                 YesNoBoolean         `json:"two_pass,omitempty"`
-	Turbo                   YesNoBoolean         `json:"turbo,omitempty"`
-	TwinTurbo               YesNoBoolean         `json:"twin_turbo,omitempty"`
 	Rotate                  string               `json:"rotate,omitempty"`
 	SetRotate               string               `json:"set_rotate,omitempty"`
 	AudioSync               string               `json:"audio_sync,omitempty"`
 	VideoSync               string               `json:"video_sync,omitempty"`
 	ForceInterlaced         string               `json:"force_interlaced,omitempty"`
-	StripChapters           YesNoBoolean         `json:"strip_chapters,omitempty"`
 	Stream                  []Stream             `json:"stream,omitempty"`
+	AddMeta                 YesNoBoolean         `json:"add_meta,omitempty"`
+	Hint                    YesNoBoolean         `json:"hint,omitempty"`
+	KeepAspectRatio         YesNoBoolean         `json:"keep_aspect_ratio,omitempty"`
+	StripChapters           YesNoBoolean         `json:"strip_chapters,omitempty"`
+	TwoPass                 YesNoBoolean         `json:"two_pass,omitempty"`
+	Turbo                   YesNoBoolean         `json:"turbo,omitempty"`
+	TwinTurbo               YesNoBoolean         `json:"twin_turbo,omitempty"`
 	PackFiles               *YesNoBoolean        `json:"pack_files,omitempty"`
 }
 
@@ -212,47 +212,47 @@ type Format struct {
 //
 // See http://goo.gl/I7qRNo for more details.
 type Stream struct {
-	AddIframeStream         YesNoBoolean `json:"add_iframe_stream,omitempty"`
 	AudioBitrate            string       `json:"audio_bitrate,omitempty"`
 	AudioChannelsNumber     string       `json:"audio_channels_number,omitempty"`
 	AudioCodec              string       `json:"audio_codec,omitempty"`
-	AudioOnly               YesNoBoolean `json:"audio_only,omitempty"`
 	AudioSampleRate         uint         `json:"audio_sample_rate,string,omitempty"`
 	AudioVolume             uint         `json:"audio_volume,string,omitempty"`
 	Bitrate                 string       `json:"bitrate,omitempty"`
-	ByteRange               YesNoBoolean `json:"byte_range,omitempty"`
-	Cbr                     YesNoBoolean `json:"cbr,omitempty"`
-	CopyNielsenMetadata     YesNoBoolean `json:"copy_nielsen_metadata,omitempty"`
-	CopyTimestamps          YesNoBoolean `json:"copy_timestamps,omitempty"`
 	Deinterlacing           string       `json:"deinterlacing,omitempty"`
 	DownmixMode             string       `json:"downmix_mode,omitempty"`
 	DurationPrecision       uint         `json:"duration_precision,string,omitempty"`
 	Encoder                 string       `json:"encoder,omitempty"`
-	Encryption              YesNoBoolean `json:"encryption,omitempty"`
 	EncryptionMethod        string       `json:"encryption_method,omitempty"`
 	Framerate               uint         `json:"framerate,string,omitempty"`
-	HardCbr                 YesNoBoolean `json:"hard_cbr,omitempty"`
-	Hint                    YesNoBoolean `json:"hint,omitempty"`
-	KeepAspectRatio         YesNoBoolean `json:"keep_aspect_ratio,omitempty"`
 	Keyframe                string       `json:"keyframe,omitempty"`
 	MediaPath               string       `json:"media_path,omitempty"`
-	MetadataCopy            YesNoBoolean `json:"metadata_copy,omitempty"`
 	PixFormat               string       `json:"pix_format,omitempty"`
 	Profile                 string       `json:"profile,omitempty"`
 	Rotate                  string       `json:"rotate,omitempty"`
 	SetRotate               string       `json:"set_rotate,omitempty"`
 	Size                    string       `json:"size,omitempty"`
-	StillImage              YesNoBoolean `json:"still_image,omitempty"`
 	StillImageSize          string       `json:"still_image_size,omitempty"`
 	StillImageTime          string       `json:"still_image_time,omitempty"`
-	StripChapters           YesNoBoolean `json:"strip_chapters,omitempty"`
 	SubPath                 string       `json:"sub_path,omitempty"`
-	TwoPass                 YesNoBoolean `json:"two_pass,omitempty"`
 	VeryFast                string       `json:"veryfast,omitempty"`
 	VideoCodec              string       `json:"video_codec,omitempty"`
-	VideoCodecParametersRaw interface{}  `json:"video_codec_parameters,omitempty"`
-	VideoOnly               YesNoBoolean `json:"video_only,omitempty"`
 	VideoSync               string       `json:"video_sync,omitempty"`
+	VideoCodecParametersRaw interface{}  `json:"video_codec_parameters,omitempty"`
+	AudioOnly               YesNoBoolean `json:"audio_only,omitempty"`
+	AddIframeStream         YesNoBoolean `json:"add_iframe_stream,omitempty"`
+	ByteRange               YesNoBoolean `json:"byte_range,omitempty"`
+	Cbr                     YesNoBoolean `json:"cbr,omitempty"`
+	CopyNielsenMetadata     YesNoBoolean `json:"copy_nielsen_metadata,omitempty"`
+	CopyTimestamps          YesNoBoolean `json:"copy_timestamps,omitempty"`
+	Encryption              YesNoBoolean `json:"encryption,omitempty"`
+	HardCbr                 YesNoBoolean `json:"hard_cbr,omitempty"`
+	Hint                    YesNoBoolean `json:"hint,omitempty"`
+	KeepAspectRatio         YesNoBoolean `json:"keep_aspect_ratio,omitempty"`
+	MetadataCopy            YesNoBoolean `json:"metadata_copy,omitempty"`
+	StillImage              YesNoBoolean `json:"still_image,omitempty"`
+	StripChapters           YesNoBoolean `json:"strip_chapters,omitempty"`
+	TwoPass                 YesNoBoolean `json:"two_pass,omitempty"`
+	VideoOnly               YesNoBoolean `json:"video_only,omitempty"`
 }
 
 // VideoCodecParameters function returns settings for H.264 video codec.

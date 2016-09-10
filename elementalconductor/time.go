@@ -23,9 +23,10 @@ func (jdt DateTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 }
 
 // UnmarshalXML implementation on JobDateTime to use dateTimeLayout
-func (jdt *DateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) (err error) {
+func (jdt *DateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var content string
-	if err := d.DecodeElement(&content, &start); err != nil {
+	err := d.DecodeElement(&content, &start)
+	if err != nil {
 		return err
 	}
 	if content == "" {
