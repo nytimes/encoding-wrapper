@@ -13,15 +13,6 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *S) mockGenericResponseObject(message string, errors []string) interface{} {
-	return map[string]interface{}{
-		"response": map[string]interface{}{
-			"message": message,
-			"errors":  map[string][]string{"error": errors},
-		},
-	}
-}
-
 func (s *S) TestNewClient(c *check.C) {
 	expected := Client{
 		Host:            "https://mycluster.cloud.elementaltechnologies.com",
