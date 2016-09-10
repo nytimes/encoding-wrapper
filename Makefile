@@ -8,6 +8,7 @@ checkfmt: testdeps
 
 lint: testdeps
 	go get github.com/alecthomas/gometalinter honnef.co/go/unused/cmd/unused
+	gometalinter --install
 	gometalinter -j 4 --enable=gofmt --disable=dupl --disable=errcheck --disable=gas --deadline=10m --tests ./...
 
 test: lint
