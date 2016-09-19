@@ -191,6 +191,7 @@ type FileGroupSettings struct {
 type AppleLiveGroupSettings struct {
 	Destination     *Location `xml:"destination,omitempty"`
 	SegmentDuration uint      `xml:"segment_length,omitempty"`
+	EmitSingleFile  bool      `xml:"emit_single_file,omitempty"`
 }
 
 // Output defines the different processing stream assemblies
