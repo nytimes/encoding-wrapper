@@ -193,10 +193,8 @@ func (s *S) TestGetJob(c *check.C) {
 				Password: "pass123",
 			},
 		},
-		ContentDuration: ContentDuration{
-			InputDuration: 716,
-		},
-		Priority: 50,
+		ContentDuration: &ContentDuration{InputDuration: 716},
+		Priority:        50,
 		OutputGroup: []OutputGroup{
 			{
 				Order: 1,

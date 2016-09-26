@@ -133,7 +133,7 @@ type Job struct {
 	XMLName         xml.Name         `xml:"job"`
 	Href            string           `xml:"href,attr,omitempty"`
 	Input           Input            `xml:"input,omitempty"`
-	ContentDuration ContentDuration  `xml:"content_duration,omitempty"`
+	ContentDuration *ContentDuration `xml:"content_duration,omitempty"`
 	Priority        int              `xml:"priority,omitempty"`
 	OutputGroup     []OutputGroup    `xml:"output_group,omitempty"`
 	StreamAssembly  []StreamAssembly `xml:"stream_assembly,omitempty"`
