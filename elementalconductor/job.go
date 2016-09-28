@@ -2,9 +2,13 @@ package elementalconductor
 
 import (
 	"encoding/xml"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
+
+var nonDigitRegexp = regexp.MustCompile(`[^\d]`)
 
 // errorDateTimeLayout is the time layout used on job errors
 const errorDateTimeLayout = "2006-01-02T15:04:05-07:00"
@@ -155,7 +159,59 @@ type JobError struct {
 
 // Input represents the spec for the job's input
 type Input struct {
-	FileInput Location `xml:"file_input,omitempty"`
+	FileInput Location   `xml:"file_input,omitempty"`
+	InputInfo *InputInfo `xml:"input_info,omitempty"`
+}
+
+// InputInfo contains metadata related to a job input.
+type InputInfo struct {
+	Video VideoInputInfo `xml:"video"`
+}
+
+// VideoInputInfo contains video metadata related to a job input.
+type VideoInputInfo struct {
+	Format        string `xml:"format"`
+	FormatInfo    string `xml:"format_info"`
+	FormatProfile string `xml:"format_profile"`
+	CodecID       string `xml:"codec_id"`
+	CodecIDInfo   string `xml:"codec_id_info"`
+	Bitrate       string `xml:"bit_rate"`
+	Width         string `xml:"width"`
+	Height        string `xml:"height"`
+}
+
+// GetWidth parses the underlying width returned the Elemental Conductor API
+// and converts it to int64.
+//
+// Examples:
+//  - Input: "1 920 pixels"
+//    Output: 1920
+//  - Input: "1920p"
+//    Output: 1920
+//  - Input: "1 920"
+//    Output: 1920
+func (v *VideoInputInfo) GetWidth() int64 {
+	return v.extractNumber(v.Width)
+}
+
+// GetHeight parses the underlying height returned the Elemental Conductor API
+// and converts it to int64.
+//
+// Examples:
+//  - Input: "1 080 pixels"
+//    Output: 1080
+//  - Input: "1080p"
+//    Output: 1080
+//  - Input: "1 080"
+//    Output: 1080
+func (v *VideoInputInfo) GetHeight() int64 {
+	return v.extractNumber(v.Height)
+}
+
+func (v *VideoInputInfo) extractNumber(input string) int64 {
+	input = nonDigitRegexp.ReplaceAllString(input, "")
+	n, _ := strconv.ParseInt(input, 10, 64)
+	return n
 }
 
 // ContentDuration contains information about the content of the media in the
