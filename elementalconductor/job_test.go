@@ -147,6 +147,41 @@ func (s *S) TestGetJob(c *check.C) {
             <username>user</username>
             <password>pass123</password>
         </file_input>
+        <input_info>
+            <general>
+                <format>MPEG-4</format>
+                <format_profile>QuickTime</format_profile>
+                <codec_id>qt    </codec_id>
+                <file_size>185 MiB</file_size>
+                <duration>1mn 19s</duration>
+                <overall_bit_rate>19.4 Mbps</overall_bit_rate>
+            </general>
+            <video>
+                <id>1</id>
+                <format>AVC</format>
+                <format_info>Advanced Video Codec</format_info>
+                <format_profile>Main@L4.1</format_profile>
+                <format_settings__cabac>No</format_settings__cabac>
+                <format_settings__reframes>2 frames</format_settings__reframes>
+                <format_settings__gop>M=1, N=60</format_settings__gop>
+                <codec_id>avc1</codec_id>
+                <codec_id_info>Advanced Video Coding</codec_id_info>
+                <bit_rate>19.2 Mbps</bit_rate>
+                <width>1 920 pixels</width>
+                <height>1 080 pixels</height>
+            </video>
+            <audio>
+                <id>2</id>
+                <format>AAC</format>
+                <format_info>Advanced Audio Codec</format_info>
+                <format_profile>LC</format_profile>
+            </audio>
+            <other>
+                <id>3</id>
+                <type>Time code</type>
+                <format>QuickTime TC</format>
+            </other>
+        </input_info>
     </input>
     <content_duration>
         <input_duration>716</input_duration>
@@ -192,6 +227,18 @@ func (s *S) TestGetJob(c *check.C) {
 				Username: "user",
 				Password: "pass123",
 			},
+			InputInfo: &InputInfo{
+				Video: VideoInputInfo{
+					Bitrate:       "19.2 Mbps",
+					Format:        "AVC",
+					FormatInfo:    "Advanced Video Codec",
+					FormatProfile: "Main@L4.1",
+					CodecID:       "avc1",
+					CodecIDInfo:   "Advanced Video Coding",
+					Width:         "1 920 pixels",
+					Height:        "1 080 pixels",
+				},
+			},
 		},
 		ContentDuration: &ContentDuration{InputDuration: 716},
 		Priority:        50,
@@ -228,7 +275,7 @@ func (s *S) TestGetJob(c *check.C) {
 	getJobsResponse, err := client.GetJob("1")
 	c.Assert(err, check.IsNil)
 	c.Assert(getJobsResponse, check.NotNil)
-	c.Assert(getJobsResponse, check.DeepEquals, &expectedJob)
+	c.Assert(*getJobsResponse, check.DeepEquals, expectedJob)
 }
 
 func (s *S) TestCancelJob(c *check.C) {
@@ -336,4 +383,67 @@ func (s *S) TestCancelJobError(c *check.C) {
 		Status: http.StatusNotFound,
 		Errors: errorResponse,
 	})
+}
+
+func (s *S) TestVideoInfoDimensions(c *check.C) {
+	var tests = []struct {
+		inputWidth     string
+		inputHeight    string
+		expectedWith   int64
+		expectedHeight int64
+	}{
+		{
+			"1 920 pixels",
+			"1 080 pixels",
+			1920,
+			1080,
+		},
+		{
+			"1280 pixels",
+			"720 pixels",
+			1280,
+			720,
+		},
+		{
+			"1 280 pixels",
+			"720 pixels",
+			1280,
+			720,
+		},
+		{
+			"1,280 pixels",
+			"720 pixels",
+			1280,
+			720,
+		},
+		{
+			"1920p",
+			"1080p",
+			1920,
+			1080,
+		},
+		{
+			"1280",
+			"720",
+			1280,
+			720,
+		},
+		{
+			"twelve eighty",
+			"seven twenty",
+			0,
+			0,
+		},
+	}
+	for _, t := range tests {
+		job := VideoInputInfo{Width: t.inputWidth, Height: t.inputHeight}
+		width := job.GetWidth()
+		height := job.GetHeight()
+		if width != t.expectedWith {
+			c.Errorf("width=%s height=%s\nwant width=%d\ngot  width=%d", t.inputWidth, t.inputHeight, t.expectedWith, width)
+		}
+		if height != t.expectedHeight {
+			c.Errorf("width=%s height=%s\nwant height=%d\ngot  height=%d", t.inputWidth, t.inputHeight, t.expectedHeight, height)
+		}
+	}
 }
