@@ -203,6 +203,7 @@ func (s *S) TestGetJob(c *check.C) {
         </file_group_settings>
         <type>file_group_settings</type>
         <output>
+            <full_uri>s3://mybucket/some/dir/mynicefile.mp4</full_uri>
             <stream_assembly_name>stream_1</stream_assembly_name>
             <name_modifier>_high</name_modifier>
             <order>1</order>
@@ -210,8 +211,29 @@ func (s *S) TestGetJob(c *check.C) {
         </output>
     </output_group>
     <stream_assembly>
+        <id>1146</id>
         <name>stream_1</name>
         <preset>17</preset>
+        <video_description>
+            <afd_signaling>None</afd_signaling>
+            <anti_alias>true</anti_alias>
+            <drop_frame_timecode>true</drop_frame_timecode>
+            <encoder_type>gpu</encoder_type>
+            <fixed_afd nil="true"/>
+            <force_cpu_encode>false</force_cpu_encode>
+            <height>1080</height>
+            <id>1366</id>
+            <insert_color_metadata>false</insert_color_metadata>
+            <respond_to_afd>None</respond_to_afd>
+            <sharpness>50</sharpness>
+            <stretch_to_output>false</stretch_to_output>
+            <timecode_passthrough>false</timecode_passthrough>
+            <vbi_passthrough>false</vbi_passthrough>
+            <width>1920</width>
+            <gpu>0</gpu>
+            <selected_gpu nil="true"/>
+            <codec>h.264</codec>
+        </video_description>
     </stream_assembly>
 </job>`
 	server, _ := s.startServer(http.StatusOK, jobResponseXML)
@@ -255,6 +277,7 @@ func (s *S) TestGetJob(c *check.C) {
 				Type: FileOutputGroupType,
 				Output: []Output{
 					{
+						FullURI:            "s3://mybucket/some/dir/mynicefile.mp4",
 						StreamAssemblyName: "stream_1",
 						NameModifier:       "_high",
 						Order:              1,
@@ -265,8 +288,15 @@ func (s *S) TestGetJob(c *check.C) {
 		},
 		StreamAssembly: []StreamAssembly{
 			{
+				ID:     "1146",
 				Name:   "stream_1",
 				Preset: "17",
+				VideoDescription: &StreamVideoDescription{
+					Codec:       "h.264",
+					EncoderType: "gpu",
+					Width:       1920,
+					Height:      1080,
+				},
 			},
 		},
 	}
