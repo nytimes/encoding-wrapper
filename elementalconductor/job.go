@@ -253,6 +253,7 @@ type AppleLiveGroupSettings struct {
 // Output defines the different processing stream assemblies
 // for the job
 type Output struct {
+	FullURI            string    `xml:"full_uri,omitempty"`
 	StreamAssemblyName string    `xml:"stream_assembly_name,omitempty"`
 	NameModifier       string    `xml:"name_modifier,omitempty"`
 	Order              int       `xml:"order,omitempty"`
@@ -262,6 +263,17 @@ type Output struct {
 
 // StreamAssembly defines how each processing stream should behave
 type StreamAssembly struct {
-	Name   string `xml:"name,omitempty"`
-	Preset string `xml:"preset,omitempty"`
+	ID               string                  `xml:"id,omitempty"`
+	Name             string                  `xml:"name,omitempty"`
+	Preset           string                  `xml:"preset,omitempty"`
+	VideoDescription *StreamVideoDescription `xml:"video_description"`
+}
+
+// StreamVideoDescription contains information about the video in a given
+// stream assembly.
+type StreamVideoDescription struct {
+	Codec       string `xml:"codec"`
+	EncoderType string `xml:"encoder_type"`
+	Height      int64  `xml:"height"`
+	Width       int64  `xml:"width"`
 }
