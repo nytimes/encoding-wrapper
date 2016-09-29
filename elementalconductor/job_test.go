@@ -229,7 +229,7 @@ func (s *S) TestGetJob(c *check.C) {
             <stretch_to_output>false</stretch_to_output>
             <timecode_passthrough>false</timecode_passthrough>
             <vbi_passthrough>false</vbi_passthrough>
-            <width>1920</width>
+            <width nil="true"/>
             <gpu>0</gpu>
             <selected_gpu nil="true"/>
             <codec>h.264</codec>
@@ -294,8 +294,8 @@ func (s *S) TestGetJob(c *check.C) {
 				VideoDescription: &StreamVideoDescription{
 					Codec:       "h.264",
 					EncoderType: "gpu",
-					Width:       1920,
-					Height:      1080,
+					Width:       "",
+					Height:      "1080",
 				},
 			},
 		},
@@ -475,5 +475,37 @@ func (s *S) TestVideoInfoDimensions(c *check.C) {
 		if height != t.expectedHeight {
 			c.Errorf("width=%s height=%s\nwant height=%d\ngot  height=%d", t.inputWidth, t.inputHeight, t.expectedHeight, height)
 		}
+	}
+}
+
+func (s *S) TestVideoDescriptionWidth(c *check.C) {
+	var tests = []struct {
+		input  string
+		output int64
+	}{
+		{"1920", 1920},
+		{"", 0},
+		{"whatever", 0},
+	}
+	for _, t := range tests {
+		desc := StreamVideoDescription{Width: t.input}
+		got := desc.GetWidth()
+		c.Check(got, check.Equals, t.output)
+	}
+}
+
+func (s *S) TestVideoDescriptionHeight(c *check.C) {
+	var tests = []struct {
+		input  string
+		output int64
+	}{
+		{"1080", 1080},
+		{"", 0},
+		{"whatever", 0},
+	}
+	for _, t := range tests {
+		desc := StreamVideoDescription{Height: t.input}
+		got := desc.GetHeight()
+		c.Check(got, check.Equals, t.output)
 	}
 }
