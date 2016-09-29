@@ -274,6 +274,21 @@ type StreamAssembly struct {
 type StreamVideoDescription struct {
 	Codec       string `xml:"codec"`
 	EncoderType string `xml:"encoder_type"`
-	Height      int64  `xml:"height"`
-	Width       int64  `xml:"width"`
+	Height      string `xml:"height"`
+	Width       string `xml:"width"`
+}
+
+// GetWidth returns the underlying width parsed as an int64.
+func (s *StreamVideoDescription) GetWidth() int64 {
+	return s.getNumber(s.Width)
+}
+
+// GetHeight returns the underlying height parsed as an int64.
+func (s *StreamVideoDescription) GetHeight() int64 {
+	return s.getNumber(s.Height)
+}
+
+func (s *StreamVideoDescription) getNumber(input string) int64 {
+	v, _ := strconv.ParseInt(input, 10, 64)
+	return v
 }
