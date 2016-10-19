@@ -4,5 +4,5 @@ install:
 script:
   - make test
 go:
-  - 1.7.1
+  - 1.7.3
   - tip
