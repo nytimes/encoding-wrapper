@@ -38,6 +38,7 @@ type FormatStatus struct {
 	CreateDate    time.Time
 	StartDate     time.Time
 	FinishDate    time.Time
+	Description   string
 	S3Destination string
 	CFDestination string
 	Size          string
@@ -156,6 +157,7 @@ func (s *statusJSON) toStruct() StatusResponse {
 			CreateDate:    formatStatus.CreateDate.Time,
 			StartDate:     formatStatus.StartDate.Time,
 			FinishDate:    formatStatus.FinishDate.Time,
+			Description:   formatStatus.Description,
 			S3Destination: formatStatus.S3Destination,
 			CFDestination: formatStatus.CFDestination,
 			Size:          formatStatus.Size,
@@ -201,6 +203,7 @@ type formatStatusJSON struct {
 	CreateDate         MediaDateTime `json:"created"`
 	StartDate          MediaDateTime `json:"started"`
 	FinishDate         MediaDateTime `json:"finished"`
+	Description        string        `json:"description"`
 	S3Destination      string        `json:"s3_destination"`
 	CFDestination      string        `json:"cf_destination"`
 	Destinations       interface{}   `json:"destination"`
