@@ -29,6 +29,7 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 				"format": {
 						"id": "f123",
 						"status": "Finished",
+						"description": "Something",
 						"created": "2015-12-31 20:45:30",
 						"started": "2015-12-31 20:45:34",
 						"finished": "2015-12-31 21:00:03",
@@ -72,6 +73,7 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 				{
 					ID:            "f123",
 					Status:        "Finished",
+					Description:   "Something",
 					CreateDate:    expectedCreateDate,
 					StartDate:     expectedStartDate,
 					FinishDate:    expectedFinishDate,
