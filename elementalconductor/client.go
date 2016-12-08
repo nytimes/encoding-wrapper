@@ -43,25 +43,7 @@ type APIError struct {
 // It encodes the list of errors in JSON format.
 func (apiErr *APIError) Error() string {
 	data, _ := json.Marshal(apiErr)
-	return fmt.Sprintf("Error returned by the Elemental Cloud REST Interface: %s", data)
-}
-
-// GetAccessKeyID returns the value for the AWS access key ID set for this
-// client
-func (c *Client) GetAccessKeyID() string {
-	return c.AccessKeyID
-}
-
-// GetSecretAccessKey returns the value for the AWS secret access key set for
-// this client
-func (c *Client) GetSecretAccessKey() string {
-	return c.SecretAccessKey
-}
-
-// GetDestination returns the value of the S3 bucket target destination for
-// the output for transcoding jobs.
-func (c *Client) GetDestination() string {
-	return c.Destination
+	return fmt.Sprintf("Error returned by the Elemental Conductor REST Interface: %s", data)
 }
 
 // NewClient creates a instance of the client type.

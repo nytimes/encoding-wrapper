@@ -110,3 +110,13 @@ func (s *S) TestInvalidAuth(c *check.C) {
 		Errors: errorResponse,
 	})
 }
+
+func (s *S) TestAPIErrorMarshalling(c *check.C) {
+	var err error
+	err = &APIError{
+		Status: http.StatusInternalServerError,
+		Errors: "something went wrong",
+	}
+	expectedError := `Error returned by the Elemental Conductor REST Interface: {"status":500,"errors":"something went wrong"}`
+	c.Assert(err.Error(), check.Equals, expectedError)
+}
