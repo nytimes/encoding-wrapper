@@ -308,6 +308,31 @@ func (s *S) TestGetJob(c *check.C) {
 	c.Assert(*getJobsResponse, check.DeepEquals, expectedJob)
 }
 
+func (s *S) TestJobGetID(c *check.C) {
+	var tests = []struct {
+		href string
+		id   string
+	}{
+		{
+			"http://myelemental/jobs/123",
+			"123",
+		},
+		{
+			"job-1234",
+			"job-1234",
+		},
+		{
+			"",
+			"",
+		},
+	}
+	for _, test := range tests {
+		j := Job{Href: test.href}
+		id := j.GetID()
+		c.Check(id, check.Equals, test.id)
+	}
+}
+
 func (s *S) TestCancelJob(c *check.C) {
 	jobResponseXML := `<job href="/jobs/1">
     <status>canceled</status>

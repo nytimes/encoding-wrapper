@@ -80,9 +80,7 @@ func (c *Client) CancelJob(jobID string) (*Job, error) {
 func (j *Job) GetID() string {
 	if j.Href != "" {
 		hrefData := strings.Split(j.Href, "/")
-		if len(hrefData) > 1 {
-			return hrefData[len(hrefData)-1]
-		}
+		return hrefData[len(hrefData)-1]
 	}
 	return ""
 }
