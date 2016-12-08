@@ -163,3 +163,13 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 		},
 	})
 }
+
+func (s *S) TestAPIErrorRepresentation(c *check.C) {
+	var err error
+	err = &APIError{
+		Message: "something went wrong",
+		Errors:  []string{"error 1", "error 2"},
+	}
+	expectedMsg := `Error returned by the Encoding.com API: {"Message":"something went wrong","Errors":["error 1","error 2"]}`
+	c.Assert(err.Error(), check.Equals, expectedMsg)
+}
