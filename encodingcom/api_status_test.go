@@ -21,6 +21,20 @@ func (s *S) TestAPIStatus(c *check.C) {
 	})
 }
 
+func (s *S) TestAPIStatusFailToConnect(c *check.C) {
+	_, err := APIStatus("http://192.0.2.13:8080")
+	c.Assert(err, check.NotNil)
+}
+
+func (s *S) TestAPIStatusInvalidResponse(c *check.C) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{not a valid json}`))
+	}))
+	defer server.Close()
+	_, err := APIStatus(server.URL)
+	c.Assert(err, check.NotNil)
+}
+
 func (s *S) TestAPIStatusOK(c *check.C) {
 	var tests = []struct {
 		input string

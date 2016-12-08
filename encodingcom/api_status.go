@@ -2,8 +2,10 @@ package encodingcom
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // APIStatusResponse is the response returned by the APIStatus function.
@@ -28,8 +30,14 @@ func (s *APIStatusResponse) OK() bool {
 //
 // See http://goo.gl/3JKSxy for more details.
 func APIStatus(endpoint string) (*APIStatusResponse, error) {
+	client := http.Client{
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{Timeout: time.Second}).Dial,
+			ResponseHeaderTimeout: 2 * time.Second,
+		},
+	}
 	url := strings.TrimRight(endpoint, "/") + "/status.php?format=json"
-	resp, err := http.Get(url)
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
