@@ -5,13 +5,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
 
 var nonDigitRegexp = regexp.MustCompile(`[^\d]`)
-
-// errorDateTimeLayout is the time layout used on job errors
-const errorDateTimeLayout = "2006-01-02T15:04:05-07:00"
 
 // OutputGroupType is a custom type for OutputGroup type field values
 type OutputGroupType string
@@ -34,39 +30,6 @@ const (
 	// MPEG4 is the container for MPEG-4 video files
 	MPEG4 = Container("mp4")
 )
-
-// JobErrorDateTime is a custom time struct to be used on Media items
-type JobErrorDateTime struct {
-	time.Time
-}
-
-// MarshalXML implementation on JobErrorDateTime to skip "zero" time values
-func (jdt JobErrorDateTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	if jdt.IsZero() {
-		return nil
-	}
-	e.EncodeElement(jdt.Time, start)
-	return nil
-}
-
-// UnmarshalXML implementation on JobErrorDateTime to use errorDateTimeLayout
-func (jdt *JobErrorDateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var content string
-	err := d.DecodeElement(&content, &start)
-	if err != nil {
-		return err
-	}
-	if content == "" {
-		jdt.Time = time.Time{}
-		return nil
-	}
-	if content == "0001-01-01T00:00:00Z" {
-		jdt.Time = time.Time{}
-		return nil
-	}
-	jdt.Time, err = time.Parse(errorDateTimeLayout, content)
-	return err
-}
 
 // GetJobs returns a list of the user's jobs
 func (c *Client) GetJobs() (*JobList, error) {
