@@ -13,16 +13,16 @@ type DateTime struct {
 	time.Time
 }
 
-// MarshalXML implementation on JobDateTime to skip "zero" time values
+// MarshalXML implementation on DateTimeg to skip "zero" time values
 func (jdt DateTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if jdt.IsZero() {
 		return nil
 	}
-	e.EncodeElement(jdt.Time, start)
+	e.EncodeElement(jdt.Time.Format(dateTimeLayout), start)
 	return nil
 }
 
-// UnmarshalXML implementation on JobDateTime to use dateTimeLayout
+// UnmarshalXML implementation on DateTimeg to use dateTimeLayout
 func (jdt *DateTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var content string
 	err := d.DecodeElement(&content, &start)
