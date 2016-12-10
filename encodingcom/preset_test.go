@@ -380,6 +380,18 @@ func (s *S) TestGetPreset(c *check.C) {
 	c.Assert(req.query["name"], check.Equals, "webm_1080p")
 }
 
+func (s *S) TestGetPresetError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"errors": {"error": "can't get no presetisfaction"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.GetPreset("my-preciouset")
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "GetPreset")
+}
+
 func (s *S) TestSavePreset(c *check.C) {
 	server, requests := s.startServer(`
 	{
@@ -414,6 +426,19 @@ func (s *S) TestSavePreset(c *check.C) {
 	c.Assert(req.query["format"], check.DeepEquals, expectedFormat)
 }
 
+func (s *S) TestSavePresetError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"errors": {"error": "incomplete preset data"}}}`)
+	defer server.Close()
+
+	format := Format{VideoCodec: "x264"}
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.SavePreset("preset-1", format)
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "SavePreset")
+}
+
 func (s *S) TestDeletePreset(c *check.C) {
 	server, requests := s.startServer(`
 	{
@@ -432,4 +457,28 @@ func (s *S) TestDeletePreset(c *check.C) {
 	req := <-requests
 	c.Assert(req.query["action"], check.Equals, "DeletePreset")
 	c.Assert(req.query["name"], check.Equals, "mp4_1080p")
+}
+
+func (s *S) TestDeletePresetError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"errors": {"error": "no preset, try postset"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.DeletePreset("some-preset")
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "DeletePreset")
+}
+
+func (s *S) TestListPresetsError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"errors": {"error": "who moved my preset?"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.ListPresets(AllPresets)
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "GetPresetsList")
 }
