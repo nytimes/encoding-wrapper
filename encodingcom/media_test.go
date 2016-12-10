@@ -30,6 +30,140 @@ func (s *S) TestAddMedia(c *check.C) {
 	c.Assert(req.query["action"], check.Equals, "AddMedia")
 }
 
+func (s *S) TestAddMediaError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Added", "errors": {"error": "something went wrong"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	format := Format{
+		Output:       []string{"http://another.non.existent/video.mp4"},
+		VideoCodec:   "x264",
+		AudioCodec:   "aac",
+		Bitrate:      "900k",
+		AudioBitrate: "64k",
+	}
+	addMediaResponse, err := client.AddMedia([]string{"http://another.non.existent/video.mov"},
+		[]Format{format}, "us-east-1")
+	c.Assert(err, check.NotNil)
+	c.Assert(addMediaResponse, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "AddMedia")
+}
+
+func (s *S) TestStopMedia(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Stopped"}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.StopMedia("some-media")
+	c.Assert(err, check.IsNil)
+	c.Assert(resp, check.DeepEquals, &Response{Message: "Stopped"})
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "StopMedia")
+	c.Assert(req.query["mediaid"], check.Equals, "some-media")
+}
+
+func (s *S) TestStopMediaError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "failed", "errors": {"error": "something went wrong"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.StopMedia("some-media")
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "StopMedia")
+}
+
+func (s *S) TestCancelMedia(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Canceled"}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.CancelMedia("some-media")
+	c.Assert(err, check.IsNil)
+	c.Assert(resp, check.DeepEquals, &Response{Message: "Canceled"})
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "CancelMedia")
+	c.Assert(req.query["mediaid"], check.Equals, "some-media")
+}
+
+func (s *S) TestCancelMediaError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "failed", "errors": {"error": "something went wrong"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.CancelMedia("some-media")
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "CancelMedia")
+}
+
+func (s *S) TestRestartMedia(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Restarted"}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.RestartMedia("some-media", false)
+	c.Assert(err, check.IsNil)
+	c.Assert(resp, check.DeepEquals, &Response{Message: "Restarted"})
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "RestartMedia")
+	c.Assert(req.query["mediaid"], check.Equals, "some-media")
+}
+
+func (s *S) TestRestartMediaWithErrors(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Restarted"}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.RestartMedia("some-media", true)
+	c.Assert(err, check.IsNil)
+	c.Assert(resp, check.DeepEquals, &Response{Message: "Restarted"})
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "RestartMediaErrors")
+	c.Assert(req.query["mediaid"], check.Equals, "some-media")
+}
+
+func (s *S) TestRestartMediaError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "failed", "errors": {"error": "something went wrong"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.RestartMedia("some-media", false)
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "RestartMedia")
+}
+
+func (s *S) TestRestartMediaTask(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Task restarted"}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.RestartMediaTask("some-media", "some-task")
+	c.Assert(err, check.IsNil)
+	c.Assert(resp, check.DeepEquals, &Response{Message: "Task restarted"})
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "RestartMediaTask")
+	c.Assert(req.query["mediaid"], check.Equals, "some-media")
+	c.Assert(req.query["taskid"], check.Equals, "some-task")
+}
+
+func (s *S) TestRestartMediaTaskError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Failed to restart", "errors": {"error": "something went really bad"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.RestartMediaTask("some-media", "some-task")
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "RestartMediaTask")
+}
+
 func (s *S) TestListMedia(c *check.C) {
 	server, requests := s.startServer(`
 {
@@ -68,6 +202,18 @@ func (s *S) TestListMedia(c *check.C) {
 			},
 		},
 	})
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "GetMediaList")
+}
+
+func (s *S) TestListMediaError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "", "errors": {"error": "can't list"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.ListMedia()
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
 	req := <-requests
 	c.Assert(req.query["action"], check.Equals, "GetMediaList")
 }
@@ -114,4 +260,16 @@ func (s *S) TestGetMediaInfo(c *check.C) {
 	req := <-requests
 	c.Assert(req.query["action"], check.Equals, "GetMediaInfo")
 	c.Assert(req.query["mediaid"], check.Equals, "m-123")
+}
+
+func (s *S) TestGetMediaInfoError(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "", "errors": {"error": "wait what?"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.GetMediaInfo("some-media")
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "GetMediaInfo")
 }
