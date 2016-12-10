@@ -36,7 +36,7 @@ type Response struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (c *Client) doGenericAction(mediaID string, action string) (*Response, error) {
+func (c *Client) doMediaAction(mediaID string, action string) (*Response, error) {
 	var result map[string]*Response
 	err := c.do(&request{
 		Action:  action,

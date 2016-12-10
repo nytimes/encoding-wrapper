@@ -72,12 +72,12 @@ func (c *Client) AddMedia(source []string, format []Format, region string) (*Add
 
 // StopMedia stops an existing media on user's queue based on the mediaID.
 func (c *Client) StopMedia(mediaID string) (*Response, error) {
-	return c.doGenericAction(mediaID, "StopMedia")
+	return c.doMediaAction(mediaID, "StopMedia")
 }
 
 // CancelMedia deletes an existing media on user's queue based on the mediaID.
 func (c *Client) CancelMedia(mediaID string) (*Response, error) {
-	return c.doGenericAction(mediaID, "CancelMedia")
+	return c.doMediaAction(mediaID, "CancelMedia")
 }
 
 // RestartMedia restart the entire job of an existing media on user's queue based on the mediaID.
@@ -87,7 +87,7 @@ func (c *Client) RestartMedia(mediaID string, withErrors bool) (*Response, error
 	if withErrors {
 		action = "RestartMediaErrors"
 	}
-	return c.doGenericAction(mediaID, action)
+	return c.doMediaAction(mediaID, action)
 }
 
 // RestartMediaTask restart a specific task on a job.

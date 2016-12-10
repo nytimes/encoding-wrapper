@@ -8,7 +8,7 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *S) mockGenericResponseObject(message string, errors string) interface{} {
+func (s *S) mockMediaResponseObject(message string, errors string) interface{} {
 	return map[string]interface{}{
 		"response": map[string]interface{}{
 			"message": message,
@@ -82,11 +82,11 @@ func (s *S) TestZeroOneBooleanUnmarshal(c *check.C) {
 	c.Assert(err.Error(), check.Equals, `invalid value: "true"`)
 }
 
-func (s *S) TestDoGenericAction(c *check.C) {
+func (s *S) TestDoMediaAction(c *check.C) {
 	server, requests := s.startServer(`{"response": {"message": "Deleted"}}`)
 	defer server.Close()
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
-	cancelMediaResponse, err := client.doGenericAction("12345", "CancelMedia")
+	cancelMediaResponse, err := client.doMediaAction("12345", "CancelMedia")
 	c.Assert(err, check.IsNil)
 	c.Assert(cancelMediaResponse, check.DeepEquals, &Response{
 		Message: "Deleted",
@@ -97,7 +97,7 @@ func (s *S) TestDoGenericAction(c *check.C) {
 
 func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("", "Wrong user id or key!"))
+		byteResponse, _ := json.Marshal(s.mockMediaResponseObject("", "Wrong user id or key!"))
 		w.Write(byteResponse)
 	}))
 	defer server.Close()
@@ -114,9 +114,9 @@ func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 	c.Assert(apiErr.Errors, check.DeepEquals, []string{"Wrong user id or key!"})
 }
 
-func (s *S) TestDoGenericResponse(c *check.C) {
+func (s *S) TestDoMediaResponse(c *check.C) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byteResponse, _ := json.Marshal(s.mockGenericResponseObject("it worked!", ""))
+		byteResponse, _ := json.Marshal(s.mockMediaResponseObject("it worked!", ""))
 		w.Write(byteResponse)
 	}))
 	defer server.Close()
