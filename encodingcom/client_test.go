@@ -95,6 +95,17 @@ func (s *S) TestDoMediaAction(c *check.C) {
 	c.Assert(req.query["action"], check.Equals, "CancelMedia")
 }
 
+func (s *S) TestDoMediaActionFailure(c *check.C) {
+	server, requests := s.startServer(`{"response": {"message": "Deleted", "errors": {"error": "something went wrong"}}}`)
+	defer server.Close()
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	cancelMediaResponse, err := client.doMediaAction("12345", "CancelMedia")
+	c.Assert(err, check.NotNil)
+	c.Assert(cancelMediaResponse, check.IsNil)
+	req := <-requests
+	c.Assert(req.query["action"], check.Equals, "CancelMedia")
+}
+
 func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		byteResponse, _ := json.Marshal(s.mockMediaResponseObject("", "Wrong user id or key!"))
@@ -162,6 +173,15 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 			"status": "added",
 		},
 	})
+}
+
+func (s *S) TestDoInvalidResponse(c *check.C) {
+	server, _ := s.startServer(`{invalid json}`)
+	defer server.Close()
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	var resp Response
+	err := client.do(&request{Action: "GetStatus"}, &resp)
+	c.Assert(err, check.NotNil)
 }
 
 func (s *S) TestAPIErrorRepresentation(c *check.C) {
