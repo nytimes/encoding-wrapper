@@ -267,6 +267,68 @@ func (s *S) TestGetPresetsList(c *check.C) {
 	}
 }
 
+func (s *S) TestPresetFormatStream(c *check.C) {
+	var tests = []struct {
+		testCase  string
+		streamRaw interface{}
+		expected  []Stream
+	}{
+		{
+			"single stream",
+			map[string]interface{}{
+				"audio_bitrate": "64k",
+				"audio_volume":  "100",
+				"size":          "1080x720",
+				"two_pass":      "yes",
+			},
+			[]Stream{
+				{
+					AudioBitrate: "64k",
+					AudioVolume:  100,
+					Size:         "1080x720",
+					TwoPass:      YesNoBoolean(true),
+				},
+			},
+		},
+		{
+			"multiple streams",
+			[]map[string]interface{}{
+				{
+					"audio_bitrate": "64k",
+					"audio_volume":  "100",
+					"size":          "1080x720",
+					"two_pass":      "yes",
+				},
+				{
+					"audio_bitrate": "128k",
+					"audio_volume":  "100",
+					"size":          "1920x1080",
+					"two_pass":      "yes",
+				},
+			},
+			[]Stream{
+				{
+					AudioBitrate: "64k",
+					AudioVolume:  100,
+					Size:         "1080x720",
+					TwoPass:      YesNoBoolean(true),
+				},
+				{
+					AudioBitrate: "128k",
+					AudioVolume:  100,
+					Size:         "1920x1080",
+					TwoPass:      YesNoBoolean(true),
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		p := PresetFormat{StreamRawMap: test.streamRaw}
+		streams := p.Stream()
+		c.Check(streams, check.DeepEquals, test.expected)
+	}
+}
+
 func (s *S) TestGetPreset(c *check.C) {
 	server, requests := s.startServer(`
 {

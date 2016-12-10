@@ -1,9 +1,6 @@
 package encodingcom
 
-import (
-	"encoding/json"
-	"log"
-)
+import "encoding/json"
 
 const (
 	// AllPresets is used to retrieve all presets in the response of
@@ -86,21 +83,17 @@ type PresetFormat struct {
 // Stream function returns a slice of Advanced HLS stream settings for a
 // preset format.
 func (p PresetFormat) Stream() []Stream {
-	streamSlice := []Stream{}
-	newStream := Stream{}
+	var (
+		stream  Stream
+		streams []Stream
+	)
 	streamRaw, _ := json.Marshal(p.StreamRawMap)
-	err := json.Unmarshal(streamRaw, &newStream)
-	if err != nil {
-		errWithSlice := json.Unmarshal(streamRaw, &streamSlice)
-		if errWithSlice != nil {
-			log.Printf("Could NOT parse Preset stream data into Stream object: %s", err.Error())
-			log.Printf("Could NOT parse Preset stream data into Stream slice: %s", errWithSlice.Error())
-			return streamSlice
-		}
+	if err := json.Unmarshal(streamRaw, &stream); err != nil {
+		json.Unmarshal(streamRaw, &streams)
 	} else {
-		streamSlice = append(streamSlice, newStream)
+		streams = append(streams, stream)
 	}
-	return streamSlice
+	return streams
 }
 
 // SavePresetResponse is the response returned in the SavePreset method.
