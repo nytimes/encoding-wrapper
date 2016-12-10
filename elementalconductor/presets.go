@@ -1,8 +1,6 @@
 package elementalconductor
 
-import (
-	"encoding/xml"
-)
+import "encoding/xml"
 
 // GetPresets returns a list of presets
 func (c *Client) GetPresets() (*PresetList, error) {

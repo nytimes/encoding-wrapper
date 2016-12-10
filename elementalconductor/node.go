@@ -1,8 +1,6 @@
 package elementalconductor
 
-import (
-	"encoding/xml"
-)
+import "encoding/xml"
 
 // NodeProduct is the product that is running inside a node.
 type NodeProduct string
