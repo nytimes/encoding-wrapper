@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -257,19 +256,10 @@ type Stream struct {
 
 // VideoCodecParameters function returns settings for H.264 video codec.
 func (s Stream) VideoCodecParameters() VideoCodecParameters {
-	newVideoCodecParameters := VideoCodecParameters{}
-	plainString := ""
+	var params VideoCodecParameters
 	rawParameters, _ := json.Marshal(s.VideoCodecParametersRaw)
-	err := json.Unmarshal(rawParameters, &newVideoCodecParameters)
-	if err != nil {
-		errWithString := json.Unmarshal(rawParameters, &plainString)
-		if errWithString != nil {
-			log.Printf("Could NOT parse video codec params from Stream data: %s", err.Error())
-			log.Printf("Could NOT parse video codec string from Stream data: %s", errWithString.Error())
-			return newVideoCodecParameters
-		}
-	}
-	return newVideoCodecParameters
+	json.Unmarshal(rawParameters, &params)
+	return params
 }
 
 // VideoCodecParameters are settings for H.264 video codec.
