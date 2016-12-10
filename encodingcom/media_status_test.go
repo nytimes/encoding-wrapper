@@ -393,3 +393,13 @@ func (s *S) TestGetStatusNoMedia(c *check.C) {
 	c.Assert(err.Error(), check.Equals, "please provide at least one media id")
 	c.Assert(status, check.HasLen, 0)
 }
+
+func (s *S) TestGetStatusError(c *check.C) {
+	server, _ := s.startServer(`{"response": {"message": "", "errors": {"error": "wait what?"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.GetStatus([]string{"some-media"}, true)
+	c.Assert(err, check.NotNil)
+	c.Assert(resp, check.IsNil)
+}
