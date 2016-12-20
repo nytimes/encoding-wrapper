@@ -48,6 +48,7 @@ type FormatStatus struct {
 	AudioCodec    string
 	Destinations  []DestinationStatus
 	Stream        []Stream
+	FileSize      string
 }
 
 // DestinationStatus represents the status of a given destination.
@@ -166,6 +167,7 @@ func (s *statusJSON) toStruct() StatusResponse {
 			Output:        formatStatus.Output,
 			VideoCodec:    formatStatus.VideoCodec,
 			Stream:        formatStatus.Stream,
+			FileSize:      formatStatus.FileSize,
 		}
 
 		switch dest := formatStatus.Destinations.(type) {
@@ -214,4 +216,5 @@ type formatStatusJSON struct {
 	VideoCodec         string        `json:"video_codec"`
 	Output             string        `json:"output"`
 	Stream             []Stream      `json:"stream"`
+	FileSize           string        `json:"convertedsize"`
 }

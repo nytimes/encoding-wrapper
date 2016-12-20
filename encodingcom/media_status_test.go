@@ -10,7 +10,7 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 	server, requests := s.startServer(`
 {
 	"response": {
-		"job": {
+        "job": {
 				"id": "abc123",
 				"userid": "myuser",
 				"sourcefile": "http://some.video/file.mp4",
@@ -35,6 +35,7 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 						"finished": "2015-12-31 21:00:03",
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
+						"convertedsize": "65723",
 						"destination": "s3://mynicebucket",
 						"destination_status": "Saved"
 					}
@@ -79,6 +80,7 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 					FinishDate:    expectedFinishDate,
 					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
 					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
+					FileSize:      "65723",
 					Destinations:  []DestinationStatus{{Name: "s3://mynicebucket", Status: "Saved"}},
 				},
 			},
@@ -122,6 +124,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 						"finished": "2015-12-31 21:00:03",
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
+						"convertedsize": "65724",
 						"destination": [
 							null,
 							"s3://myunclebucket/file.mp4"
@@ -139,6 +142,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 						"finished": "2015-12-31 21:00:03",
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
+						"convertedsize": "65725",
 						"destination": [
 							"s3://mynicebucket/file.mp4",
 							"s3://myunclebucket/file.mp4"
@@ -171,6 +175,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 						"finished": "2015-12-31 21:00:03",
 						"s3_destination": "https://s3.amazonaws.com/not-really/valid.mp4",
 						"cf_destination": "https://blablabla.cloudfront.net/not-valid.mp4",
+						"convertedsize": "65726",
 						"destination": [
 							"s3://mynicebucket/file.mp4",
 							"s3://myunclebucket/file.mp4"
@@ -221,6 +226,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 					FinishDate:    expectedFinishDate,
 					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
 					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
+					FileSize:      "65724",
 					Destinations: []DestinationStatus{
 						{Name: "", Status: ""},
 						{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
@@ -234,6 +240,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 					FinishDate:    expectedFinishDate,
 					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
 					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
+					FileSize:      "65725",
 					Destinations: []DestinationStatus{
 						{Name: "s3://mynicebucket/file.mp4", Status: ""},
 						{Name: "s3://myunclebucket/file.mp4", Status: ""},
@@ -266,6 +273,7 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 					FinishDate:    expectedFinishDate,
 					S3Destination: "https://s3.amazonaws.com/not-really/valid.mp4",
 					CFDestination: "https://blablabla.cloudfront.net/not-valid.mp4",
+					FileSize:      "65726",
 					Destinations: []DestinationStatus{
 						{Name: "s3://mynicebucket/file.mp4", Status: "Saved"},
 						{Name: "s3://myunclebucket/file.mp4", Status: "Saved"},
@@ -320,6 +328,7 @@ func (s *S) TestGetStatusNotExtended(c *check.C) {
 					Output:       "mp4",
 					VideoCodec:   "libx264",
 					AudioCodec:   "dolby_aac",
+					FileSize:     "78544430",
 				},
 			},
 		},
