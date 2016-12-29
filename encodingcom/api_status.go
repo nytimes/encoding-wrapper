@@ -32,7 +32,7 @@ func (s *APIStatusResponse) OK() bool {
 func APIStatus(endpoint string) (*APIStatusResponse, error) {
 	client := http.Client{
 		Transport: &http.Transport{
-			Dial: (&net.Dialer{Timeout: time.Second}).Dial,
+			DialContext:           (&net.Dialer{Timeout: time.Second}).DialContext,
 			ResponseHeaderTimeout: 2 * time.Second,
 		},
 	}
