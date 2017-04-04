@@ -130,6 +130,7 @@ type MediaInfo struct {
 	AudioBitrate       string        `json:"audio_bitrate"`
 	AudioSampleRate    uint          `json:"audio_sample_rate,string"`
 	AudioChannels      string        `json:"audio_channels"`
+	Rotation           uint          `json:"rotation,string"`
 }
 
 type mediaInfo struct {

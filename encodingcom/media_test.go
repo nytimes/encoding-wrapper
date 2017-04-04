@@ -233,7 +233,8 @@ func (s *S) TestGetMediaInfo(c *check.C) {
 		"display_aspect_ratio": "20:11",
 		"audio_codec": "ac3",
 		"audio_sample_rate": "48000",
-		"audio_channels": "2"
+		"audio_channels": "2",
+		"rotation":"90"
 	}
 }`)
 	defer server.Close()
@@ -255,6 +256,7 @@ func (s *S) TestGetMediaInfo(c *check.C) {
 		AudioSampleRate:    uint(48000),
 		AudioChannels:      "2",
 		AudioBitrate:       "128k",
+		Rotation:           90,
 	})
 
 	req := <-requests

@@ -185,8 +185,7 @@ func (s *S) TestDoInvalidResponse(c *check.C) {
 }
 
 func (s *S) TestAPIErrorRepresentation(c *check.C) {
-	var err error
-	err = &APIError{
+	err := &APIError{
 		Message: "something went wrong",
 		Errors:  []string{"error 1", "error 2"},
 	}

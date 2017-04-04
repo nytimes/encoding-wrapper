@@ -112,8 +112,7 @@ func (s *S) TestInvalidAuth(c *check.C) {
 }
 
 func (s *S) TestAPIErrorMarshalling(c *check.C) {
-	var err error
-	err = &APIError{
+	err := &APIError{
 		Status: http.StatusInternalServerError,
 		Errors: "something went wrong",
 	}
