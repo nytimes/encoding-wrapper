@@ -10,3 +10,4 @@ Collection of Go wrappers for Video encoding providers.
 
 - [Elemental Conductor](https://www.elementaltechnologies.com/products/elemental-conductor)
 - [Encoding.com](http://api.encoding.com)
+- [Hybrik](https://docs.hybrik.com/api/v1/HybrikAPI.html)
