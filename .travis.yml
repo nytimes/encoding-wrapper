@@ -1,5 +1,7 @@
 language: go
-install: make testdeps
+install:
+  - export GOROOT=$(go env GOROOT)
+  - make testdeps
 script: make coverage
 after_success: bash <(curl -s https://codecov.io/bash)
 go:
