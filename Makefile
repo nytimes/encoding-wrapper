@@ -7,11 +7,8 @@ checkfmt: testdeps
 	[ -z "$$(gofmt -s -d . | tee /dev/stderr)" ]
 
 lint: testdeps
-	go get github.com/alecthomas/gometalinter honnef.co/go/unused/cmd/unused
-	gometalinter --install --vendored-linters
-	go install ./...
-	go list -f '{{.TestImports}}' ./... | sed -e 's/\[\(.*\)\]/\1/' | tr ' ' '\n' | grep '^.*\..*/.*$$' | xargs go install
-	gometalinter -j 4 --enable=misspell --enable=gofmt --enable=unused --disable=dupl --disable=errcheck --disable=gas --deadline=10m --tests ./...
+	go get github.com/golangci/golangci-lint/cmd/golangci-lint
+	golangci-lint run -D errcheck -E golint -E staticcheck -E misspell -E gofmt
 
 coverage: lint
 	@rm -f coverage.txt; for p in $$(go list ./...); do \
