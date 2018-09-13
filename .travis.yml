@@ -4,6 +4,6 @@ install:
 script: make coverage
 after_success: bash <(curl -s https://codecov.io/bash)
 go:
-  - 1.8.x
-  - 1.9
+  - 1.10.x
+  - 1.11.x
   - tip
