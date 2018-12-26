@@ -8,7 +8,7 @@ checkfmt: testdeps
 
 lint: testdeps
 	go get github.com/golangci/golangci-lint/cmd/golangci-lint
-	golangci-lint run -D errcheck -E golint -E staticcheck -E misspell -E gofmt
+	golangci-lint run -D errcheck -E golint -E staticcheck -E misspell -E gofmt ./...
 
 coverage: lint
 	go test -coverprofile=coverage.txt -covermode=atomic ./...
