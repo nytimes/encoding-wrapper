@@ -11,11 +11,7 @@ lint: testdeps
 	golangci-lint run -D errcheck -E golint -E staticcheck -E misspell -E gofmt
 
 coverage: lint
-	@rm -f coverage.txt; for p in $$(go list ./...); do \
-		go test -coverprofile=profile.out -covermode=atomic $$p || export status=2; \
-		if [ -f profile.out ]; then cat profile.out >> coverage.txt; rm profile.out; fi \
-		done; \
-		exit $${status:-0}
+	go test -coverprofile=coverage.txt -covermode=atomic ./...
 
 test: lint
 	go test ./...
