@@ -20,13 +20,13 @@ func TestGetJobError(t *testing.T) {
 	if getJobsResponse != nil {
 		t.Errorf("unexpected non-nil response: %#v", getJobsResponse)
 	}
-	expectedApiErr := &APIError{
+	expectedAPIErr := &APIError{
 		Status: http.StatusNotFound,
 		Errors: errorResponse,
 	}
 	apiErr := err.(*APIError)
-	if !reflect.DeepEqual(apiErr, expectedApiErr) {
-		t.Errorf("wrong error returned\nwant %#v\ngot  %#v", expectedApiErr, apiErr)
+	if !reflect.DeepEqual(apiErr, expectedAPIErr) {
+		t.Errorf("wrong error returned\nwant %#v\ngot  %#v", expectedAPIErr, apiErr)
 	}
 }
 
@@ -461,13 +461,13 @@ func TestCancelJobError(t *testing.T) {
 	if job != nil {
 		t.Fatalf("unexpected non-nil job object: %#v", job)
 	}
-	expectedApiErr := &APIError{
+	expectedAPIErr := &APIError{
 		Status: http.StatusNotFound,
 		Errors: errorResponse,
 	}
 	apiErr := err.(*APIError)
-	if !reflect.DeepEqual(apiErr, expectedApiErr) {
-		t.Errorf("wrong api error returned\nwant %#v\ngot  %#v", expectedApiErr, apiErr)
+	if !reflect.DeepEqual(apiErr, expectedAPIErr) {
+		t.Errorf("wrong api error returned\nwant %#v\ngot  %#v", expectedAPIErr, apiErr)
 	}
 }
 

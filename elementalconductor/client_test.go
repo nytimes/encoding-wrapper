@@ -134,13 +134,13 @@ func TestInvalidAuth(t *testing.T) {
 		t.Errorf("unexpected non-nil jobs response: %#v", getJobsResponse)
 	}
 
-	expectedApiErr := &APIError{
+	expectedAPIErr := &APIError{
 		Status: http.StatusUnauthorized,
 		Errors: errorResponse,
 	}
 	apiErr := err.(*APIError)
-	if !reflect.DeepEqual(apiErr, expectedApiErr) {
-		t.Errorf("wrong api error returned\nwant %#v\ngot  %#v", expectedApiErr, apiErr)
+	if !reflect.DeepEqual(apiErr, expectedAPIErr) {
+		t.Errorf("wrong api error returned\nwant %#v\ngot  %#v", expectedAPIErr, apiErr)
 	}
 }
 
