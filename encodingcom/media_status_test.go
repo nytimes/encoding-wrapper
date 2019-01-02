@@ -1,13 +1,13 @@
 package encodingcom
 
 import (
+	"reflect"
+	"testing"
 	"time"
-
-	"gopkg.in/check.v1"
 )
 
-func (s *S) TestGetStatusSingle(c *check.C) {
-	server, requests := s.startServer(`
+func TestGetStatusSingle(t *testing.T) {
+	server, requests := startServer(`
 {
 	"response": {
         "job": {
@@ -46,7 +46,9 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	status, err := client.GetStatus([]string{"abc123"}, true)
-	c.Assert(err, check.IsNil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expectedCreateDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:30")
 	expectedStartDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:34")
@@ -86,16 +88,25 @@ func (s *S) TestGetStatusSingle(c *check.C) {
 			},
 		},
 	}
-	c.Assert(status, check.DeepEquals, expected)
+	if !reflect.DeepEqual(status, expected) {
+		t.Errorf("wrong status returned\nwant %#v\ngot  %#v", expected, status)
+	}
 
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "GetStatus")
-	c.Assert(req.query["mediaid"], check.Equals, "abc123")
-	c.Assert(req.query["extended"], check.Equals, "yes")
+	expectedQuery := map[string]interface{}{
+		"action":   "GetStatus",
+		"mediaid":  "abc123",
+		"extended": "yes",
+		"userid":   "myuser",
+		"userkey":  "123",
+	}
+	if !reflect.DeepEqual(req.query, expectedQuery) {
+		t.Errorf("wrong query\nwant %#v\ngot  %#v", expectedQuery, req.query)
+	}
 }
 
-func (s *S) TestGetStatusMultiple(c *check.C) {
-	server, requests := s.startServer(`
+func TestGetStatusMultiple(t *testing.T) {
+	server, requests := startServer(`
 {
 	"response": {
 		"job": [
@@ -193,7 +204,9 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	status, err := client.GetStatus([]string{"abc123", "abc124"}, true)
-	c.Assert(err, check.IsNil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expectedCreateDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:30")
 	expectedStartDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:34")
@@ -282,22 +295,33 @@ func (s *S) TestGetStatusMultiple(c *check.C) {
 			},
 		},
 	}
-	c.Assert(status, check.DeepEquals, expected)
+	if !reflect.DeepEqual(status, expected) {
+		t.Errorf("wrong status returned\nwant %#v\ngot  %#v", expected, status)
+	}
 
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "GetStatus")
-	c.Assert(req.query["mediaid"], check.Equals, "abc123,abc124")
-	c.Assert(req.query["extended"], check.Equals, "yes")
+	expectedQuery := map[string]interface{}{
+		"action":   "GetStatus",
+		"mediaid":  "abc123,abc124",
+		"extended": "yes",
+		"userid":   "myuser",
+		"userkey":  "123",
+	}
+	if !reflect.DeepEqual(req.query, expectedQuery) {
+		t.Errorf("wrong query\nwant %#v\ngot  %#v", expectedQuery, req.query)
+	}
 }
 
 // Some data are only available when extended=no
-func (s *S) TestGetStatusNotExtended(c *check.C) {
-	server, requests := s.startServer(nonExtendedStatus)
+func TestGetStatusNotExtended(t *testing.T) {
+	server, requests := startServer(nonExtendedStatus)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	status, err := client.GetStatus([]string{"abc123"}, false)
-	c.Assert(err, check.IsNil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expectedCreateDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:30")
 	expectedStartDate, _ := time.Parse(dateTimeLayout, "2015-12-31 20:45:34")
@@ -333,16 +357,24 @@ func (s *S) TestGetStatusNotExtended(c *check.C) {
 			},
 		},
 	}
-	c.Assert(status, check.DeepEquals, expected)
+	if !reflect.DeepEqual(status, expected) {
+		t.Errorf("wrong status returned\nwant %#v\ngot  %#v", expected, status)
+	}
 
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "GetStatus")
-	c.Assert(req.query["mediaid"], check.Equals, "abc123")
-	c.Assert(req.query["extended"], check.IsNil)
+	expectedQuery := map[string]interface{}{
+		"action":  "GetStatus",
+		"mediaid": "abc123",
+		"userid":  "myuser",
+		"userkey": "123",
+	}
+	if !reflect.DeepEqual(req.query, expectedQuery) {
+		t.Errorf("wrong query\nwant %#v\ngot  %#v", expectedQuery, req.query)
+	}
 }
 
-func (s *S) TestGetStatusZeroTime(c *check.C) {
-	server, _ := s.startServer(`
+func TestGetStatusZeroTime(t *testing.T) {
+	server, _ := startServer(`
 {
 	"response": {
 		"job": {
@@ -383,32 +415,53 @@ func (s *S) TestGetStatusZeroTime(c *check.C) {
 }`)
 	defer server.Close()
 
+	const mediaID = "abc123"
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
-	status, err := client.GetStatus([]string{"abc123"}, true)
-	c.Assert(err, check.IsNil)
-	c.Assert(status, check.HasLen, 1)
+	status, err := client.GetStatus([]string{mediaID}, true)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expectedCreateDate, _ := time.Parse(dateTimeLayout, "2016-01-29 19:32:32")
-	c.Assert(status[0].MediaID, check.Equals, "abc123")
-	c.Assert(status[0].CreateDate, check.DeepEquals, expectedCreateDate)
-	c.Assert(status[0].FinishDate.IsZero(), check.Equals, true)
-	c.Assert(status[0].DownloadDate.IsZero(), check.Equals, true)
+	if status[0].MediaID != mediaID {
+		t.Errorf("wrong media id returned\nwant %q\ngot  %q", mediaID, status[0].MediaID)
+	}
+	if !reflect.DeepEqual(status[0].CreateDate, expectedCreateDate) {
+		t.Errorf("wrong create date\nwant %s\ngot  %s", expectedCreateDate, status[0].CreateDate)
+	}
+	if !status[0].FinishDate.IsZero() {
+		t.Errorf("unexpected non-zero finish date: %#v", status[0].FinishDate)
+	}
+	if !status[0].DownloadDate.IsZero() {
+		t.Errorf("unexpected non-zero download date: %#v", status[0].DownloadDate)
+	}
 }
 
-func (s *S) TestGetStatusNoMedia(c *check.C) {
+func TestGetStatusNoMedia(t *testing.T) {
 	var client Client
 	status, err := client.GetStatus(nil, true)
-	c.Assert(err, check.NotNil)
-	c.Assert(err.Error(), check.Equals, "please provide at least one media id")
-	c.Assert(status, check.HasLen, 0)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
+	const expectedErrMsg = "please provide at least one media id"
+	if err.Error() != expectedErrMsg {
+		t.Errorf("wrong error message\nwant %q\ngot  %q", expectedErrMsg, err.Error())
+	}
+	if len(status) != 0 {
+		t.Errorf("unexpected non-empty status response: %#v", status)
+	}
 }
 
-func (s *S) TestGetStatusError(c *check.C) {
-	server, _ := s.startServer(`{"response": {"message": "", "errors": {"error": "wait what?"}}}`)
+func TestGetStatusError(t *testing.T) {
+	server, _ := startServer(`{"response": {"message": "", "errors": {"error": "wait what?"}}}`)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	resp, err := client.GetStatus([]string{"some-media"}, true)
-	c.Assert(err, check.NotNil)
-	c.Assert(resp, check.IsNil)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
+	if resp != nil {
+		t.Errorf("unexpected non-nil response: %#v", resp)
+	}
 }

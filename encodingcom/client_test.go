@@ -4,111 +4,182 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-
-	"gopkg.in/check.v1"
+	"reflect"
+	"testing"
 )
 
-func (s *S) mockMediaResponseObject(message string, errors string) interface{} {
-	return map[string]interface{}{
-		"response": map[string]interface{}{
-			"message": message,
-			"errors":  map[string]string{"error": errors},
-		},
-	}
-}
-
-func (s *S) TestNewClient(c *check.C) {
-	expected := Client{
+func TestNewClient(t *testing.T) {
+	expected := &Client{
 		Endpoint: "https://manage.encoding.com",
 		UserID:   "myuser",
 		UserKey:  "secret-key",
 	}
 	got, err := NewClient("https://manage.encoding.com", "myuser", "secret-key")
-	c.Assert(err, check.IsNil)
-	c.Assert(*got, check.DeepEquals, expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("wrong client returned\nwant %#v\ngot  %#v", expected, got)
+	}
 }
 
-func (s *S) TestYesNoBooleanMarshal(c *check.C) {
-	bTrue := YesNoBoolean(true)
-	bFalse := YesNoBoolean(false)
-	data, err := json.Marshal(bTrue)
-	c.Assert(err, check.IsNil)
-	c.Assert(string(data), check.Equals, `"yes"`)
-	data, err = json.Marshal(bFalse)
-	c.Assert(err, check.IsNil)
-	c.Assert(string(data), check.Equals, `"no"`)
+func TestYesNoBooleanMarshal(t *testing.T) {
+	var tests = []struct {
+		name     string
+		input    bool
+		expected string
+	}{
+		{
+			"true",
+			true,
+			`"yes"`,
+		},
+		{
+			"false",
+			false,
+			`"no"`,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			input := YesNoBoolean(test.input)
+			data, err := json.Marshal(input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r := string(data)
+			if r != test.expected {
+				t.Errorf("wrong result returned\nwant %v\ngot  %v", test.expected, r)
+			}
+		})
+	}
 }
 
-func (s *S) TestYesNoBooleanUnmarshal(c *check.C) {
+func TestYesNoBooleanUnmarshal(t *testing.T) {
 	data := []byte(`{"true":"yes", "false":"no"}`)
 	var m map[string]YesNoBoolean
 	err := json.Unmarshal(data, &m)
-	c.Assert(err, check.IsNil)
-	c.Assert(m, check.DeepEquals, map[string]YesNoBoolean{
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := map[string]YesNoBoolean{
 		"true":  YesNoBoolean(true),
 		"false": YesNoBoolean(false),
-	})
+	}
+	if !reflect.DeepEqual(m, expected) {
+		t.Errorf("wrong value returned\nwant %#v\ngot  %#v", expected, m)
+	}
 
 	invalidData := []byte(`{"true":"true"}`)
 	err = json.Unmarshal(invalidData, &m)
-	c.Assert(err, check.NotNil)
-	c.Assert(err.Error(), check.Equals, `invalid value: "true"`)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
+	expectedErrMsg := `invalid value: "true"`
+	if err.Error() != expectedErrMsg {
+		t.Errorf("wrong error message returned\nwant %q\ngot  %q", expectedErrMsg, err.Error())
+	}
 }
 
-func (s *S) TestZeroOneBooleanMarshal(c *check.C) {
-	bTrue := ZeroOneBoolean(true)
-	bFalse := ZeroOneBoolean(false)
-	data, err := json.Marshal(bTrue)
-	c.Assert(err, check.IsNil)
-	c.Assert(string(data), check.Equals, `"1"`)
-	data, err = json.Marshal(bFalse)
-	c.Assert(err, check.IsNil)
-	c.Assert(string(data), check.Equals, `"0"`)
+func TestZeroOneBooleanMarshal(t *testing.T) {
+	var tests = []struct {
+		name     string
+		input    bool
+		expected string
+	}{
+		{
+			"true",
+			true,
+			`"1"`,
+		},
+		{
+			"false",
+			false,
+			`"0"`,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			input := ZeroOneBoolean(test.input)
+			data, err := json.Marshal(input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r := string(data)
+			if r != test.expected {
+				t.Errorf("wrong result returned\nwant %v\ngot  %v", test.expected, r)
+			}
+		})
+	}
 }
 
-func (s *S) TestZeroOneBooleanUnmarshal(c *check.C) {
+func TestZeroOneBooleanUnmarshal(t *testing.T) {
 	data := []byte(`{"true":"1", "false":"0"}`)
 	var m map[string]ZeroOneBoolean
 	err := json.Unmarshal(data, &m)
-	c.Assert(err, check.IsNil)
-	c.Assert(m, check.DeepEquals, map[string]ZeroOneBoolean{
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := map[string]ZeroOneBoolean{
 		"true":  ZeroOneBoolean(true),
 		"false": ZeroOneBoolean(false),
-	})
+	}
+	if !reflect.DeepEqual(m, expected) {
+		t.Errorf("wrong data returned\nwant %#v\ngot  %#v", expected, m)
+	}
 
 	invalidData := []byte(`{"true":"true"}`)
 	err = json.Unmarshal(invalidData, &m)
-	c.Assert(err, check.NotNil)
-	c.Assert(err.Error(), check.Equals, `invalid value: "true"`)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
+	expectedErrMsg := `invalid value: "true"`
+	if err.Error() != expectedErrMsg {
+		t.Errorf("wrong error message returned\nwant %q\ngot  %q", expectedErrMsg, err.Error())
+	}
 }
 
-func (s *S) TestDoMediaAction(c *check.C) {
-	server, requests := s.startServer(`{"response": {"message": "Deleted"}}`)
+func TestDoMediaAction(t *testing.T) {
+	server, requests := startServer(`{"response": {"message": "Deleted"}}`)
 	defer server.Close()
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	cancelMediaResponse, err := client.doMediaAction("12345", "CancelMedia")
-	c.Assert(err, check.IsNil)
-	c.Assert(cancelMediaResponse, check.DeepEquals, &Response{
-		Message: "Deleted",
-	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedResponse := &Response{Message: "Deleted"}
+	if !reflect.DeepEqual(cancelMediaResponse, expectedResponse) {
+		t.Errorf("wrong response returned\nwant %#v\ngot  %#v", expectedResponse, cancelMediaResponse)
+	}
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "CancelMedia")
+	const expectedAction = "CancelMedia"
+	if req.query["action"] != expectedAction {
+		t.Errorf("wrong action sent\nwant %q\ngot  %q", expectedAction, req.query["action"])
+	}
 }
 
-func (s *S) TestDoMediaActionFailure(c *check.C) {
-	server, requests := s.startServer(`{"response": {"message": "Deleted", "errors": {"error": "something went wrong"}}}`)
+func TestDoMediaActionFailure(t *testing.T) {
+	server, requests := startServer(`{"response": {"message": "Deleted", "errors": {"error": "something went wrong"}}}`)
 	defer server.Close()
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	cancelMediaResponse, err := client.doMediaAction("12345", "CancelMedia")
-	c.Assert(err, check.NotNil)
-	c.Assert(cancelMediaResponse, check.IsNil)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
+	if cancelMediaResponse != nil {
+		t.Errorf("unexpected non-nil media response: %#v", cancelMediaResponse)
+	}
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "CancelMedia")
+	const expectedAction = "CancelMedia"
+	if req.query["action"] != expectedAction {
+		t.Errorf("wrong action sent\nwant %q\ngot  %q", expectedAction, req.query["action"])
+	}
 }
 
-func (s *S) TestDoMissingRequiredParameters(c *check.C) {
+func TestDoMissingRequiredParameters(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byteResponse, _ := json.Marshal(s.mockMediaResponseObject("", "Wrong user id or key!"))
+		byteResponse, _ := json.Marshal(mockMediaResponseObject("", "Wrong user id or key!"))
 		w.Write(byteResponse)
 	}))
 	defer server.Close()
@@ -118,16 +189,23 @@ func (s *S) TestDoMissingRequiredParameters(c *check.C) {
 		MediaID: "123456",
 		Source:  []string{"http://some.non.existent/video.mp4"},
 	}, nil)
-	c.Assert(err, check.NotNil)
-	apiErr, ok := err.(*APIError)
-	c.Assert(ok, check.Equals, true)
-	c.Assert(apiErr.Message, check.Equals, "")
-	c.Assert(apiErr.Errors, check.DeepEquals, []string{"Wrong user id or key!"})
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
+	expectedAPIErr := APIError{
+		Message: "",
+		Errors:  []string{"Wrong user id or key!"},
+	}
+	apiErr := err.(*APIError)
+	if !reflect.DeepEqual(*apiErr, expectedAPIErr) {
+		t.Errorf("wrong api error\nwant %#v\ngot  %#v", expectedAPIErr, *apiErr)
+	}
 }
 
-func (s *S) TestDoMediaResponse(c *check.C) {
+func TestDoMediaResponse(t *testing.T) {
+	const msg = "it worked!"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		byteResponse, _ := json.Marshal(s.mockMediaResponseObject("it worked!", ""))
+		byteResponse, _ := json.Marshal(mockMediaResponseObject(msg, ""))
 		w.Write(byteResponse)
 	}))
 	defer server.Close()
@@ -137,11 +215,15 @@ func (s *S) TestDoMediaResponse(c *check.C) {
 		Action:  "GetStatus",
 		MediaID: "123456",
 	}, &result)
-	c.Assert(err, check.IsNil)
-	c.Assert(result["response"].Message, check.Equals, "it worked!")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotMsg := result["response"].Message; gotMsg != msg {
+		t.Errorf("wrong message\nwant %q\ngot  %q", msg, gotMsg)
+	}
 }
 
-func (s *S) TestDoRequiredParameters(c *check.C) {
+func TestDoRequiredParameters(t *testing.T) {
 	var req *http.Request
 	var data string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -153,42 +235,80 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	var respObj map[string]interface{}
 	err := client.do(&request{Action: "GetStatus"}, &respObj)
-	c.Assert(err, check.IsNil)
-	c.Assert(req, check.NotNil)
-	c.Assert(req.Method, check.Equals, "POST")
-	c.Assert(req.URL.Path, check.Equals, "/")
-	c.Assert(req.Header.Get("Content-Type"), check.Equals, "application/x-www-form-urlencoded")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if req == nil {
+		t.Fatal("unexpected <nil> request")
+	}
+
+	const (
+		expectedMethod      = "POST"
+		expectedPath        = "/"
+		expectedContentType = "application/x-www-form-urlencoded"
+	)
+	if req.Method != expectedMethod {
+		t.Errorf("wrong request method\nwant %q\ngot  %q", expectedMethod, req.Method)
+	}
+	if req.URL.Path != expectedPath {
+		t.Errorf("wrong path\nwant %q\ngot  %q", expectedPath, req.URL.Path)
+	}
+	if ct := req.Header.Get("Content-Type"); ct != expectedContentType {
+		t.Errorf("wrong Content-Type\nwant %q\ngot  %q", expectedContentType, ct)
+	}
+
 	var m map[string]interface{}
 	err = json.Unmarshal([]byte(data), &m)
-	c.Assert(err, check.IsNil)
-	c.Assert(m, check.DeepEquals, map[string]interface{}{
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedPayload := map[string]interface{}{
 		"query": map[string]interface{}{
 			"userid":  "myuser",
 			"userkey": "123",
 			"action":  "GetStatus",
 		},
-	})
-	c.Assert(respObj, check.DeepEquals, map[string]interface{}{
+	}
+	if !reflect.DeepEqual(m, expectedPayload) {
+		t.Errorf("wrong payload sent\nwant %#v\ngot  %#v", expectedPayload, m)
+	}
+	expectedResponse := map[string]interface{}{
 		"response": map[string]interface{}{
 			"status": "added",
 		},
-	})
+	}
+	if !reflect.DeepEqual(respObj, expectedResponse) {
+		t.Errorf("wrong response obj\nwant %#v\ngot  %#v", expectedResponse, respObj)
+	}
 }
 
-func (s *S) TestDoInvalidResponse(c *check.C) {
-	server, _ := s.startServer(`{invalid json}`)
+func TestDoInvalidResponse(t *testing.T) {
+	server, _ := startServer(`{invalid json}`)
 	defer server.Close()
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	var resp Response
 	err := client.do(&request{Action: "GetStatus"}, &resp)
-	c.Assert(err, check.NotNil)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
 }
 
-func (s *S) TestAPIErrorRepresentation(c *check.C) {
+func TestAPIErrorRepresentation(t *testing.T) {
 	err := &APIError{
 		Message: "something went wrong",
 		Errors:  []string{"error 1", "error 2"},
 	}
 	expectedMsg := `Error returned by the Encoding.com API: {"Message":"something went wrong","Errors":["error 1","error 2"]}`
-	c.Assert(err.Error(), check.Equals, expectedMsg)
+	if err.Error() != expectedMsg {
+		t.Errorf("wrong error message\nwant %q\ngot  %q", expectedMsg, err.Error())
+	}
+}
+
+func mockMediaResponseObject(message string, errors string) interface{} {
+	return map[string]interface{}{
+		"response": map[string]interface{}{
+			"message": message,
+			"errors":  map[string]string{"error": errors},
+		},
+	}
 }

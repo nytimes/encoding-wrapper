@@ -2,12 +2,12 @@ package encodingcom
 
 import (
 	"encoding/json"
-
-	"gopkg.in/check.v1"
+	"reflect"
+	"testing"
 )
 
-func (s *S) TestGetPresetsList(c *check.C) {
-	server, requests := s.startServer(`
+func TestGetPresetsList(t *testing.T) {
+	server, requests := startServer(`
 {
 	"response": {
 		"user": [{
@@ -122,9 +122,10 @@ func (s *S) TestGetPresetsList(c *check.C) {
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	resp, err := client.ListPresets(AllPresets)
-	c.Assert(err, check.IsNil)
-
-	c.Assert(resp, check.DeepEquals, &ListPresetsResponse{
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedResp := &ListPresetsResponse{
 		UserPresets: []Preset{
 			{
 				Name:   "webm_1080p",
@@ -234,10 +235,22 @@ func (s *S) TestGetPresetsList(c *check.C) {
 				},
 			},
 		},
-	})
+	}
+
+	if !reflect.DeepEqual(resp, expectedResp) {
+		t.Errorf("wrong response returned\nwant %#v\ngot %#v", expectedResp, resp)
+	}
+
+	expectedQuery := map[string]interface{}{
+		"action":  "GetPresetsList",
+		"type":    string(AllPresets),
+		"userid":  "myuser",
+		"userkey": "123",
+	}
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "GetPresetsList")
-	c.Assert(req.query["type"], check.Equals, string(AllPresets))
+	if !reflect.DeepEqual(req.query, expectedQuery) {
+		t.Errorf("wrong query sent to encoding.com\nwant %#v\ngot  %#v", expectedQuery, req.query)
+	}
 
 	sampleHlsStream := Stream{
 		AudioBitrate: "64k",
@@ -261,13 +274,32 @@ func (s *S) TestGetPresetsList(c *check.C) {
 	for _, hlsPreset := range resp.UserPresets {
 		if hlsPreset.Output == "advanced_hls" {
 			streams := hlsPreset.Format.Stream()
-			c.Assert(streams[0], check.DeepEquals, sampleHlsStream)
-			c.Assert(streams[0].VideoCodecParameters(), check.DeepEquals, sampleVideoCodecParams)
+			if !reflect.DeepEqual(streams[0], sampleHlsStream) {
+				t.Errorf("wrong hls stream\nwant %#v\ngot  %#v", sampleHlsStream, streams[0])
+			}
+
+			if params := streams[0].VideoCodecParameters(); !reflect.DeepEqual(params, sampleVideoCodecParams) {
+				t.Errorf("wrong video codec params for hls stream\nwant %#v\ngot  %#v", sampleVideoCodecParams, params)
+			}
 		}
 	}
 }
 
-func (s *S) TestPresetFormatStream(c *check.C) {
+func TestListPresetsError(t *testing.T) {
+	server, _ := startServer(`{"response": {"errors": {"error": "who moved my preset?"}}}`)
+	defer server.Close()
+
+	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
+	resp, err := client.ListPresets(AllPresets)
+	if err == nil {
+		t.Error("unexpect <nil> error")
+	}
+	if resp != nil {
+		t.Errorf("unexpected non-nil resp: %#v", resp)
+	}
+}
+
+func TestPresetFormatStream(t *testing.T) {
 	var tests = []struct {
 		testCase  string
 		streamRaw interface{}
@@ -323,14 +355,18 @@ func (s *S) TestPresetFormatStream(c *check.C) {
 		},
 	}
 	for _, test := range tests {
-		p := PresetFormat{StreamRawMap: test.streamRaw}
-		streams := p.Stream()
-		c.Check(streams, check.DeepEquals, test.expected)
+		t.Run(test.testCase, func(t *testing.T) {
+			p := PresetFormat{StreamRawMap: test.streamRaw}
+			streams := p.Stream()
+			if !reflect.DeepEqual(streams, test.expected) {
+				t.Errorf("wrong streams\nwant %#v\ngot  %#v", test.expected, streams)
+			}
+		})
 	}
 }
 
-func (s *S) TestGetPreset(c *check.C) {
-	server, requests := s.startServer(`
+func TestGetPreset(t *testing.T) {
+	server, requests := startServer(`
 {
 	"response": {
 		"name":"webm_1080p",
@@ -354,7 +390,9 @@ func (s *S) TestGetPreset(c *check.C) {
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	preset, err := client.GetPreset("webm_1080p")
-	c.Assert(err, check.IsNil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	expected := Preset{
 		Name:   "webm_1080p",
 		Type:   "user",
@@ -372,28 +410,39 @@ func (s *S) TestGetPreset(c *check.C) {
 			Size:                 "1920x1080",
 		},
 	}
-	c.Assert(*preset, check.DeepEquals, expected)
+	if !reflect.DeepEqual(*preset, expected) {
+		t.Errorf("wrong preset returned\nwant %#v\ngot  %#v", expected, *preset)
+	}
 
+	expectedQuery := map[string]interface{}{
+		"action":  "GetPreset",
+		"type":    string(AllPresets),
+		"name":    "webm_1080p",
+		"userid":  "myuser",
+		"userkey": "123",
+	}
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "GetPreset")
-	c.Assert(req.query["type"], check.Equals, string(AllPresets))
-	c.Assert(req.query["name"], check.Equals, "webm_1080p")
+	if !reflect.DeepEqual(req.query, expectedQuery) {
+		t.Errorf("wrong query sent to encoding.com\nwant %#v\ngot  %#v", expectedQuery, req.query)
+	}
 }
 
-func (s *S) TestGetPresetError(c *check.C) {
-	server, requests := s.startServer(`{"response": {"errors": {"error": "can't get no presetisfaction"}}}`)
+func TestGetPresetError(t *testing.T) {
+	server, _ := startServer(`{"response": {"errors": {"error": "can't get no presetisfaction"}}}`)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	resp, err := client.GetPreset("my-preciouset")
-	c.Assert(err, check.NotNil)
-	c.Assert(resp, check.IsNil)
-	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "GetPreset")
+	if err == nil {
+		t.Error("unexpect <nil> error")
+	}
+	if resp != nil {
+		t.Errorf("unexpected non-nil resp: %#v", resp)
+	}
 }
 
-func (s *S) TestSavePreset(c *check.C) {
-	server, requests := s.startServer(`
+func TestSavePreset(t *testing.T) {
+	server, requests := startServer(`
 	{
 		"response": {
 			"message": "Saved",
@@ -403,6 +452,7 @@ func (s *S) TestSavePreset(c *check.C) {
 `)
 	defer server.Close()
 
+	const presetName = "mp4_1080p"
 	format := Format{
 		VideoCodec:   "x264",
 		AudioCodec:   "aac",
@@ -411,36 +461,54 @@ func (s *S) TestSavePreset(c *check.C) {
 		Size:         "1920x1080",
 	}
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
-	resp, err := client.SavePreset("mp4_1080p", format)
-	c.Assert(err, check.IsNil)
-	c.Assert(resp.SavedPreset, check.Equals, "mp4_1080p")
+	resp, err := client.SavePreset(presetName, format)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.SavedPreset != presetName {
+		t.Errorf("wrong preset name returned\nwant %q\ngot  %q", presetName, resp.SavedPreset)
+	}
 
 	rawFormat, err := json.Marshal([]Format{format})
-	c.Assert(err, check.IsNil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var expectedFormat []interface{}
 	err = json.Unmarshal(rawFormat, &expectedFormat)
-	c.Assert(err, check.IsNil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedQuery := map[string]interface{}{
+		"action":  "SavePreset",
+		"name":    presetName,
+		"format":  expectedFormat,
+		"userid":  "myuser",
+		"userkey": "123",
+	}
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "SavePreset")
-	c.Assert(req.query["name"], check.Equals, "mp4_1080p")
-	c.Assert(req.query["format"], check.DeepEquals, expectedFormat)
+	if !reflect.DeepEqual(req.query, expectedQuery) {
+		t.Errorf("wrong query sent to encoding.com\nwant %#v\ngot  %#v", expectedQuery, req.query)
+	}
 }
 
-func (s *S) TestSavePresetError(c *check.C) {
-	server, requests := s.startServer(`{"response": {"errors": {"error": "incomplete preset data"}}}`)
+func TestSavePresetError(t *testing.T) {
+	server, _ := startServer(`{"response": {"errors": {"error": "incomplete preset data"}}}`)
 	defer server.Close()
 
 	format := Format{VideoCodec: "x264"}
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	resp, err := client.SavePreset("preset-1", format)
-	c.Assert(err, check.NotNil)
-	c.Assert(resp, check.IsNil)
-	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "SavePreset")
+	if err == nil {
+		t.Error("unexpect <nil> error")
+	}
+	if resp != nil {
+		t.Errorf("unexpected non-nil resp: %#v", resp)
+	}
 }
 
-func (s *S) TestDeletePreset(c *check.C) {
-	server, requests := s.startServer(`
+func TestDeletePreset(t *testing.T) {
+	server, requests := startServer(`
 	{
 		"response":{
 			"message":"Deleted"
@@ -449,36 +517,38 @@ func (s *S) TestDeletePreset(c *check.C) {
 `)
 	defer server.Close()
 
+	const presetName = "mp4_1080p"
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
-	resp, err := client.DeletePreset("mp4_1080p")
-	c.Assert(err, check.IsNil)
-	c.Assert(resp.Message, check.Equals, "Deleted")
+	resp, err := client.DeletePreset(presetName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Message != "Deleted" {
+		t.Errorf("wrong response message\nwant %q\ngot  %q", "Deleted", resp.Message)
+	}
 
+	expectedQuery := map[string]interface{}{
+		"action":  "DeletePreset",
+		"name":    presetName,
+		"userid":  "myuser",
+		"userkey": "123",
+	}
 	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "DeletePreset")
-	c.Assert(req.query["name"], check.Equals, "mp4_1080p")
+	if !reflect.DeepEqual(req.query, expectedQuery) {
+		t.Errorf("wrong query sent to encoding.com\nwant %#v\ngot  %#v", expectedQuery, req.query)
+	}
 }
 
-func (s *S) TestDeletePresetError(c *check.C) {
-	server, requests := s.startServer(`{"response": {"errors": {"error": "no preset, try postset"}}}`)
+func TestDeletePresetError(t *testing.T) {
+	server, _ := startServer(`{"response": {"errors": {"error": "no preset, try postset"}}}`)
 	defer server.Close()
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	resp, err := client.DeletePreset("some-preset")
-	c.Assert(err, check.NotNil)
-	c.Assert(resp, check.IsNil)
-	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "DeletePreset")
-}
-
-func (s *S) TestListPresetsError(c *check.C) {
-	server, requests := s.startServer(`{"response": {"errors": {"error": "who moved my preset?"}}}`)
-	defer server.Close()
-
-	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
-	resp, err := client.ListPresets(AllPresets)
-	c.Assert(err, check.NotNil)
-	c.Assert(resp, check.IsNil)
-	req := <-requests
-	c.Assert(req.query["action"], check.Equals, "GetPresetsList")
+	if err == nil {
+		t.Error("unexpect <nil> error")
+	}
+	if resp != nil {
+		t.Errorf("unexpected non-nil resp: %#v", resp)
+	}
 }
