@@ -7,13 +7,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strconv"
+	"testing"
 	"time"
-
-	"gopkg.in/check.v1"
 )
 
-func (s *S) TestNewClient(c *check.C) {
+func TestNewClient(t *testing.T) {
 	expected := Client{
 		Host:            "https://mycluster.cloud.elementaltechnologies.com",
 		UserLogin:       "myuser",
@@ -24,10 +24,12 @@ func (s *S) TestNewClient(c *check.C) {
 		Destination:     "destination",
 	}
 	got := NewClient("https://mycluster.cloud.elementaltechnologies.com", "myuser", "elemental-secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
-	c.Assert(*got, check.DeepEquals, expected)
+	if !reflect.DeepEqual(*got, expected) {
+		t.Errorf("wrong client returned\nwant %#v\ngot  %#v", expected, *got)
+	}
 }
 
-func (s *S) TestCreateAuthKey(c *check.C) {
+func TestCreateAuthKey(t *testing.T) {
 	path := "/jobs"
 	userID := "myuser"
 	APIKey := "api-key"
@@ -39,10 +41,12 @@ func (s *S) TestCreateAuthKey(c *check.C) {
 	expected := hex.EncodeToString(value[:])
 	client := NewClient("https://mycluster.cloud.elementaltechnologies.com", userID, APIKey, 45, "aws-access-key", "aws-secret-key", "destination")
 	got := client.createAuthKey(path, expire)
-	c.Assert(got, check.Equals, expected)
+	if got != expected {
+		t.Errorf("wrong auth key returned\nwant %q\ngot  %q", expected, got)
+	}
 }
 
-func (s *S) TestDoRequiredParameters(c *check.C) {
+func TestDoRequiredParameters(t *testing.T) {
 	var req *http.Request
 	var data []byte
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -68,54 +72,85 @@ func (s *S) TestDoRequiredParameters(c *check.C) {
 	}
 	err := client.do("POST", "/jobs", myJob, &respObj)
 
-	c.Assert(err, check.IsNil)
-	c.Assert(req, check.NotNil)
-	c.Assert(req.Method, check.Equals, "POST")
-	c.Assert(req.URL.Path, check.Equals, "/api/jobs")
-	c.Assert(req.Header.Get("Accept"), check.Equals, "application/xml")
-	c.Assert(req.Header.Get("Content-type"), check.Equals, "application/xml")
-	c.Assert(req.Header.Get("X-Auth-User"), check.Equals, client.UserLogin)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	c.Assert(req.Header.Get("X-Auth-Expires"), check.NotNil)
+	const (
+		expectedMethod = "POST"
+		expectedPath   = "/api/jobs"
+	)
+	expectedHeaders := map[string]string{
+		"Accept":       "application/xml",
+		"Content-type": "application/xml",
+		"X-Auth-User":  client.UserLogin,
+	}
+	if req.Method != expectedMethod {
+		t.Errorf("wrong http method used\nwant %q\ngot  %q", expectedMethod, req.Method)
+	}
+	if req.URL.Path != expectedPath {
+		t.Errorf("wrong request path\nwant %q\ngot  %q", expectedPath, req.URL.Path)
+	}
+
+	for k, expectedValue := range expectedHeaders {
+		v := req.Header.Get(k)
+		if v != expectedValue {
+			t.Errorf("wrong value for the header %q\nwant %q\ngot  %q", k, expectedValue, v)
+		}
+	}
+
 	timestampInt, err := strconv.ParseInt(req.Header.Get("X-Auth-Expires"), 10, 64)
-	c.Assert(err, check.IsNil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	timestampTime := time.Unix(timestampInt, 0)
 
-	c.Assert(
-		req.Header.Get("X-Auth-Key"),
-		check.Equals,
-		client.createAuthKey("/jobs", timestampTime),
-	)
+	expectedAuthKey := client.createAuthKey("/jobs", timestampTime)
+	if authKey := req.Header.Get("X-Auth-Key"); authKey != expectedAuthKey {
+		t.Errorf("wrong auth key\nwant %q\ngot  %q", expectedAuthKey, authKey)
+	}
+
 	var reqJob Job
-
 	err = xml.Unmarshal(data, &reqJob)
-
-	c.Assert(err, check.IsNil)
-	c.Assert(reqJob, check.DeepEquals, myJob)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(reqJob, myJob) {
+		t.Errorf("wrong job in the payload\nwant %#v\ngot  %#v", myJob, reqJob)
+	}
 }
 
-func (s *S) TestInvalidAuth(c *check.C) {
+func TestInvalidAuth(t *testing.T) {
 	errorResponse := `<?xml version="1.0" encoding="UTF-8"?>
 <errors>
   <error>You must be logged in to access this page.</error>
 </errors>`
-	server, _ := s.startServer(http.StatusUnauthorized, errorResponse)
+	server, _ := startServer(http.StatusUnauthorized, errorResponse)
 	defer server.Close()
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getJobsResponse, err := client.GetJob("1")
-	c.Assert(getJobsResponse, check.IsNil)
-	c.Assert(err, check.DeepEquals, &APIError{
+	if getJobsResponse != nil {
+		t.Errorf("unexpected non-nil jobs response: %#v", getJobsResponse)
+	}
+
+	expectedApiErr := &APIError{
 		Status: http.StatusUnauthorized,
 		Errors: errorResponse,
-	})
+	}
+	apiErr := err.(*APIError)
+	if !reflect.DeepEqual(apiErr, expectedApiErr) {
+		t.Errorf("wrong api error returned\nwant %#v\ngot  %#v", expectedApiErr, apiErr)
+	}
 }
 
-func (s *S) TestAPIErrorMarshalling(c *check.C) {
+func TestAPIErrorMarshalling(t *testing.T) {
 	err := &APIError{
 		Status: http.StatusInternalServerError,
 		Errors: "something went wrong",
 	}
 	expectedError := `Error returned by the Elemental Conductor REST Interface: {"status":500,"errors":"something went wrong"}`
-	c.Assert(err.Error(), check.Equals, expectedError)
+	if err.Error() != expectedError {
+		t.Errorf("wrong error message\nwant %q\ngot  %q", expectedError, err.Error())
+	}
 }

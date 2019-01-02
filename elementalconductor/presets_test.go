@@ -3,11 +3,11 @@ package elementalconductor
 import (
 	"encoding/xml"
 	"net/http"
-
-	"gopkg.in/check.v1"
+	"reflect"
+	"testing"
 )
 
-func (s *S) TestGetPresets(c *check.C) {
+func TestGetPresets(t *testing.T) {
 	presetsResponseXML := `<?xml version="1.0" encoding="UTF-8"?>
 <preset_list>
   <preset href="/presets/1" product="Elemental Conductor File + Audio Normalization Package + Audio Package" version="2.7.2vd.32545">
@@ -46,16 +46,22 @@ func (s *S) TestGetPresets(c *check.C) {
 	expectedOutput.Presets[0] = expectedPreset1
 	expectedOutput.Presets[1] = expectedPreset2
 
-	server, _ := s.startServer(http.StatusOK, presetsResponseXML)
+	server, _ := startServer(http.StatusOK, presetsResponseXML)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
-	getPresetsResponse, _ := client.GetPresets()
-	c.Assert(getPresetsResponse, check.DeepEquals, &expectedOutput)
+	getPresetsResponse, err := client.GetPresets()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(getPresetsResponse, &expectedOutput) {
+		t.Errorf("wrong presets response\nwant %#v\ngot %#v", &expectedOutput, getPresetsResponse)
+	}
 }
 
-func (s *S) TestGetPreset(c *check.C) {
+func TestGetPreset(t *testing.T) {
 	presetResponseXML := `<?xml version="1.0" encoding="UTF-8"?>
 <preset href="/presets/1" product="Elemental Conductor File + Audio Normalization Package + Audio Package" version="2.7.2vd.32545">
   <name>iPhone</name>
@@ -186,16 +192,21 @@ func (s *S) TestGetPreset(c *check.C) {
 		InterlaceMode: "progressive",
 	}
 
-	server, _ := s.startServer(http.StatusOK, presetResponseXML)
+	server, _ := startServer(http.StatusOK, presetResponseXML)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
-	getPresetResponse, _ := client.GetPreset("1")
-	c.Assert(getPresetResponse, check.DeepEquals, &expectedPreset)
+	getPresetResponse, err := client.GetPreset("1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(getPresetResponse, &expectedPreset) {
+		t.Errorf("wrong response returned\nwant %#v\ngot  %#v", &expectedPreset, getPresetResponse)
+	}
 }
 
-func (s *S) TestGetPresetForHls(c *check.C) {
+func TestGetPresetForHls(t *testing.T) {
 	presetHLSResponseXML := `<preset href="/presets/149" product="Elemental Conductor File + Audio Normalization Package + Audio Package" version="2.7.2vd.32545">
   <name>nyt_hls_720p_high_uhd</name>
   <permalink>nyt_hls_720p_high_uhd</permalink>
@@ -334,16 +345,21 @@ func (s *S) TestGetPresetForHls(c *check.C) {
 		InterlaceMode: "progressive",
 	}
 
-	server, _ := s.startServer(http.StatusOK, presetHLSResponseXML)
+	server, _ := startServer(http.StatusOK, presetHLSResponseXML)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
-	getPresetResponse, _ := client.GetPreset("149")
-	c.Assert(getPresetResponse, check.DeepEquals, &expectedPreset)
+	getPresetResponse, err := client.GetPreset("149")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(getPresetResponse, &expectedPreset) {
+		t.Errorf("wrong preset response\nwant %#v\ngot  %#v", &expectedPreset, getPresetResponse)
+	}
 }
 
-func (s *S) TestCreatePreset(c *check.C) {
+func TestCreatePreset(t *testing.T) {
 	createPresetResponseXML := `<?xml version="1.0" encoding="UTF-8"?>
 <preset product="Elemental Conductor File + Audio Normalization Package + Audio Package" version="2.7.2vd.32545">
   <name>TestPresetName</name>
@@ -443,7 +459,7 @@ func (s *S) TestCreatePreset(c *check.C) {
     <codec>aac</codec>
   </audio_description>
 </preset>`
-	server, _ := s.startServer(http.StatusOK, createPresetResponseXML)
+	server, _ := startServer(http.StatusOK, createPresetResponseXML)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
@@ -466,17 +482,24 @@ func (s *S) TestCreatePreset(c *check.C) {
 		InterlaceMode: "progressive",
 	}
 
-	res, _ := client.CreatePreset(&preset)
-	c.Assert(res, check.DeepEquals, &preset)
+	res, err := client.CreatePreset(&preset)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(res, &preset) {
+		t.Errorf("wrong create preset response\nwant %#v\ngot  %#v", &preset, res)
+	}
 }
 
-func (s *S) TestDeletePreset(c *check.C) {
+func TestDeletePreset(t *testing.T) {
 	presetsResponse := ` `
-	server, _ := s.startServer(http.StatusOK, presetsResponse)
+	server, _ := startServer(http.StatusOK, presetsResponse)
 	defer server.Close()
 
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	deletePresetResponse := client.DeletePreset("preset123")
-	c.Assert(deletePresetResponse, check.DeepEquals, nil)
+	if deletePresetResponse != nil {
+		t.Errorf("unexpected non-nil delete preset response: %#v", deletePresetResponse)
+	}
 }

@@ -3,29 +3,35 @@ package elementalconductor
 import (
 	"encoding/xml"
 	"net/http"
-
-	"gopkg.in/check.v1"
+	"reflect"
+	"testing"
 )
 
-func (s *S) TestGetJobError(c *check.C) {
+func TestGetJobError(t *testing.T) {
 	errorResponse := `<?xml version="1.0" encoding="UTF-8"?>
 <errors>
   <error type="ActiveRecord::RecordNotFound">Couldn't find Job with id=1</error>
 </errors>`
-	server, _ := s.startServer(http.StatusNotFound, errorResponse)
+	server, _ := startServer(http.StatusNotFound, errorResponse)
 	defer server.Close()
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getJobsResponse, err := client.GetJob("1")
-	c.Assert(getJobsResponse, check.IsNil)
-	c.Assert(err, check.DeepEquals, &APIError{
+	if getJobsResponse != nil {
+		t.Errorf("unexpected non-nil response: %#v", getJobsResponse)
+	}
+	expectedApiErr := &APIError{
 		Status: http.StatusNotFound,
 		Errors: errorResponse,
-	})
+	}
+	apiErr := err.(*APIError)
+	if !reflect.DeepEqual(apiErr, expectedApiErr) {
+		t.Errorf("wrong error returned\nwant %#v\ngot  %#v", expectedApiErr, apiErr)
+	}
 }
 
-func (s *S) TestGetJobsOnEmptyList(c *check.C) {
-	server, _ := s.startServer(http.StatusOK, `<?xml version="1.0" encoding="UTF-8"?>
+func TestGetJobsOnEmptyList(t *testing.T) {
+	server, _ := startServer(http.StatusOK, `<?xml version="1.0" encoding="UTF-8"?>
 <job_list>
   <empty>There are currently no jobs</empty>
 </job_list>`)
@@ -33,16 +39,19 @@ func (s *S) TestGetJobsOnEmptyList(c *check.C) {
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getJobsResponse, err := client.GetJobs()
-	c.Assert(err, check.IsNil)
-	c.Assert(getJobsResponse, check.DeepEquals, &JobList{
-		XMLName: xml.Name{
-			Local: "job_list",
-		},
-		Empty: "There are currently no jobs",
-	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedResponse := &JobList{
+		XMLName: xml.Name{Local: "job_list"},
+		Empty:   "There are currently no jobs",
+	}
+	if !reflect.DeepEqual(getJobsResponse, expectedResponse) {
+		t.Errorf("wrong JobsResponse\nwant %#v\ngot  %#v", expectedResponse, getJobsResponse)
+	}
 }
 
-func (s *S) TestCreateJob(c *check.C) {
+func TestCreateJob(t *testing.T) {
 	jobResponseXML := `<job href="/jobs/1">
     <input>
         <file_input>
@@ -81,7 +90,7 @@ func (s *S) TestCreateJob(c *check.C) {
         <preset>17</preset>
     </stream_assembly>
 </job>`
-	server, _ := s.startServer(http.StatusCreated, jobResponseXML)
+	server, _ := startServer(http.StatusCreated, jobResponseXML)
 	defer server.Close()
 	jobInput := Job{
 		XMLName: xml.Name{
@@ -134,12 +143,15 @@ func (s *S) TestCreateJob(c *check.C) {
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	postJobResponse, err := client.CreateJob(&jobInput)
-	c.Assert(err, check.IsNil)
-	c.Assert(postJobResponse, check.NotNil)
-	c.Assert(postJobResponse, check.DeepEquals, &jobInput)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(postJobResponse, &jobInput) {
+		t.Errorf("wrong response\nwant %#v\ngot  %#v", &jobInput, postJobResponse)
+	}
 }
 
-func (s *S) TestGetJob(c *check.C) {
+func TestGetJob(t *testing.T) {
 	jobResponseXML := `<job href="/jobs/1">
     <input>
         <file_input>
@@ -236,7 +248,7 @@ func (s *S) TestGetJob(c *check.C) {
         </video_description>
     </stream_assembly>
 </job>`
-	server, _ := s.startServer(http.StatusOK, jobResponseXML)
+	server, _ := startServer(http.StatusOK, jobResponseXML)
 	defer server.Close()
 	expectedJob := Job{
 		XMLName: xml.Name{
@@ -303,12 +315,15 @@ func (s *S) TestGetJob(c *check.C) {
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	getJobsResponse, err := client.GetJob("1")
-	c.Assert(err, check.IsNil)
-	c.Assert(getJobsResponse, check.NotNil)
-	c.Assert(*getJobsResponse, check.DeepEquals, expectedJob)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(*getJobsResponse, expectedJob) {
+		t.Errorf("wrong jobs response\nwant %#v\ngot  %#v", expectedJob, *getJobsResponse)
+	}
 }
 
-func (s *S) TestJobGetID(c *check.C) {
+func TestJobGetID(t *testing.T) {
 	var tests = []struct {
 		href string
 		id   string
@@ -327,13 +342,17 @@ func (s *S) TestJobGetID(c *check.C) {
 		},
 	}
 	for _, test := range tests {
-		j := Job{Href: test.href}
-		id := j.GetID()
-		c.Check(id, check.Equals, test.id)
+		t.Run(test.href, func(t *testing.T) {
+			j := Job{Href: test.href}
+			id := j.GetID()
+			if id != test.id {
+				t.Errorf("wrong id\nwant %q\ngot  %q", test.id, id)
+			}
+		})
 	}
 }
 
-func (s *S) TestCancelJob(c *check.C) {
+func TestCancelJob(t *testing.T) {
 	jobResponseXML := `<job href="/jobs/1">
     <status>canceled</status>
     <input>
@@ -366,7 +385,7 @@ func (s *S) TestCancelJob(c *check.C) {
         <preset>17</preset>
     </stream_assembly>
 </job>`
-	server, reqs := s.startServer(http.StatusOK, jobResponseXML)
+	server, reqs := startServer(http.StatusOK, jobResponseXML)
 	defer server.Close()
 	expectedJob := Job{
 		XMLName: xml.Name{
@@ -413,34 +432,46 @@ func (s *S) TestCancelJob(c *check.C) {
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	job, err := client.CancelJob("1")
-	c.Assert(err, check.IsNil)
-	c.Assert(job, check.NotNil)
-	c.Assert(job, check.DeepEquals, &expectedJob)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(job, &expectedJob) {
+		t.Errorf("wrong job returned\nwant %#v\ngot  %#v", &expectedJob, job)
+	}
 
 	req := <-reqs
-	c.Assert(req.req.Method, check.Equals, "POST")
-	c.Assert(req.req.URL.Path, check.Equals, "/api/jobs/1/cancel")
-	c.Assert(string(req.body), check.Equals, "<cancel></cancel>")
+	if req.req.Method != http.MethodPost {
+		t.Errorf("wrong http method used\nwant %q\ngot  %q", http.MethodPost, req.req.Method)
+	}
+	if expectedPath := "/api/jobs/1/cancel"; req.req.URL.Path != expectedPath {
+		t.Errorf("wrong request path\nwant %q\ngot  %q", expectedPath, req.req.URL.Path)
+	}
 }
 
-func (s *S) TestCancelJobError(c *check.C) {
+func TestCancelJobError(t *testing.T) {
 	errorResponse := `<?xml version="1.0" encoding="UTF-8"?>
 <errors>
   <error type="ActiveRecord::RecordNotFound">Couldn't find Job with id=1</error>
 </errors>`
-	server, _ := s.startServer(http.StatusNotFound, errorResponse)
+	server, _ := startServer(http.StatusNotFound, errorResponse)
 	defer server.Close()
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 
 	job, err := client.CancelJob("1")
-	c.Assert(job, check.IsNil)
-	c.Assert(err, check.DeepEquals, &APIError{
+	if job != nil {
+		t.Fatalf("unexpected non-nil job object: %#v", job)
+	}
+	expectedApiErr := &APIError{
 		Status: http.StatusNotFound,
 		Errors: errorResponse,
-	})
+	}
+	apiErr := err.(*APIError)
+	if !reflect.DeepEqual(apiErr, expectedApiErr) {
+		t.Errorf("wrong api error returned\nwant %#v\ngot  %#v", expectedApiErr, apiErr)
+	}
 }
 
-func (s *S) TestVideoInfoDimensions(c *check.C) {
+func TestVideoInfoDimensions(t *testing.T) {
 	var tests = []struct {
 		inputWidth     string
 		inputHeight    string
@@ -490,20 +521,22 @@ func (s *S) TestVideoInfoDimensions(c *check.C) {
 			0,
 		},
 	}
-	for _, t := range tests {
-		job := VideoInputInfo{Width: t.inputWidth, Height: t.inputHeight}
-		width := job.GetWidth()
-		height := job.GetHeight()
-		if width != t.expectedWith {
-			c.Errorf("width=%s height=%s\nwant width=%d\ngot  width=%d", t.inputWidth, t.inputHeight, t.expectedWith, width)
-		}
-		if height != t.expectedHeight {
-			c.Errorf("width=%s height=%s\nwant height=%d\ngot  height=%d", t.inputWidth, t.inputHeight, t.expectedHeight, height)
-		}
+	for _, test := range tests {
+		t.Run("", func(t *testing.T) {
+			job := VideoInputInfo{Width: test.inputWidth, Height: test.inputHeight}
+			width := job.GetWidth()
+			height := job.GetHeight()
+			if width != test.expectedWith {
+				t.Errorf("width=%s height=%s\nwant width=%d\ngot  width=%d", test.inputWidth, test.inputHeight, test.expectedWith, width)
+			}
+			if height != test.expectedHeight {
+				t.Errorf("width=%s height=%s\nwant height=%d\ngot  height=%d", test.inputWidth, test.inputHeight, test.expectedHeight, height)
+			}
+		})
 	}
 }
 
-func (s *S) TestVideoDescriptionWidth(c *check.C) {
+func TestVideoDescriptionWidth(t *testing.T) {
 	var tests = []struct {
 		input  string
 		output int64
@@ -512,14 +545,18 @@ func (s *S) TestVideoDescriptionWidth(c *check.C) {
 		{"", 0},
 		{"whatever", 0},
 	}
-	for _, t := range tests {
-		desc := StreamVideoDescription{Width: t.input}
-		got := desc.GetWidth()
-		c.Check(got, check.Equals, t.output)
+	for _, test := range tests {
+		t.Run(test.input, func(t *testing.T) {
+			desc := StreamVideoDescription{Width: test.input}
+			got := desc.GetWidth()
+			if got != test.output {
+				t.Errorf("wrong width\nwant %v\ngot  %v", test.output, got)
+			}
+		})
 	}
 }
 
-func (s *S) TestVideoDescriptionHeight(c *check.C) {
+func TestVideoDescriptionHeight(t *testing.T) {
 	var tests = []struct {
 		input  string
 		output int64
@@ -528,9 +565,13 @@ func (s *S) TestVideoDescriptionHeight(c *check.C) {
 		{"", 0},
 		{"whatever", 0},
 	}
-	for _, t := range tests {
-		desc := StreamVideoDescription{Height: t.input}
-		got := desc.GetHeight()
-		c.Check(got, check.Equals, t.output)
+	for _, test := range tests {
+		t.Run(test.input, func(t *testing.T) {
+			desc := StreamVideoDescription{Height: test.input}
+			got := desc.GetHeight()
+			if got != test.output {
+				t.Errorf("wrong height\nwant %v\ngot  %v", test.output, got)
+			}
+		})
 	}
 }

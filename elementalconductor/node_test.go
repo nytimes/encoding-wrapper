@@ -2,13 +2,13 @@ package elementalconductor
 
 import (
 	"net/http"
+	"reflect"
+	"testing"
 	"time"
-
-	"gopkg.in/check.v1"
 )
 
-func (s *S) TestGetNodes(c *check.C) {
-	server, requests := s.startServer(http.StatusOK, `<?xml version="1.0" encoding="UTF-8"?>
+func TestGetNodes(t *testing.T) {
+	server, requests := startServer(http.StatusOK, `<?xml version="1.0" encoding="UTF-8"?>
 <node_list>
   <node href="/nodes/1">
     <name>Conductor</name>
@@ -84,8 +84,10 @@ func (s *S) TestGetNodes(c *check.C) {
 	defer server.Close()
 	client := NewClient(server.URL, "myuser", "secret-key", 45, "aws-access-key", "aws-secret-key", "destination")
 	nodes, err := client.GetNodes()
-	c.Assert(err, check.IsNil)
-	c.Assert(nodes, check.DeepEquals, []Node{
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedNodes := []Node{
 		{
 			Href:      "/nodes/1",
 			Name:      "Conductor",
@@ -131,8 +133,16 @@ func (s *S) TestGetNodes(c *check.C) {
 			CreatedAt:    DateTime{Time: time.Date(2016, time.March, 26, 0, 49, 1, 0, time.UTC)},
 			RunningCount: 120,
 		},
-	})
+	}
+	if !reflect.DeepEqual(nodes, expectedNodes) {
+		t.Errorf("wrong nodes returned\nwant %#v\ngot  %#v", expectedNodes, nodes)
+	}
+
 	fakeReq := <-requests
-	c.Assert(fakeReq.req.Method, check.Equals, "GET")
-	c.Assert(fakeReq.req.URL.Path, check.Equals, "/api/nodes")
+	if expectedMethod := "GET"; fakeReq.req.Method != expectedMethod {
+		t.Errorf("wrong method used\nwant %q\ngot  %q", expectedMethod, fakeReq.req.Method)
+	}
+	if expectedPath := "/api/nodes"; fakeReq.req.URL.Path != expectedPath {
+		t.Errorf("wrong path used\nwant %q\ngot  %q", expectedPath, fakeReq.req.URL.Path)
+	}
 }

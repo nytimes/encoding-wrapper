@@ -3,12 +3,12 @@ package elementalconductor
 import (
 	"encoding/xml"
 	"fmt"
+	"reflect"
+	"testing"
 	"time"
-
-	"gopkg.in/check.v1"
 )
 
-func (s *S) TestDateTimeMarshalXML(c *check.C) {
+func TestDateTimeMarshalXML(t *testing.T) {
 	var tests = []struct {
 		input    time.Time
 		expected string
@@ -23,18 +23,24 @@ func (s *S) TestDateTimeMarshalXML(c *check.C) {
 		},
 	}
 	for _, test := range tests {
-		var data struct {
-			XMLName xml.Name `xml:"item"`
-			Date    DateTime `xml:"date,omitempty"`
-		}
-		data.Date.Time = test.input
-		b, err := xml.Marshal(data)
-		c.Check(err, check.IsNil)
-		c.Check(string(b), check.Equals, test.expected)
+		t.Run(test.input.String(), func(t *testing.T) {
+			var data struct {
+				XMLName xml.Name `xml:"item"`
+				Date    DateTime `xml:"date,omitempty"`
+			}
+			data.Date.Time = test.input
+			b, err := xml.Marshal(data)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if v := string(b); v != test.expected {
+				t.Errorf("invalid marshaled data\nwant %q\ngot  %q", test.expected, v)
+			}
+		})
 	}
 }
 
-func (s *S) TestDateTimeUnmarshalXML(c *check.C) {
+func TestDateTimeUnmarshalXML(t *testing.T) {
 	var tests = []struct {
 		input    string
 		expected time.Time
@@ -57,28 +63,36 @@ func (s *S) TestDateTimeUnmarshalXML(c *check.C) {
 		},
 	}
 	for _, test := range tests {
-		var output struct {
-			XMLName xml.Name `xml:"item"`
-			Date    DateTime `xml:"date"`
-		}
-		input := fmt.Sprintf("<item><date>%s</date></item>", test.input)
-		err := xml.Unmarshal([]byte(input), &output)
-		c.Check(err, check.IsNil)
-		c.Check(output.Date.Time, check.DeepEquals, test.expected)
+		t.Run(test.input, func(t *testing.T) {
+			var output struct {
+				XMLName xml.Name `xml:"item"`
+				Date    DateTime `xml:"date"`
+			}
+			input := fmt.Sprintf("<item><date>%s</date></item>", test.input)
+			err := xml.Unmarshal([]byte(input), &output)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(output.Date.Time, test.expected) {
+				t.Errorf("wrong Time unmarshaled\nwant %#v\ngot  %#v", test.expected, output.Date.Time)
+			}
+		})
 	}
 }
 
-func (s *S) TestDateTimeUnmarshalXMLInvalidFormat(c *check.C) {
+func TestDateTimeUnmarshalXMLInvalidFormat(t *testing.T) {
 	var output struct {
 		XMLName xml.Name `xml:"item"`
 		Date    DateTime `xml:"date"`
 	}
 	input := "<item><date>2016-13-01 15:03:02 -0300</date></item>"
 	err := xml.Unmarshal([]byte(input), &output)
-	c.Assert(err, check.NotNil)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
 }
 
-func (s *S) TestJobErrorDateTimeMarshalXML(c *check.C) {
+func TestJobErrorDateTimeMarshalXML(t *testing.T) {
 	var tests = []struct {
 		input    time.Time
 		expected string
@@ -93,18 +107,24 @@ func (s *S) TestJobErrorDateTimeMarshalXML(c *check.C) {
 		},
 	}
 	for _, test := range tests {
-		var data struct {
-			XMLName xml.Name         `xml:"item"`
-			Date    JobErrorDateTime `xml:"date,omitempty"`
-		}
-		data.Date.Time = test.input
-		b, err := xml.Marshal(data)
-		c.Check(err, check.IsNil)
-		c.Check(string(b), check.Equals, test.expected)
+		t.Run(test.input.String(), func(t *testing.T) {
+			var data struct {
+				XMLName xml.Name         `xml:"item"`
+				Date    JobErrorDateTime `xml:"date,omitempty"`
+			}
+			data.Date.Time = test.input
+			b, err := xml.Marshal(data)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if v := string(b); v != test.expected {
+				t.Errorf("wrong marshaled time\nwant %q\ngot  %q", test.expected, v)
+			}
+		})
 	}
 }
 
-func (s *S) TestJobErrorDateTimeUnmarshalXML(c *check.C) {
+func TestJobErrorDateTimeUnmarshalXML(t *testing.T) {
 	var tests = []struct {
 		input    string
 		expected time.Time
@@ -127,23 +147,31 @@ func (s *S) TestJobErrorDateTimeUnmarshalXML(c *check.C) {
 		},
 	}
 	for _, test := range tests {
-		var output struct {
-			XMLName xml.Name         `xml:"item"`
-			Date    JobErrorDateTime `xml:"date"`
-		}
-		input := fmt.Sprintf("<item><date>%s</date></item>", test.input)
-		err := xml.Unmarshal([]byte(input), &output)
-		c.Check(err, check.IsNil)
-		c.Check(output.Date.Time, check.DeepEquals, test.expected)
+		t.Run(test.input, func(t *testing.T) {
+			var output struct {
+				XMLName xml.Name         `xml:"item"`
+				Date    JobErrorDateTime `xml:"date"`
+			}
+			input := fmt.Sprintf("<item><date>%s</date></item>", test.input)
+			err := xml.Unmarshal([]byte(input), &output)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(output.Date.Time, test.expected) {
+				t.Errorf("wrong Time unmarshaled\nwant %#v\ngot  %#v", test.expected, output.Date.Time)
+			}
+		})
 	}
 }
 
-func (s *S) TestJobErrorDateTimeUnmarshalXMLInvalidFormat(c *check.C) {
+func TestJobErrorDateTimeUnmarshalXMLInvalidFormat(t *testing.T) {
 	var output struct {
 		XMLName xml.Name         `xml:"item"`
 		Date    JobErrorDateTime `xml:"date"`
 	}
 	input := "<item><date>2016-13-01 15:03:02 -0300</date></item>"
 	err := xml.Unmarshal([]byte(input), &output)
-	c.Assert(err, check.NotNil)
+	if err == nil {
+		t.Fatal("unexpected <nil> error")
+	}
 }
