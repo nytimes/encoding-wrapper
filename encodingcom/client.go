@@ -2,7 +2,7 @@
 // Encoding.com API.
 //
 // You can get more details on the API at http://api.encoding.com/.
-package encodingcom
+package encodingcom // import "github.com/NYTimes/encoding-wrapper/encodingcom"
 
 import (
 	"encoding/json"
