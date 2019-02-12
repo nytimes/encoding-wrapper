@@ -2,7 +2,7 @@
 // Elemental Conductor API.
 //
 // You can get more details on the API at https://<elemental_server>/help/rest_api.
-package elementalconductor
+package elementalconductor // import "github.com/NYTimes/encoding-wrapper/elementalconductor"
 
 import (
 	"crypto/md5"
