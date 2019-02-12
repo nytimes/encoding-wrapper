@@ -23,6 +23,7 @@ func TestDateTimeMarshalXML(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.input.String(), func(t *testing.T) {
 			var data struct {
 				XMLName xml.Name `xml:"item"`
@@ -63,6 +64,7 @@ func TestDateTimeUnmarshalXML(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.input, func(t *testing.T) {
 			var output struct {
 				XMLName xml.Name `xml:"item"`
@@ -107,6 +109,7 @@ func TestJobErrorDateTimeMarshalXML(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.input.String(), func(t *testing.T) {
 			var data struct {
 				XMLName xml.Name         `xml:"item"`
@@ -147,6 +150,7 @@ func TestJobErrorDateTimeUnmarshalXML(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.input, func(t *testing.T) {
 			var output struct {
 				XMLName xml.Name         `xml:"item"`

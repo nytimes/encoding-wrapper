@@ -5,6 +5,7 @@
 package elementalconductor // import "github.com/NYTimes/encoding-wrapper/elementalconductor"
 
 import (
+	// #nosec
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
@@ -102,14 +103,16 @@ func (c *Client) do(method string, path string, body interface{}, out interface{
 	return nil
 }
 
-func (c *Client) createAuthKey(URL string, expire time.Time) string {
+func (c *Client) createAuthKey(url string, expire time.Time) string {
 	expireString := getUnixTimestamp(expire)
+	// #nosec
 	hasher := md5.New()
-	hasher.Write([]byte(URL))
+	hasher.Write([]byte(url))
 	hasher.Write([]byte(c.UserLogin))
 	hasher.Write([]byte(c.APIKey))
 	hasher.Write([]byte(expireString))
 	innerKey := hex.EncodeToString(hasher.Sum(nil))
+	// #nosec
 	hasher = md5.New()
 	hasher.Write([]byte(c.APIKey))
 	hasher.Write([]byte(innerKey))

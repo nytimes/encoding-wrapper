@@ -1,6 +1,7 @@
 package elementalconductor
 
 import (
+	// #nosec
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/xml"
@@ -35,8 +36,10 @@ func TestCreateAuthKey(t *testing.T) {
 	APIKey := "api-key"
 	expire := time.Unix(1, 0)
 	expireTimestamp := getUnixTimestamp(expire)
+	// #nosec
 	innerKeyMD5 := md5.Sum([]byte(path + userID + APIKey + expireTimestamp))
 	innerKey2 := hex.EncodeToString(innerKeyMD5[:])
+	// #nosec
 	value := md5.Sum([]byte(APIKey + innerKey2))
 	expected := hex.EncodeToString(value[:])
 	client := NewClient("https://mycluster.cloud.elementaltechnologies.com", userID, APIKey, 45, "aws-access-key", "aws-secret-key", "destination")

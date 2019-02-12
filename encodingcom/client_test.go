@@ -41,6 +41,7 @@ func TestYesNoBooleanMarshal(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := YesNoBoolean(test.input)
 			data, err := json.Marshal(input)
@@ -100,6 +101,7 @@ func TestZeroOneBooleanMarshal(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			input := ZeroOneBoolean(test.input)
 			data, err := json.Marshal(input)
@@ -178,7 +180,7 @@ func TestDoMediaActionFailure(t *testing.T) {
 }
 
 func TestDoMissingRequiredParameters(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		byteResponse, _ := json.Marshal(mockMediaResponseObject("", "Wrong user id or key!"))
 		w.Write(byteResponse)
 	}))
@@ -204,7 +206,7 @@ func TestDoMissingRequiredParameters(t *testing.T) {
 
 func TestDoMediaResponse(t *testing.T) {
 	const msg = "it worked!"
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		byteResponse, _ := json.Marshal(mockMediaResponseObject(msg, ""))
 		w.Write(byteResponse)
 	}))

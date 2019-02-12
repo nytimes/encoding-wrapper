@@ -342,6 +342,7 @@ func TestJobGetID(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.href, func(t *testing.T) {
 			j := Job{Href: test.href}
 			id := j.GetID()
@@ -522,6 +523,7 @@ func TestVideoInfoDimensions(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run("", func(t *testing.T) {
 			job := VideoInputInfo{Width: test.inputWidth, Height: test.inputHeight}
 			width := job.GetWidth()
@@ -546,6 +548,7 @@ func TestVideoDescriptionWidth(t *testing.T) {
 		{"whatever", 0},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.input, func(t *testing.T) {
 			desc := StreamVideoDescription{Width: test.input}
 			got := desc.GetWidth()
@@ -566,6 +569,7 @@ func TestVideoDescriptionHeight(t *testing.T) {
 		{"whatever", 0},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.input, func(t *testing.T) {
 			desc := StreamVideoDescription{Height: test.input}
 			got := desc.GetHeight()

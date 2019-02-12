@@ -8,7 +8,7 @@ import (
 )
 
 func TestAPIStatus(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`{"status":"Encoding Queue Processing Delays","status_code":"queue_slow","incident":"Our encoding queue is processing slower than normal.  Check back for updates."}`))
 	}))
 	defer server.Close()
@@ -34,7 +34,7 @@ func TestAPIStatusFailToConnect(t *testing.T) {
 }
 
 func TestAPIStatusInvalidResponse(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`{not a valid json}`))
 	}))
 	defer server.Close()
@@ -56,6 +56,7 @@ func TestAPIStatusOK(t *testing.T) {
 		{"pc_queue_slow", false},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.input, func(t *testing.T) {
 			status := APIStatusResponse{StatusCode: test.input}
 			got := status.OK()
