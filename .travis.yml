@@ -1,9 +1,12 @@
 language: go
 install:
+  - curl https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | BINDIR=$GOPATH/bin sh
   - make testdeps
+env:
+  global:
+    - GO111MODULE=on
 script: make coverage
 after_success: bash <(curl -s https://codecov.io/bash)
 go:
-  - 1.10.x
-  - 1.11.x
+  - 1.x
   - tip
