@@ -118,19 +118,19 @@ func (c *Client) ListMedia() (*ListMediaResponse, error) {
 //
 // See http://goo.gl/OTX0Ua for more details.
 type MediaInfo struct {
-	Duration           time.Duration `json:"duration,string"`
-	Bitrate            string        `json:"bitrate"`
-	VideoCodec         string        `json:"video_codec"`
-	VideoBitrate       string        `json:"video_bitrate"`
-	Framerate          string        `json:"frame_rate"`
-	Size               string        `json:"size"`
-	PixelAspectRatio   string        `json:"pixel_aspect_ratio"`
-	DisplayAspectRatio string        `json:"display_aspect_ratio"`
-	AudioCodec         string        `json:"audio_codec"`
-	AudioBitrate       string        `json:"audio_bitrate"`
-	AudioSampleRate    uint          `json:"audio_sample_rate,string"`
-	AudioChannels      string        `json:"audio_channels"`
-	Rotation           uint          `json:"rotation,string"`
+	Duration           time.Duration
+	Bitrate            string `json:"bitrate"`
+	VideoCodec         string `json:"video_codec"`
+	VideoBitrate       string `json:"video_bitrate"`
+	Framerate          string `json:"frame_rate"`
+	Size               string `json:"size"`
+	PixelAspectRatio   string `json:"pixel_aspect_ratio"`
+	DisplayAspectRatio string `json:"display_aspect_ratio"`
+	AudioCodec         string `json:"audio_codec"`
+	AudioBitrate       string `json:"audio_bitrate"`
+	AudioSampleRate    uint   `json:"audio_sample_rate,string"`
+	AudioChannels      string `json:"audio_channels"`
+	Rotation           uint   `json:"rotation,string"`
 }
 
 type mediaInfo struct {
