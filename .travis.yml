@@ -5,8 +5,12 @@ install:
 env:
   global:
     - GO111MODULE=on
+    - GOPROXY=proxy.golang.org
 script: make coverage
 after_success: bash <(curl -s https://codecov.io/bash)
 go:
   - 1.x
   - tip
+matrix:
+  allow_failures:
+    - go: tip
