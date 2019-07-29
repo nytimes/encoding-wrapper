@@ -12,7 +12,7 @@ func TestAddMedia(t *testing.T) {
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	format := Format{
-		Output:       []string{"http://another.non.existent/video.mp4"},
+		Output:       []string{"mp4"},
 		VideoCodec:   "x264",
 		AudioCodec:   "aac",
 		Bitrate:      "900k",
@@ -44,7 +44,7 @@ func TestAddMediaError(t *testing.T) {
 
 	client := Client{Endpoint: server.URL, UserID: "myuser", UserKey: "123"}
 	format := Format{
-		Output:       []string{"http://another.non.existent/video.mp4"},
+		Output:       []string{"mp4"},
 		VideoCodec:   "x264",
 		AudioCodec:   "aac",
 		Bitrate:      "900k",
